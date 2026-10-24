@@ -1,0 +1,77 @@
+[
+  {
+    "slug": "casuarina-equisetifolia",
+    "order": 10,
+    "status": "published",
+    "isDemo": true,
+    "name": "木麻黃",
+    "scientificName": "Casuarina equisetifolia L.",
+    "family": "木麻黃科",
+    "aliases": [
+      "木賊葉木麻黃"
+    ],
+    "image": {
+      "file": "casuarina-equisetifolia.jpg",
+      "alt": "木麻黃示範頁的圖片佔位圖（非植物實拍照片）",
+      "credit": "版型測試佔位圖，非現場植物照片；公開正式內容前必須替換"
+    },
+    "appearance": "常綠喬木，細長小枝呈節狀，真正的葉片退化成鞘齒；果實外形近似小型木質毬果。",
+    "habitat": "適應海岸風大、鹽分較高及較乾燥的環境，常被栽植於臺灣沿海。",
+    "ecologicalFunctions": "可在貧瘠環境生長；具有固氮共生能力，也能形成沿海植被空間。",
+    "windbreakRole": "抗風、耐鹽與生長快速，常作為海岸防風林樹種，協助減緩強風與鹽霧影響。",
+    "sourceUrls": [
+      "https://taitung.forest.gov.tw/0001020",
+      "https://www.wra.gov.tw/NewsRiverNoun_Content.aspx?n=25142&s=2258"
+    ]
+  },
+  {
+    "slug": "hibiscus-tiliaceus",
+    "order": 20,
+    "status": "published",
+    "isDemo": true,
+    "name": "黃槿",
+    "scientificName": "Hibiscus tiliaceus L.",
+    "family": "錦葵科",
+    "aliases": [
+      "粿葉樹"
+    ],
+    "image": {
+      "file": "hibiscus-tiliaceus.jpg",
+      "alt": "黃槿示範頁的圖片佔位圖（非植物實拍照片）",
+      "credit": "版型測試佔位圖，非現場植物照片；公開正式內容前必須替換"
+    },
+    "appearance": "常綠小喬木或灌木，葉片寬大、近心形；花朵為黃色，花冠中央常呈深紅色。",
+    "habitat": "常見於熱帶與亞熱帶海岸地區，可生長於濱海沙地等環境。",
+    "ecologicalFunctions": "花可提供昆蟲蜜源，植株也能增加濱海植物群落的棲地多樣性。",
+    "windbreakRole": "具抗風與耐旱特性，可作為海岸植栽及防風林的一部分。",
+    "sourceUrls": [
+      "https://nativetree.forest.gov.tw/Tree/Info/bb5215fe23c840dab82e470de9bbcc7d",
+      "https://www.wra.gov.tw/NewsRiverNoun_Content.aspx?n=25142&s=2320"
+    ]
+  },
+  {
+    "slug": "scaevola-taccada",
+    "order": 30,
+    "status": "published",
+    "isDemo": true,
+    "name": "草海桐",
+    "scientificName": "Scaevola taccada (Gaertner) Roxb.",
+    "family": "草海桐科",
+    "aliases": [
+      "海桐草"
+    ],
+    "image": {
+      "file": "scaevola-taccada.jpg",
+      "alt": "草海桐示範頁的圖片佔位圖（非植物實拍照片）",
+      "credit": "版型測試佔位圖，非現場植物照片；公開正式內容前必須替換"
+    },
+    "appearance": "常綠灌木，厚實葉片常聚集在枝端；花朵呈白色，花冠形狀偏向單側展開。",
+    "habitat": "生長於臺灣濱海地區，包括沙岸與岩岸附近，適應日照充足的環境。",
+    "ecologicalFunctions": "可提供蜜源及誘鳥資源，並有助於形成海岸低層植被。",
+    "windbreakRole": "適合海岸低層植栽，具有防風、定砂與綠化用途。",
+    "sourceUrls": [
+      "https://nativetree.forest.gov.tw/Tree/Info/f41ce27611e54e328f3cd94125dd3028",
+      "https://cptfri.tfri.gov.tw/view.php?id=13390&subtheme=&theme=plants"
+    ]
+  }
+]

@@ -1,0 +1,26 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import { sitePath } from '../lib/paths';
+
+interface Props { title: string; description: string }
+const { title, description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#287C60" />
+    <link rel="canonical" href={canonical.toString()} />
+    <link rel="icon" href={sitePath('favicon.svg')} type="image/svg+xml" />
+    <title>{title}｜好美里防風林植物數位導覽</title>
+  </head>
+  <body>
+    <SiteHeader />
+    <main id="content" class="container"><slot /></main>
+    <footer class="site-footer"><div class="container">好美里防風林植物數位導覽</div></footer>
+  </body>
+</html>

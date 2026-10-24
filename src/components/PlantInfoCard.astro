@@ -1,0 +1,11 @@
+---
+interface Props { title: string; text?: string | null; sectionId: string }
+const { title, text, sectionId } = Astro.props;
+const value = text?.trim();
+---
+{value && (
+  <section class="card" aria-labelledby={sectionId}>
+    <h2 id={sectionId}>{title}</h2>
+    <p>{value}</p>
+  </section>
+)}

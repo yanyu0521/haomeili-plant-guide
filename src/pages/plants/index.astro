@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PlantList from '../../components/PlantList.astro';
+import { publishedPlants } from '../../lib/plants';
+---
+<BaseLayout title="所有植物" description="查看好美里防風林植物清單。">
+  <PlantList plants={publishedPlants} />
+</BaseLayout>

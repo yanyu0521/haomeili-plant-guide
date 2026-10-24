@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PlantList from '../components/PlantList.astro';
+import { publishedPlants } from '../lib/plants';
+---
+<BaseLayout title="所有植物" description="好美里防風林植物數位導覽，瀏覽植物名稱與介紹。">
+  <PlantList plants={publishedPlants} />
+</BaseLayout>

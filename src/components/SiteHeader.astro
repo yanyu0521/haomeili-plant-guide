@@ -1,0 +1,13 @@
+---
+import { sitePath } from '../lib/paths';
+const isList = Astro.url.pathname === sitePath('plants/');
+---
+<a class="skip-link" href="#content">跳至主要內容</a>
+<header class="site-header">
+  <div class="container header-row">
+    <a class="brand" href={sitePath()}>好美里防風林植物導覽</a>
+    <nav aria-label="主要導覽">
+      <a class="header-nav" href={sitePath('plants/')} aria-current={isList ? 'page' : undefined}>所有植物</a>
+    </nav>
+  </div>
+</header>

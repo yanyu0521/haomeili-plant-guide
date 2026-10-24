@@ -1,0 +1,14 @@
+{
+  "slug": "new-plant-slug",
+  "order": 40,
+  "status": "draft",
+  "isDemo": false,
+  "name": "待確認植物名稱",
+  "scientificName": "",
+  "family": "",
+  "aliases": [],
+  "appearance": "",
+  "habitat": "",
+  "ecologicalFunctions": "",
+  "windbreakRole": ""
+}

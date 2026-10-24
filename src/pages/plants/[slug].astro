@@ -1,0 +1,55 @@
+---
+import { Image } from 'astro:assets';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PlantNavigation from '../../components/PlantNavigation.astro';
+import PlantInfoCard from '../../components/PlantInfoCard.astro';
+import { publishedPlants, getAdjacentPlants } from '../../lib/plants';
+import type { PublishedPlant } from '../../lib/plantSchema';
+import { getPlantImage } from '../../lib/images';
+
+type Props = { plant: PublishedPlant; previous?: PublishedPlant; next?: PublishedPlant };
+
+export const getStaticPaths = (() =>
+  publishedPlants.map((plant) => ({
+    params: { slug: plant.slug },
+    props: { plant, ...getAdjacentPlants(plant.slug) },
+  }))
+) satisfies GetStaticPaths;
+
+const { plant, previous, next } = Astro.props as Props;
+const photo = await getPlantImage(plant.image.file);
+---
+<BaseLayout title={plant.name} description={`${plant.name}：${plant.appearance}`}>
+  <p class="page-eyebrow">植物介紹{plant.isDemo ? ' · 示範資料' : ''}</p>
+  <h1>{plant.name}</h1>
+  <p class="latin" lang="la">{plant.scientificName}</p>
+  {plant.isDemo && <aside class="note">此為示範資料，尚未確認為好美里現場植物。</aside>}
+  <figure class="photo-box">
+    <Image
+      src={photo}
+      alt={plant.image.alt}
+      width={Math.min(photo.width, 1200)}
+      format="webp"
+      quality={80}
+      loading="lazy"
+      decoding="async"
+      class="plant-image"
+    />
+    {plant.image.credit && <figcaption>{plant.image.credit}</figcaption>}
+  </figure>
+  <section class="card" aria-labelledby="basic-info">
+    <h2 id="basic-info">基本資料</h2>
+    <dl class="kv">
+      <div><dt>科別</dt><dd>{plant.family}</dd></div>
+      {plant.aliases && plant.aliases.length > 0 && (
+        <div><dt>別名</dt><dd>{plant.aliases.join('、')}</dd></div>
+      )}
+    </dl>
+  </section>
+  <PlantInfoCard sectionId="appearance" title="外觀特徵" text={plant.appearance} />
+  <PlantInfoCard sectionId="habitat" title="生長環境" text={plant.habitat} />
+  <PlantInfoCard sectionId="ecology" title="生態功能" text={plant.ecologicalFunctions} />
+  <PlantInfoCard sectionId="windbreak" title="防風林角色" text={plant.windbreakRole} />
+  <PlantNavigation previous={previous} next={next} />
+</BaseLayout>

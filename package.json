@@ -1,0 +1,28 @@
+{
+  "name": "haomeili-plant-guide",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "validate:data": "tsx scripts/validate-data.ts",
+    "check": "astro check",
+    "build": "npm run validate:data && astro build",
+    "preview": "astro preview",
+    "test:site": "node scripts/test-site.mjs",
+    "verify": "npm run check && npm run build && npm run test:site"
+  },
+  "dependencies": {
+    "astro": "^7.4.2",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.5",
+    "@types/node": "^24.19.2",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

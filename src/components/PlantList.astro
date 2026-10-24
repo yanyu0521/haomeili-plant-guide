@@ -1,0 +1,22 @@
+---
+import type { PublishedPlant } from '../lib/plantSchema';
+import { plantPath } from '../lib/paths';
+interface Props { plants: PublishedPlant[] }
+const { plants } = Astro.props;
+const hasDemo = plants.some((plant) => plant.isDemo);
+---
+<h1>所有植物</h1>
+<p class="lead">依照步道展示順序排列，點選植物名稱查看介紹。</p>
+{hasDemo && <aside class="note">清單中標示「示範」的植物僅供網站測試，尚未確認為好美里現場植物。</aside>}
+{plants.length === 0 ? (
+  <p class="empty-state">目前尚無已發布植物，請稍後再查看。</p>
+) : (
+  <ol class="plain-list" data-plant-list>
+    {plants.map((plant) => (
+      <li>
+        <a href={plantPath(plant.slug)}>{plant.name}</a>
+        {plant.isDemo && <span class="example-inline">（示範）</span>}
+      </li>
+    ))}
+  </ol>
+)}
