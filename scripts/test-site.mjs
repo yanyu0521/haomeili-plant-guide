@@ -1,4 +1,4 @@
-import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
 
@@ -12,6 +12,11 @@ const html = (file) => readFileSync(join(dist, file), 'utf8');
 const route = (slug) => `plants/${slug}/index.html`;
 function findLinks(text) { return [...text.matchAll(/href="([^"]+)"/g)].map((m)=>m[1]); }
 function findSources(text) { return [...text.matchAll(/<img\b[^>]*\bsrc="([^"]+)"/g)].map((m)=>m[1]); }
+function htmlText(text) {
+  return text.replace(/<[^>]*>/g, ' ')
+    .replaceAll('&amp;', '&').replaceAll('&lt;', '<').replaceAll('&gt;', '>')
+    .replaceAll('&quot;', '"').replaceAll('&#39;', "'").replaceAll('&apos;', "'");
+}
 function assetExists(url) {
   const clean = decodeURIComponent(url.split('?')[0].split('#')[0]);
   assert(clean.startsWith(base), `檔案連結未包含 base: ${url}`);
@@ -31,7 +36,8 @@ let pagesChecked=0;
 for (const [index, p] of published.entries()) {
   assert(existsSync(join(dist,route(p.slug))), `缺少植物頁：${p.slug}`);
   const content=html(route(p.slug));
-  assert(content.includes(p.name) && content.includes(p.scientificName), `${p.slug} 文字缺漏`);
+  const visibleText = htmlText(content);
+  assert(visibleText.includes(p.name) && visibleText.includes(p.scientificName), `${p.slug} 文字缺漏`);
   for (const title of ['基本資料','外觀特徵','生長環境','生態功能','防風林角色'])
     assert(content.includes(title),`${p.slug} 缺少資訊卡：${title}`);
   if (p.isDemo) assert(content.includes('尚未確認為好美里現場植物'),`${p.slug} 缺示範警語`);
