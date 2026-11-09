@@ -161,7 +161,8 @@ main { min-height: 62vh; }
 .plant-intro { display: grid; grid-template-columns: minmax(0, 1fr) 230px; align-items: center; gap: 36px; padding: 10px 0 28px; border-bottom: 1px solid var(--line); }
 .plant-intro-copy h1 { margin-bottom: 4px; }
 .latin { color: var(--muted); font-family: Georgia, "Times New Roman", serif; font-size: 17px; font-style: italic; line-height: 1.55; }
-.plant-facts { display: flex; flex-wrap: wrap; gap: 10px 26px; margin: 20px 0 0; }
+.plant-facts-heading { margin: 18px 0 0; color: var(--forest-900); font-size: 15px; }
+.plant-facts { display: flex; flex-wrap: wrap; gap: 10px 26px; margin: 8px 0 0; }
 .plant-facts div { display: grid; grid-template-columns: auto auto; gap: 8px; align-items: baseline; }
 .plant-facts dt { color: var(--muted); font-size: 13px; }
 .plant-facts dd { margin: 0; color: var(--forest-950); font-size: 14px; font-weight: 650; }
@@ -243,7 +244,7 @@ main { min-height: 62vh; }
   .plant-artwork { min-height: 144px; padding: 10px; border-radius: 11px; }
   .plant-artwork img { width: 116px; }
   .plant-artwork figcaption { font-size: 9px; }
-  .plant-facts { gap: 6px 15px; margin-top: 14px; }
+  .plant-facts { gap: 6px 15px; margin-top: 8px; }
   .plant-facts div { gap: 5px; }
   .plant-facts dt, .plant-facts dd { font-size: 12px; }
   .info-section { grid-template-columns: 1fr; gap: 10px; }

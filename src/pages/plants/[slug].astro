@@ -51,6 +51,7 @@ const sourceLabel = (url: string) => {
       <div class="plant-intro-copy">
         <h1>{plant.name}</h1>
         <p class="latin" lang="la">{plant.scientificName}</p>
+        <h2 class="plant-facts-heading">基本資料</h2>
         <dl class="plant-facts">
           <div><dt>科別</dt><dd>{plant.family}</dd></div>
           {plant.aliases && plant.aliases.length > 0 && (
