@@ -11,12 +11,14 @@ if (!parsed.success) {
 }
 const all = parsed.data;
 const published = all.filter((p) => p.status === 'published');
-const directory = resolve(root, 'src/assets/plants');
+const directory = resolve(root, 'public/plants');
 if (!existsSync(directory)) { console.error(`圖片目錄不存在：${directory}`); process.exit(1); }
-const fileNames = readdirSync(directory).filter((file) => /\.(jpg|jpeg|png|webp)$/i.test(file));
+const fileNames = readdirSync(directory).filter((file) => /\.svg$/i.test(file));
 const referenced = new Set(published.map((p) => p.image.file));
 const missing = published.filter((p) => !existsSync(resolve(directory, p.image.file)));
 const unused = fileNames.filter((file) => !referenced.has(file));
+const mapAsset = resolve(root, 'public/images/forest-map.svg');
+if (!existsSync(mapAsset)) { console.error(`參考地圖底圖不存在：${mapAsset}`); process.exit(1); }
 if (missing.length || unused.length) {
   if (missing.length) console.error('published 缺少圖片：\n' + missing.map((p) => `- ${p.slug}: ${p.image.file}`).join('\n'));
   if (unused.length) console.error('圖片目錄內包含未被 published 引用的資產（可能是草稿圖片）：\n' + unused.map((file) => `- ${file}`).join('\n'));

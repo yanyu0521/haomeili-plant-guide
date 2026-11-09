@@ -7,8 +7,15 @@
   "scientificName": "",
   "family": "",
   "aliases": [],
+  "image": {
+    "file": "new-plant.svg",
+    "alt": "植物名稱植物圖示，非現場實拍照片",
+    "credit": "植物圖示來源"
+  },
+  "mapPosition": { "x": 230, "y": 147 },
   "appearance": "",
   "habitat": "",
   "ecologicalFunctions": "",
-  "windbreakRole": ""
+  "windbreakRole": "",
+  "sourceUrls": []
 }

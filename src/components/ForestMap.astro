@@ -1,0 +1,43 @@
+---
+import type { PublishedPlant } from '../lib/plantSchema';
+import { plantPath, sitePath } from '../lib/paths';
+
+interface Props {
+  plants: PublishedPlant[];
+  activeSlug?: string;
+  compact?: boolean;
+  showCredit?: boolean;
+}
+
+const { plants, activeSlug, compact = false, showCredit = false } = Astro.props;
+const baseStyle = `--map-background:url('${sitePath('images/forest-map.svg')}')`;
+---
+<figure class:list={['map-figure', { 'map-figure--compact': compact }]}>
+  <div class="forest-map" style={baseStyle} role="group" aria-label="好美里保安林植物位置互動地圖；選擇編號標記前往植物介紹">
+    {plants.map((plant, index) => {
+      const point = plant.mapPosition;
+      const markerStyle = `--point-x:${(point.x / 963) * 100}%;--point-y:${(point.y / 638) * 100}%;--marker-art:url('${sitePath(`plants/${plant.image.file}`)}')`;
+      const active = plant.slug === activeSlug;
+      return (
+        <a
+          id={`map-point-${plant.slug}`}
+          class:list={['map-marker', { 'map-marker--active': active, 'map-marker--muted': activeSlug && !active }]}
+          href={plantPath(plant.slug)}
+          style={markerStyle}
+          aria-label={`第 ${index + 1} 個地圖點位：${plant.name}，前往植物介紹`}
+          aria-current={active ? 'location' : undefined}
+          title={`${String(index + 1).padStart(2, '0')} · ${plant.name}`}
+        >
+          <span class="map-marker-art" aria-hidden="true"></span>
+          <span class="map-marker-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+          <span class="map-marker-label" aria-hidden="true">{plant.name}</span>
+        </a>
+      );
+    })}
+  </div>
+  {showCredit && (
+    <figcaption class="map-credit">
+      地圖底圖與植物圖示取自 <a href="https://ieason0911.github.io/haomei-1920-forest-map/" target="_blank" rel="noreferrer">「1920 保安林・植物紀錄地圖」</a>；點位依該圖標註，非 GPS 測量座標。
+    </figcaption>
+  )}
+</figure>

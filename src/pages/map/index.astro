@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ForestMap from '../../components/ForestMap.astro';
+import { publishedPlants } from '../../lib/plants';
+import { plantPath } from '../../lib/paths';
+---
+<BaseLayout title="植物分布地圖" description="在好美里 1920 保安林地圖上，選擇標記探索植物與其生長位置。">
+  <div class="container--wide map-page">
+    <header class="page-heading map-heading">
+      <h1>沿著林徑找到植物</h1>
+      <p class="lead">地圖上的編號對應右側名錄。點選地圖標記或植物名稱，即可開啟個別介紹。</p>
+    </header>
+
+    <div class="map-layout">
+      <section class="map-panel" aria-label="植物分布圖">
+        <div class="map-panel-heading">
+          <h2>好美里 1920 保安林</h2>
+          <p>嘉義縣布袋鎮・美漾森林</p>
+        </div>
+        <ForestMap plants={publishedPlants} showCredit={true} />
+        <div class="map-legend" aria-label="地圖圖例">
+          <span><i class="legend-forest"></i>保安林</span>
+          <span><i class="legend-water"></i>水道與濕地</span>
+          <span><i class="legend-trail"></i>步道與道路</span>
+        </div>
+      </section>
+
+      <aside class="map-index" aria-labelledby="map-index-title">
+        <div class="map-index-heading">
+          <h2 id="map-index-title">地圖點位</h2>
+          <span>{publishedPlants.length} 種植物</span>
+        </div>
+        <ol class="map-index-list">
+          {publishedPlants.map((plant, index) => (
+            <li>
+              <a href={plantPath(plant.slug)}>
+                <span class="map-index-number">{String(index + 1).padStart(2, '0')}</span>
+                <span class="map-index-copy">
+                  <strong>{plant.name}</strong>
+                  <em lang="la">{plant.scientificName}</em>
+                </span>
+                <span class="map-index-arrow" aria-hidden="true">↗</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+        <p class="map-index-note">點位來自參考地圖，標示的是圖面位置，不是精確經緯度。</p>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
