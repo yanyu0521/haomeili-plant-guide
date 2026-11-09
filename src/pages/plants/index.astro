@@ -3,6 +3,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PlantList from '../../components/PlantList.astro';
 import { publishedPlants } from '../../lib/plants';
 ---
-<BaseLayout title="所有植物" description="查看好美里防風林植物清單。">
-  <PlantList plants={publishedPlants} />
+<BaseLayout title="植物名錄" description="依好美里 1920 保安林參考地圖上的點位，認識 15 種海岸植物。">
+  <div class="container directory-page">
+    <header class="page-heading">
+      <h1>植物名錄</h1>
+      <p class="lead">依參考地圖的步道點位排列。點選名稱閱讀植物特徵，也能從「地圖位置」查看所在區段。</p>
+    </header>
+    <PlantList plants={publishedPlants} />
+  </div>
 </BaseLayout>

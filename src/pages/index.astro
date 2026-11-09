@@ -1,8 +1,37 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ForestMap from '../components/ForestMap.astro';
 import PlantList from '../components/PlantList.astro';
 import { publishedPlants } from '../lib/plants';
+import { sitePath } from '../lib/paths';
 ---
-<BaseLayout title="所有植物" description="好美里防風林植物數位導覽，瀏覽植物名稱與介紹。">
-  <PlantList plants={publishedPlants} />
+<BaseLayout title="好美里防風林植物導覽" description="沿著好美里防風林步道，認識海岸植物與參考地圖上的分布點位。">
+  <div class="container--wide home-page">
+    <section class="home-hero" aria-labelledby="home-title">
+      <div class="home-copy">
+        <p class="home-location">嘉義布袋・好美里 1920 保安林</p>
+        <h1 id="home-title">沿著海風，<br />認識林中的植物</h1>
+        <p class="home-lead">跟著步道走進美漾森林，從海岸樹木、紅樹林到林下草本，讀懂植物如何一起生活在海風與潮水之間。</p>
+        <div class="home-actions">
+          <a class="button button-primary" href={sitePath('map/')}>查看植物分布地圖</a>
+          <a class="button button-secondary" href={sitePath('plants/')}>瀏覽植物名錄</a>
+        </div>
+        <p class="home-note">圖面點位沿用參考地圖，並非 GPS 測量座標。</p>
+      </div>
+      <div class="home-map" aria-label="好美里保安林參考地圖預覽">
+        <ForestMap plants={publishedPlants} compact={true} />
+      </div>
+    </section>
+
+    <section class="directory-section" aria-labelledby="directory-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="directory-title">在林徑上遇見</h2>
+          <p>沿著參考地圖的點位順序，逐一認識植物。</p>
+        </div>
+        <a class="text-link" href={sitePath('plants/')}>完整名錄 <span aria-hidden="true">→</span></a>
+      </div>
+      <PlantList plants={publishedPlants} />
+    </section>
+  </div>
 </BaseLayout>

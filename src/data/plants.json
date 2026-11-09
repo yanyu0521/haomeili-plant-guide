@@ -1,77 +1,363 @@
 [
   {
-    "slug": "casuarina-equisetifolia",
+    "slug": "hibiscus-tiliaceus",
     "order": 10,
     "status": "published",
-    "isDemo": true,
+    "isDemo": false,
+    "name": "黃槿",
+    "scientificName": "Hibiscus tiliaceus L.",
+    "family": "錦葵科",
+    "aliases": ["粿葉樹", "鹽水面頭果"],
+    "image": {
+      "file": "hibiscus-tiliaceus.svg",
+      "alt": "黃槿植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
+    },
+    "mapPosition": { "x": 230, "y": 147 },
+    "appearance": "常綠小喬木，葉片近圓至心形，葉背密生灰白色星狀毛；黃色花朵中央常帶暗紫紅色，果實為近球形蒴果。",
+    "habitat": "常見於臺灣低海拔濱海地區與海岸林，能適應日照充足、較乾燥及鹽風較強的環境。",
+    "ecologicalFunctions": "花可提供蜜源昆蟲利用；枝葉與樹冠構成海岸林的植被層，提供遮蔭與棲身空間。",
+    "windbreakRole": "生長迅速且耐風、耐鹽，可作海岸防風與定砂樹種，常與其他濱海樹種混植。",
+    "sourceUrls": [
+      "https://nativetree.forest.gov.tw/Tree/Info/bb5215fe23c840dab82e470de9bbcc7d",
+      "https://hctbg.tfri.gov.tw/view.php?id=136&theme=web_structure"
+    ]
+  },
+  {
+    "slug": "casuarina-equisetifolia",
+    "order": 20,
+    "status": "published",
+    "isDemo": false,
     "name": "木麻黃",
     "scientificName": "Casuarina equisetifolia L.",
     "family": "木麻黃科",
-    "aliases": [
-      "木賊葉木麻黃"
-    ],
+    "aliases": ["木賊葉木麻黃"],
     "image": {
-      "file": "casuarina-equisetifolia.jpg",
-      "alt": "木麻黃示範頁的圖片佔位圖（非植物實拍照片）",
-      "credit": "版型測試佔位圖，非現場植物照片；公開正式內容前必須替換"
+      "file": "casuarina-equisetifolia.svg",
+      "alt": "木麻黃植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
     },
-    "appearance": "常綠喬木，細長小枝呈節狀，真正的葉片退化成鞘齒；果實外形近似小型木質毬果。",
-    "habitat": "適應海岸風大、鹽分較高及較乾燥的環境，常被栽植於臺灣沿海。",
-    "ecologicalFunctions": "可在貧瘠環境生長；具有固氮共生能力，也能形成沿海植被空間。",
-    "windbreakRole": "抗風、耐鹽與生長快速，常作為海岸防風林樹種，協助減緩強風與鹽霧影響。",
+    "mapPosition": { "x": 150, "y": 180 },
+    "appearance": "常綠喬木，細長綠色枝條由一節節的小枝組成；真正葉片退化為節上的鱗片狀齒，果序木質、外形近似小毬果。",
+    "habitat": "原產南亞、東南亞與澳洲一帶，在臺灣常栽植於沿海砂地及風口；耐旱、耐鹽並可生長於較貧瘠的土壤。",
+    "ecologicalFunctions": "根部可與固氮放線菌共生，幫助植株適應養分較少的環境；林帶也提供遮蔭及海岸生物可利用的棲身空間。",
+    "windbreakRole": "臺灣海岸造林常見樹種，樹冠和林帶可減弱海風、飛砂及鹽霧對內陸環境的影響。",
     "sourceUrls": [
-      "https://taitung.forest.gov.tw/0001020",
+      "https://hctbg.tfri.gov.tw/view.php?font-size=s&id=3378&subtheme=&theme=plants",
       "https://www.wra.gov.tw/NewsRiverNoun_Content.aspx?n=25142&s=2258"
     ]
   },
   {
-    "slug": "hibiscus-tiliaceus",
-    "order": 20,
+    "slug": "lumnitzera-racemosa",
+    "order": 30,
     "status": "published",
-    "isDemo": true,
-    "name": "黃槿",
-    "scientificName": "Hibiscus tiliaceus L.",
-    "family": "錦葵科",
-    "aliases": [
-      "粿葉樹"
-    ],
+    "isDemo": false,
+    "name": "欖李",
+    "scientificName": "Lumnitzera racemosa Willd.",
+    "family": "使君子科",
+    "aliases": [],
     "image": {
-      "file": "hibiscus-tiliaceus.jpg",
-      "alt": "黃槿示範頁的圖片佔位圖（非植物實拍照片）",
-      "credit": "版型測試佔位圖，非現場植物照片；公開正式內容前必須替換"
+      "file": "lumnitzera-racemosa.svg",
+      "alt": "欖李植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
     },
-    "appearance": "常綠小喬木或灌木，葉片寬大、近心形；花朵為黃色，花冠中央常呈深紅色。",
-    "habitat": "常見於熱帶與亞熱帶海岸地區，可生長於濱海沙地等環境。",
-    "ecologicalFunctions": "花可提供昆蟲蜜源，植株也能增加濱海植物群落的棲地多樣性。",
-    "windbreakRole": "具抗風與耐旱特性，可作為海岸植栽及防風林的一部分。",
+    "mapPosition": { "x": 228, "y": 186 },
+    "appearance": "常綠小喬木，厚而略帶肉質的倒卵形葉常聚生枝端；枝端可見白色小花，根部有時會長出屈膝狀呼吸根。",
+    "habitat": "生長於河口、海灣及潮間帶半鹹水泥灘，常與海茄冬、紅海欖等紅樹林植物共生。",
+    "ecologicalFunctions": "屈膝根可協助植株在含氧較低的泥灘中呼吸，也能穩固底泥、減慢水流，為潮間帶生物增加遮蔽與覓食空間。",
+    "windbreakRole": "屬於紅樹林與海岸濕地植被，可穩固泥岸並緩衝潮水；它是濕地保護帶的一部分，不是乾地上的高層防風樹。",
     "sourceUrls": [
-      "https://nativetree.forest.gov.tw/Tree/Info/bb5215fe23c840dab82e470de9bbcc7d",
-      "https://www.wra.gov.tw/NewsRiverNoun_Content.aspx?n=25142&s=2320"
+      "https://www.forest.gov.tw/file/18669",
+      "https://www.tjnp.gov.tw/ch/sglarticle/plant-resources"
     ]
   },
   {
-    "slug": "scaevola-taccada",
-    "order": 30,
+    "slug": "pittosporum-tobira",
+    "order": 40,
     "status": "published",
-    "isDemo": true,
-    "name": "草海桐",
-    "scientificName": "Scaevola taccada (Gaertner) Roxb.",
-    "family": "草海桐科",
-    "aliases": [
-      "海桐草"
-    ],
+    "isDemo": false,
+    "name": "海桐花",
+    "scientificName": "Pittosporum tobira (Thunb.) W.T.Aiton",
+    "family": "海桐科",
+    "aliases": ["海桐", "七里香"],
     "image": {
-      "file": "scaevola-taccada.jpg",
-      "alt": "草海桐示範頁的圖片佔位圖（非植物實拍照片）",
-      "credit": "版型測試佔位圖，非現場植物照片；公開正式內容前必須替換"
+      "file": "pittosporum-tobira.svg",
+      "alt": "海桐花植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
     },
-    "appearance": "常綠灌木，厚實葉片常聚集在枝端；花朵呈白色，花冠形狀偏向單側展開。",
-    "habitat": "生長於臺灣濱海地區，包括沙岸與岩岸附近，適應日照充足的環境。",
-    "ecologicalFunctions": "可提供蜜源及誘鳥資源，並有助於形成海岸低層植被。",
-    "windbreakRole": "適合海岸低層植栽，具有防風、定砂與綠化用途。",
+    "mapPosition": { "x": 281, "y": 170 },
+    "appearance": "常綠灌木或小喬木，厚實有光澤的倒卵形葉常聚在枝端；白色芳香花序成熟後轉淡黃，蒴果裂開時露出帶黏質的紅色種子。",
+    "habitat": "常見於海岸附近、砂丘及臺灣中低海拔向陽處，喜光且能適應海邊較強的風勢與鹽霧。",
+    "ecologicalFunctions": "花期為昆蟲提供花粉與花蜜；成熟果實的紅色種子可被鳥類取食，協助種子散布。",
+    "windbreakRole": "枝葉密集且耐海風，適合海岸綠籬、定砂植栽及防風林下層，能補足林帶較低的位置。",
     "sourceUrls": [
-      "https://nativetree.forest.gov.tw/Tree/Info/f41ce27611e54e328f3cd94125dd3028",
-      "https://cptfri.tfri.gov.tw/view.php?id=13390&subtheme=&theme=plants"
+      "https://www.wra.gov.tw/NewsRiverNoun_Content.aspx?n=25142&s=2299",
+      "https://ari.kinmen.gov.tw/cp.aspx?Create=1&n=9EF8EEFFEA78E493"
+    ]
+  },
+  {
+    "slug": "pongamia-pinnata",
+    "order": 50,
+    "status": "published",
+    "isDemo": false,
+    "name": "水黃皮",
+    "scientificName": "Pongamia pinnata (L.) Pierre",
+    "family": "豆科",
+    "aliases": ["水流豆", "九重吹"],
+    "image": {
+      "file": "pongamia-pinnata.svg",
+      "alt": "水黃皮植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
+    },
+    "mapPosition": { "x": 306, "y": 229 },
+    "appearance": "半落葉喬木，葉為互生的奇數羽狀複葉；淡紫至粉紅色蝶形花成串開放，扁平木質莢果成熟後可漂浮。",
+    "habitat": "常見於熱帶海岸林、河口及海岸附近，能耐鹽風，也可適應短期潮濕或積水的生長環境。",
+    "ecologicalFunctions": "豆科根系可與根瘤菌共生固定氮；可漂浮的莢果能隨水流移動，是海岸植物的水力散布方式之一。",
+    "windbreakRole": "耐風、耐鹽且樹冠可形成遮蔭，適合作為海岸混合林或防風植栽的一員。",
+    "sourceUrls": [
+      "https://www.wra.gov.tw/NewsRiverNoun_Content.aspx?n=25142&s=2263",
+      "https://www.ntsec.gov.tw/article/detail.aspx?a=1455"
+    ]
+  },
+  {
+    "slug": "leucaena-leucocephala",
+    "order": 60,
+    "status": "published",
+    "isDemo": false,
+    "name": "銀合歡",
+    "scientificName": "Leucaena leucocephala (Lam.) de Wit",
+    "family": "豆科",
+    "aliases": [],
+    "image": {
+      "file": "leucaena-leucocephala.svg",
+      "alt": "銀合歡植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
+    },
+    "mapPosition": { "x": 342, "y": 254 },
+    "appearance": "常綠或半落葉小喬木，葉為二回羽狀複葉；許多白色小花聚成球形花序，成熟後結扁平長莢果。",
+    "habitat": "原產中美洲，現常見於臺灣低海拔、日照充足、受擾動或較貧瘠的開闊地，也能耐旱及一定程度的鹽分。",
+    "ecologicalFunctions": "銀合歡生長與繁殖力強，會與原生植物競爭空間；其化學物質可能抑制其他植物萌發及生長，因此在臺灣被列為需管理的外來入侵植物。",
+    "windbreakRole": "雖然生長快且枝葉可形成遮蔽，不宜作為新植防風林樹種；應以原生耐風植物替代，並妥善管理圖上既有植株。",
+    "sourceUrls": [
+      "https://www.marine.gov.tw/zh_tw/conservation/biolist/%E9%8A%80%E5%90%88%E6%AD%A1-80228310",
+      "https://www.agriculture.taichung.gov.tw/12889/13054/13102/841175/2380915/2414299/post"
+    ]
+  },
+  {
+    "slug": "dactyloctenium-aegyptium",
+    "order": 70,
+    "status": "published",
+    "isDemo": false,
+    "name": "龍爪茅",
+    "scientificName": "Dactyloctenium aegyptium (L.) Willd.",
+    "family": "禾本科",
+    "aliases": ["埃及指梳茅", "竹目草"],
+    "image": {
+      "file": "dactyloctenium-aegyptium.svg",
+      "alt": "龍爪茅植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
+    },
+    "mapPosition": { "x": 420, "y": 296 },
+    "appearance": "一年生草本，株高約 20–40 公分，莖可匍匐後斜向上生長；頂端常有數枚指狀穗排列成放射狀，外形像張開的爪。",
+    "habitat": "常出現在向陽的荒地、道路邊及海岸砂地，對乾燥、受擾動的地表有適應力。",
+    "ecologicalFunctions": "低矮草叢可覆蓋裸露地表，根與匍匐莖有助表土留置；其快速結實也使它容易在受擾動地擴散。",
+    "windbreakRole": "不會形成木本防風林的上層林冠；在林地地表可作為低層覆蓋，減少土面直接受風，但不能取代樹木防風帶。",
+    "sourceUrls": [
+      "https://kmweb.moa.gov.tw/techcd/%E4%BD%9C%E7%89%A9%E7%97%85%E8%9F%B2%E5%AE%B3%E8%88%87%E8%82%A5%E5%9F%B9%E7%AE%A1%E7%90%86%E6%8A%80%E8%A1%93%E8%B3%87%E6%96%99/ebook/fthescd/%E7%A6%BE%E6%9C%AC%E7%A7%91/%E7%A6%BE%E6%9C%AC%E7%A7%91_%E5%9F%83%E5%8F%8A%E6%8C%87%E6%A2%B3%E8%8C%85.htm",
+      "https://public.acri.gov.tw/lawnweed/Lw916.htm"
+    ]
+  },
+  {
+    "slug": "rhizophora-stylosa",
+    "order": 80,
+    "status": "published",
+    "isDemo": false,
+    "name": "紅海欖",
+    "scientificName": "Rhizophora stylosa Griff.",
+    "family": "紅樹科",
+    "aliases": ["五梨跤", "長柱紅樹"],
+    "image": {
+      "file": "rhizophora-stylosa.svg",
+      "alt": "紅海欖植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
+    },
+    "mapPosition": { "x": 503, "y": 271 },
+    "appearance": "常綠小喬木，橢圓形革質葉對生；枝幹會長出拱形支柱根，果實可在母株上萌發，形成細長的胎生苗。",
+    "habitat": "生長於河口、海灣及魚塭邊的鹽沼泥地，是典型紅樹林植物；臺灣天然族群主要分布在嘉義以南海岸。",
+    "ecologicalFunctions": "支柱根能固定泥灘、減緩水流並攔留沉積物，也形成魚、蟹等潮間帶生物可躲藏與覓食的空間。",
+    "windbreakRole": "紅樹林帶可保護潮間帶泥岸、緩衝潮水與沿岸水流；它與陸上的防風林形成不同高度的海岸保護層。",
+    "sourceUrls": [
+      "https://cptfri.tfri.gov.tw/view.php?id=13304&subtheme=&theme=plants",
+      "https://www.wra.gov.tw/NewsRiverNoun_Content.aspx?n=25142&s=2289",
+      "https://www.oca.gov.tw/ch/home.jsp?id=344&parentpath=0%2C295%2C342"
+    ]
+  },
+  {
+    "slug": "heliotropium-foertherianum",
+    "order": 90,
+    "status": "published",
+    "isDemo": false,
+    "name": "白水木",
+    "scientificName": "Heliotropium foertherianum Diane & Hilger",
+    "family": "紫草科",
+    "aliases": ["銀毛樹"],
+    "image": {
+      "file": "heliotropium-foertherianum.svg",
+      "alt": "白水木植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
+    },
+    "mapPosition": { "x": 453, "y": 343 },
+    "appearance": "常綠灌木或小喬木，枝端密集排列肉質葉，葉片兩面覆有銀白色細毛；白色小花排列成彎曲的蠍尾狀花序。",
+    "habitat": "常見於熱帶及亞熱帶海岸、珊瑚礁與砂質海岸，喜日照，耐旱、耐鹽及海風。",
+    "ecologicalFunctions": "銀白葉叢是海岸灌木層的一部分，能為地表提供遮蔽；花序為小型授粉昆蟲提供利用資源。",
+    "windbreakRole": "耐風、耐鹽且適合海邊種植，可作為海岸防風林帶的灌木層或混植樹種，補足較低的植被高度。",
+    "sourceUrls": [
+      "https://taichung.forest.gov.tw/File.aspx?fno=89260",
+      "https://www.tjnp.gov.tw/ch/sglarticle/plant-resources"
+    ]
+  },
+  {
+    "slug": "crinum-asiaticum",
+    "order": 100,
+    "status": "published",
+    "isDemo": false,
+    "name": "文殊蘭",
+    "scientificName": "Crinum asiaticum L.",
+    "family": "石蒜科",
+    "aliases": ["文珠蘭", "濱木綿"],
+    "image": {
+      "file": "crinum-asiaticum.svg",
+      "alt": "文殊蘭植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
+    },
+    "mapPosition": { "x": 524, "y": 333 },
+    "appearance": "多年生球根草本，寬長的帶狀葉自基部叢生；粗壯花莖頂端會長出一簇細長花瓣的白色芳香花。鱗莖有毒，不可食用。",
+    "habitat": "常見於臺灣海岸砂地及溫暖潮濕環境，能耐風、耐潮與一定鹽分，適合日照或稍有遮蔭的地點。",
+    "ecologicalFunctions": "成叢葉片與地下根莖可覆蓋近地表，增加海岸草本層的結構；花朵為昆蟲訪花提供資源。",
+    "windbreakRole": "植株低矮，無法單獨阻擋高層海風；可作防風林前緣或林下的地被植栽，補充地表覆蓋。",
+    "sourceUrls": [
+      "https://www.stsp.gov.tw/STSIPA_UPLOAD/AboutUs/1191219280078.pdf",
+      "https://kmweb.moa.gov.tw/subject/subject.php?id=37674"
+    ]
+  },
+  {
+    "slug": "avicennia-marina",
+    "order": 110,
+    "status": "published",
+    "isDemo": false,
+    "name": "海茄冬",
+    "scientificName": "Avicennia marina (Forssk.) Vierh.",
+    "family": "爵床科",
+    "aliases": [],
+    "image": {
+      "file": "avicennia-marina.svg",
+      "alt": "海茄冬植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
+    },
+    "mapPosition": { "x": 567, "y": 366 },
+    "appearance": "常綠喬木，灰綠色革質葉成對生長；泥面周圍常可見密集的鉛筆狀呼吸根，橘黃色小花開於枝端。",
+    "habitat": "多生於河口與感潮帶泥灘，也能在乾燥沙灘或土岸生長；葉片具有泌鹽構造，可適應鹽分變化。",
+    "ecologicalFunctions": "呼吸根協助根系在缺氧泥地中換氣；植株根系能固定底泥、減慢水流，為魚蝦蟹類及其他濕地生物提供棲地。",
+    "windbreakRole": "紅樹林帶能緩衝潮流、攔留泥沙並保護河口岸線，是海岸濕地防護層的重要組成。",
+    "sourceUrls": [
+      "https://www.taiwan.nps.gov.tw/home/zh-tw/eco-gallery/21653.html",
+      "https://www.oca.gov.tw/ch/home.jsp?id=344&parentpath=0%2C295%2C342"
+    ]
+  },
+  {
+    "slug": "terminalia-catappa",
+    "order": 120,
+    "status": "published",
+    "isDemo": false,
+    "name": "欖仁樹",
+    "scientificName": "Terminalia catappa L.",
+    "family": "使君子科",
+    "aliases": ["欖仁", "雨傘樹", "大葉欖仁"],
+    "image": {
+      "file": "terminalia-catappa.svg",
+      "alt": "欖仁樹植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
+    },
+    "mapPosition": { "x": 539, "y": 401 },
+    "appearance": "落葉大喬木，枝條層層水平輪生，形成傘狀樹冠；大而倒卵形的葉片在落葉前常轉為黃、橙或紅色，果實扁橢圓且具纖維質外層。",
+    "habitat": "常見於熱帶與亞熱帶海岸林、海濱及向陽地，耐鹽霧、耐風，果實可漂浮並隨海水傳播。",
+    "ecologicalFunctions": "寬廣樹冠提供遮蔭；果實與樹冠可為沿海動物提供食物或棲身空間，深根及板根有助固持土壤。",
+    "windbreakRole": "樹冠寬廣、抗風力強且耐鹽霧，適合作為海岸防風林與海濱綠帶的中上層樹種。",
+    "sourceUrls": [
+      "https://www.wra.gov.tw/NewsRiverNoun_Content.aspx?n=25142&s=2345",
+      "https://www.ktnp.gov.tw/cp.aspx?n=F7BE4080F7FC7CE1"
+    ]
+  },
+  {
+    "slug": "thespesia-populnea",
+    "order": 130,
+    "status": "published",
+    "isDemo": false,
+    "name": "截萼黃槿",
+    "scientificName": "Thespesia populnea (L.) Sol. ex Corrêa",
+    "family": "錦葵科",
+    "aliases": ["繖楊", "恆春黃槿"],
+    "image": {
+      "file": "thespesia-populnea.svg",
+      "alt": "截萼黃槿植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
+    },
+    "mapPosition": { "x": 618, "y": 400 },
+    "appearance": "常綠喬木，葉片心形、表面有光澤，先端延伸成長尖；黃色花朵逐漸轉紅，杯狀花萼邊緣平截，為辨識特徵之一。",
+    "habitat": "原生於臺灣南部海岸及熱帶濱海地區，喜高溫、日照及排水良好的土壤，耐潮、耐鹽與強風。",
+    "ecologicalFunctions": "花朵可吸引蝴蝶及其他訪花昆蟲；常綠枝葉增加濱海植被層次，為小型生物提供遮蔽。",
+    "windbreakRole": "耐鹽、耐潮、抗強風，是海岸防風林與海濱綠帶可用的常綠樹種。",
+    "sourceUrls": [
+      "https://theme.forest.gov.tw/forestplant/info/000018",
+      "https://taitung.forest.gov.tw/0001020"
+    ]
+  },
+  {
+    "slug": "casuarina-long-branch",
+    "order": 140,
+    "status": "published",
+    "isDemo": false,
+    "name": "木麻黃（長枝）",
+    "scientificName": "Casuarina sp.",
+    "family": "木麻黃科",
+    "aliases": [],
+    "image": {
+      "file": "casuarina-long-branch.svg",
+      "alt": "長枝木麻黃植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
+    },
+    "mapPosition": { "x": 644, "y": 376 },
+    "appearance": "參考地圖以細長下垂的小枝標示這個點位。木麻黃屬植物的小枝具節，葉退化成節上的鱗片狀鞘齒；目前來源僅標示至木麻黃屬，未確認種名。",
+    "habitat": "點位位於參考地圖所示的防風林範圍；木麻黃類群常栽於沿海砂地，但此處的個體與微棲地仍宜以現場調查補充。",
+    "ecologicalFunctions": "常見木麻黃可與固氮放線菌共生，並形成林內遮蔭；此點位尚未完成種級鑑定，生態功能應以後續確認的物種為準。",
+    "windbreakRole": "若確認為常見海岸造林木麻黃，可作防風林上層；參考地圖的「長枝」只描述外觀，不代表已完成物種鑑定。",
+    "sourceUrls": [
+      "https://hctbg.tfri.gov.tw/view.php?font-size=s&id=3378&subtheme=&theme=plants",
+      "https://www.wra.gov.tw/NewsRiverNoun_Content.aspx?n=25142&s=2258"
+    ]
+  },
+  {
+    "slug": "melaleuca-leucadendra",
+    "order": 150,
+    "status": "published",
+    "isDemo": false,
+    "name": "白千層",
+    "scientificName": "Melaleuca leucadendra (L.) L.",
+    "family": "桃金孃科",
+    "aliases": ["脫皮樹"],
+    "image": {
+      "file": "melaleuca-leucadendra.svg",
+      "alt": "白千層植物圖示，非現場實拍照片",
+      "credit": "植物圖示取自「1920 保安林・植物紀錄地圖」；非現場實拍。"
+    },
+    "mapPosition": { "x": 660, "y": 414 },
+    "appearance": "常綠喬木，灰白色樹皮呈柔軟薄層剝落；葉片狹長帶油腺，白色花朵密集排列成瓶刷狀花序。",
+    "habitat": "原產澳洲，臺灣常栽植於庭園、行道與海岸；可適應潮濕、鹽化或排水較差的沿海環境。",
+    "ecologicalFunctions": "樹冠提供遮蔭與鳥類棲身空間，花序可供昆蟲訪花；枝葉也能截留空氣中的顆粒物。",
+    "windbreakRole": "耐旱、耐鹽並可抗風，常作沿海綠帶和防風林樹種；配置時宜與原生海岸植物混植。",
+    "sourceUrls": [
+      "https://hctbg.tfri.gov.tw/view.php?id=3623&subtheme=&theme=plants",
+      "https://www.forest.gov.tw/0005016"
     ]
   }
 ]

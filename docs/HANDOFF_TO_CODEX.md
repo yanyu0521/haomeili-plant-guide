@@ -1,7 +1,7 @@
 # Codex 接手指示
 
 1. 先檢查目前工作目錄及 Git 狀態；不要覆蓋現有檔案。若已有同名檔案，先比較差異回報。
-2. 本資料夾是 ChatGPT 離線生成的 Astro 版初稿，含資料驗證與示範圖片；不代表已通過 Astro 建置。
+2. 本資料夾是好美里防風林植物導覽的 Astro 專案，包含 15 個參考地圖點位、植物圖示、資料來源與地圖頁。
 3. 如果已有舊版 `haomeili-data-design-v1.zip`，以本專案整合版本的檔案為主，但維持 `order`、`isDemo`、published/draft 既有契約。
 4. 執行 `npm install`，提交新產生的 `package-lock.json`，再執行 `npm run verify`。
 5. 若失敗，先釐清單一根因，最多進行必要、可解釋的修復，不要無限制重試。

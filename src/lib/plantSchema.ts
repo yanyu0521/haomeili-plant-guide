@@ -7,9 +7,14 @@ const optionalText = z.preprocess(
 );
 
 const imageSchema = z.object({
-  file: z.string().regex(/^[a-z0-9][a-z0-9-]*\.(?:jpg|jpeg|png|webp)$/, '圖片必須是安全的本地檔名（jpg/jpeg/png/webp）'),
+  file: z.string().regex(/^[a-z0-9][a-z0-9-]*\.svg$/, '植物圖示必須是安全的 SVG 檔名'),
   alt: requiredText,
   credit: optionalText,
+}).strict();
+
+const mapPositionSchema = z.object({
+  x: z.number().int().min(0).max(963),
+  y: z.number().int().min(0).max(638),
 }).strict();
 
 const common = {
@@ -24,6 +29,7 @@ const optionalFields = {
   family: optionalText,
   aliases: z.array(requiredText).max(10).optional(),
   image: imageSchema.optional(),
+  mapPosition: mapPositionSchema.optional(),
   appearance: optionalText,
   habitat: optionalText,
   ecologicalFunctions: optionalText,
@@ -44,6 +50,7 @@ const publishedPlantSchema = z.object({
   family: requiredText,
   aliases: optionalFields.aliases,
   image: imageSchema,
+  mapPosition: mapPositionSchema,
   appearance: requiredText,
   habitat: requiredText,
   ecologicalFunctions: requiredText,

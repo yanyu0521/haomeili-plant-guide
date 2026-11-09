@@ -1,12 +1,12 @@
 ---
-import { Image } from 'astro:assets';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PlantNavigation from '../../components/PlantNavigation.astro';
 import PlantInfoCard from '../../components/PlantInfoCard.astro';
+import ForestMap from '../../components/ForestMap.astro';
 import { publishedPlants, getAdjacentPlants } from '../../lib/plants';
 import type { PublishedPlant } from '../../lib/plantSchema';
-import { getPlantImage } from '../../lib/images';
+import { sitePath } from '../../lib/paths';
 
 type Props = { plant: PublishedPlant; previous?: PublishedPlant; next?: PublishedPlant };
 
@@ -18,38 +18,90 @@ export const getStaticPaths = (() =>
 ) satisfies GetStaticPaths;
 
 const { plant, previous, next } = Astro.props as Props;
-const photo = await getPlantImage(plant.image.file);
+const pointIndex = publishedPlants.findIndex((item) => item.slug === plant.slug) + 1;
+const sourceTitles: Record<string, string> = {
+  'nativetree.forest.gov.tw': '臺灣原生樹木資料庫',
+  'hctbg.tfri.gov.tw': '林業試驗所恆春熱帶植物園',
+  'cptfri.tfri.gov.tw': '林業試驗所植物園',
+  'taitung.forest.gov.tw': '林業保育署臺東分署',
+  'theme.forest.gov.tw': '林業保育署森林育樂場域',
+  'www.forest.gov.tw': '林業保育署',
+  'www.wra.gov.tw': '經濟部水利署',
+  'www.tjnp.gov.tw': '台江國家公園',
+  'www.marine.gov.tw': '海洋國家公園管理處',
+  'www.oca.gov.tw': '海洋保育署',
+  'www.taiwan.nps.gov.tw': '臺灣國家公園網站',
+  'kmweb.moa.gov.tw': '農業知識入口網',
+  'public.acri.gov.tw': '農業部農業試驗所',
+  'www.ntsec.gov.tw': '國立臺灣科學教育館',
+  'www.stsp.gov.tw': '南部科學園區管理局',
+  'ari.kinmen.gov.tw': '金門縣農業試驗所',
+  'www.agriculture.taichung.gov.tw': '臺中市政府農業局',
+  'www.ktnp.gov.tw': '墾丁國家公園管理處',
+};
+const sourceLabel = (url: string) => {
+  const host = new URL(url).hostname;
+  return sourceTitles[host] ?? host;
+};
 ---
 <BaseLayout title={plant.name} description={`${plant.name}：${plant.appearance}`}>
-  <p class="page-eyebrow">植物介紹{plant.isDemo ? ' · 示範資料' : ''}</p>
-  <h1>{plant.name}</h1>
-  <p class="latin" lang="la">{plant.scientificName}</p>
-  {plant.isDemo && <aside class="note">此為示範資料，尚未確認為好美里現場植物。</aside>}
-  <figure class="photo-box">
-    <Image
-      src={photo}
-      alt={plant.image.alt}
-      width={Math.min(photo.width, 1200)}
-      format="webp"
-      quality={80}
-      loading="lazy"
-      decoding="async"
-      class="plant-image"
-    />
-    {plant.image.credit && <figcaption>{plant.image.credit}</figcaption>}
-  </figure>
-  <section class="card" aria-labelledby="basic-info">
-    <h2 id="basic-info">基本資料</h2>
-    <dl class="kv">
-      <div><dt>科別</dt><dd>{plant.family}</dd></div>
-      {plant.aliases && plant.aliases.length > 0 && (
-        <div><dt>別名</dt><dd>{plant.aliases.join('、')}</dd></div>
-      )}
-    </dl>
-  </section>
-  <PlantInfoCard sectionId="appearance" title="外觀特徵" text={plant.appearance} />
-  <PlantInfoCard sectionId="habitat" title="生長環境" text={plant.habitat} />
-  <PlantInfoCard sectionId="ecology" title="生態功能" text={plant.ecologicalFunctions} />
-  <PlantInfoCard sectionId="windbreak" title="防風林角色" text={plant.windbreakRole} />
-  <PlantNavigation previous={previous} next={next} />
+  <article class="container plant-page">
+    <a class="back-link" href={sitePath('plants/')}>← 回到植物名錄</a>
+    <header class="plant-intro">
+      <div class="plant-intro-copy">
+        <h1>{plant.name}</h1>
+        <p class="latin" lang="la">{plant.scientificName}</p>
+        <dl class="plant-facts">
+          <div><dt>科別</dt><dd>{plant.family}</dd></div>
+          {plant.aliases && plant.aliases.length > 0 && (
+            <div><dt>別名</dt><dd>{plant.aliases.join('、')}</dd></div>
+          )}
+          <div><dt>參考點位</dt><dd>地圖 {String(pointIndex).padStart(2, '0')}</dd></div>
+        </dl>
+      </div>
+      <figure class="plant-artwork">
+        <img
+          src={sitePath(`plants/${plant.image.file}`)}
+          alt={plant.image.alt}
+          width="224"
+          height="224"
+          fetchpriority="high"
+        />
+        {plant.image.credit && <figcaption>{plant.image.credit}</figcaption>}
+      </figure>
+    </header>
+
+    <p class="field-note">植物圖示與圖上位置沿用參考地圖；地圖點位不是 GPS 測量座標。</p>
+
+    <section class="info-section" aria-labelledby="appearance">
+      <PlantInfoCard sectionId="appearance" title="外觀特徵" text={plant.appearance} />
+      <PlantInfoCard sectionId="habitat" title="生長環境" text={plant.habitat} />
+      <PlantInfoCard sectionId="ecology" title="生態功能" text={plant.ecologicalFunctions} />
+      <PlantInfoCard sectionId="windbreak" title="防風林角色" text={plant.windbreakRole} />
+    </section>
+
+    <section class="location-section" aria-labelledby="location-title">
+      <div class="location-copy">
+        <div>
+          <h2 id="location-title">在地圖上的位置</h2>
+          <p>參考地圖第 {String(pointIndex).padStart(2, '0')} 點。選擇其他圖示可前往相應植物頁面。</p>
+        </div>
+        <a class="text-link" href={`${sitePath('map/')}#map-point-${plant.slug}`}>在完整地圖查看 <span aria-hidden="true">→</span></a>
+      </div>
+      <ForestMap plants={publishedPlants} activeSlug={plant.slug} compact={true} />
+    </section>
+
+    {plant.sourceUrls && plant.sourceUrls.length > 0 && (
+      <section class="sources-section" aria-labelledby="sources-title">
+        <h2 id="sources-title">資料來源</h2>
+        <ul>
+          {plant.sourceUrls.map((url) => (
+            <li><a href={url} target="_blank" rel="noreferrer">{sourceLabel(url)}</a></li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <PlantNavigation previous={previous} next={next} />
+  </article>
 </BaseLayout>

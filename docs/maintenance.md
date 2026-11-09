@@ -1,59 +1,35 @@
-# 好美里防風林植物數位導覽網站：繁體中文維護手冊
+# 好美里防風林植物導覽維護手冊
 
-## 本站如何運作
+## 網站資料
 
-所有植物集中寫在 `src/data/plants.json`。網站會在建置時驗證 JSON，僅把 `status: "published"` 的植物依 `order` 數字升冪排序，產生首頁、`/plants/` 以及個別植物頁。
+所有植物集中在 `src/data/plants.json`。已發布資料依 `order` 產生首頁名錄、`/plants/` 名錄、`/map/` 地圖及個別植物頁。新增點位時須補齊植物資料、參考來源與地圖圖示。
 
-## 新增植物
+## 更新植物資料
 
-1. 開啟 `src/data/plants.json`，參照 `docs/plant-template.json`，增加一個 JSON 物件。逗號、雙引號必須正確。
-2. `slug` 必須為唯一的英文小寫英數／連字號，例如 `sample-plant`，生成網址為 `/haomeili-plant-guide/plants/sample-plant/`。
-3. `order` 必須為不重複正整數，例如放在 10 與 20 之間可使用 15；上一種／下一種順序也會跟著變。
-4. 尚在編輯時使用 `status: "draft"`。草稿不會有公開頁面，也不會顯示在清單。
-5. 完成物種確認與內容校稿後，準備一張你有權使用的真實植物照片；檔案放入 `src/assets/plants/`，僅填檔名到 `image.file`，並寫具有描述性的 `image.alt`。
-6. 設定 `status: "published"`，依序執行 `npm run validate:data`、`npm run check`、`npm run build`、`npm run test:site`。
-7. 用手機實際點選完整清單、植物照片、上下頁及網址。
+1. 設定唯一的小寫英文 `slug` 與唯一正整數 `order`。
+2. 植物中文名、學名、科別與描述應連到可信的植物資料來源。
+3. `mapPosition` 使用參考底圖 963 × 638 畫布上的 `{ "x": 230, "y": 147 }` 格式。它表示圖面相對位置，不是 GPS 座標。
+4. 將圖示 SVG 放入 `public/plants/`，填寫 `image.file` 與描述性 `image.alt`。圖示來源需在 `image.credit` 註明。
+5. 填寫外觀、環境、生態功能、防風林角色及 `sourceUrls`；來源網址會顯示在植物介紹頁。
+6. 執行 `npm run validate:data`、`npm run check` 與 `npm run build`，再檢查地圖標記、植物頁和手機版名錄。
 
-## 草稿及圖片隱私規則
+## 地圖與圖示來源
 
-**不要把草稿專用圖片放進 `src/assets/plants/`**。驗證器要求此資料夾裡每一張圖片都被 published 植物引用；否則中止建置。草稿照片建議暫時存放在專案外未公開位置，等發布時才加入，這可以降低意外部署草稿圖的風險。
+目前底圖及 15 個植物圖示取自 [1920 保安林・植物紀錄地圖](https://ieason0911.github.io/haomei-1920-forest-map/)。修改或新增地圖圖像時，保留來源說明。來源圖示是向量插圖，不是現場植物照片。
 
-## 修改植物資料
+「木麻黃（長枝）」依來源地圖的標籤只記錄到 `Casuarina sp.`。若日後取得鑑定結果，更新學名、描述與來源，勿僅依枝條外觀推定種名。
 
-直接編輯該植物的 JSON 文字內容。`aliases` 可以省略或使用 `[]`；圖片 credit 可省略；空白選填欄位不渲染。別刪掉必要欄位。`sourceUrls` 用來保留資料來源，不會出現在頁面。
+## 遠端操作與部署
 
-## 示範資料與假圖
+GitHub Pages workflow 僅允許手動啟動。除非專案負責人明確批准，勿推送變更或執行部署。
 
-現在的三筆為 **isDemo: true** 的功能示範，不表示已確認好美里有這些植物。專案包含三張英文註記的純色版型測試圖片（非照片）。它們只為測試 Astro 圖片最佳化流程；**正式對外宣傳或現場貼 QR Code 前，必須替換為現場照片、更新 alt 和 credit，並完成物種鑑定。**
-
-## 本地啟動與檢查
-
-需要 Node.js 22.16 以上；建議 Node.js 24。
+## 常用指令
 
 ```bash
 npm install
 npm run dev
-npm run verify
+npm run validate:data
+npm run check
+npm run build
+npm run test:site
 ```
-
-開發中的基本網站路徑是 `http://localhost:4321/haomeili-plant-guide/`。
-
-## GitHub Pages（需明確取得同意）
-
-1. 儲存庫名稱必須是 `haomeili-plant-guide`，並將這份專案放在儲存庫根目錄。
-2. 若尚無 `package-lock.json`，在首次成功 `npm install` 後一併加入版本控制。
-3. 在 GitHub 儲存庫 **Settings → Pages** 將 Build and deployment 的 Source 改為 **GitHub Actions**。
-4. 此專案的 workflow 僅允許手動 `workflow_dispatch` 執行，避免尚未批准就自動發布。
-5. 負責人批准後，GitHub Actions → Deploy Astro to GitHub Pages → Run workflow。
-6. 正式網址為 `https://<你的帳號>.github.io/haomeili-plant-guide/`，確認首頁、植物列表、照片與 QR Code 個別網址。
-
-## 404
-
-不建立自訂 404.html，也不改寫所有未知網址。不存在的植物 slug 沒有生成頁面，交由 GitHub Pages 預設 404。
-
-## 失敗怎麼辦
-
-- `validate:data` 報錯：看指定的 JSON 欄位或缺少的圖片；先修正資料，不要直接跳過驗證。
-- `astro check` 報錯：檢查元件 props、型別與 Astro 語法。
-- `astro build` 報錯：檢查已安裝套件、圖片路徑與 getStaticPaths。
-- `test:site` 報錯：依錯誤訊息定位輸出 HTML、base、圖片資產或導覽連結，避免無限制重試。

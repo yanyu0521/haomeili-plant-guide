@@ -1,19 +1,26 @@
 ---
 import type { PublishedPlant } from '../lib/plantSchema';
-import { plantPath } from '../lib/paths';
+import { plantPath, sitePath } from '../lib/paths';
 interface Props { plants: PublishedPlant[] }
 const { plants } = Astro.props;
 ---
-<h1>所有植物</h1>
-<p class="lead">依照步道展示順序排列，點選植物名稱查看介紹。</p>
 {plants.length === 0 ? (
   <p class="empty-state">目前尚無已發布植物，請稍後再查看。</p>
 ) : (
-  <ol class="plain-list" data-plant-list>
-    {plants.map((plant) => (
-      <li>
-        <a href={plantPath(plant.slug)}>{plant.name}</a>
-        {plant.isDemo && <span class="example-inline">（示範）</span>}
+  <ol class="plant-directory" data-plant-list>
+    {plants.map((plant, index) => (
+      <li class="plant-row">
+        <span class="plant-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+        <a class="plant-art-link" href={plantPath(plant.slug)} aria-label={`查看${plant.name}介紹`}>
+          <img src={sitePath(`plants/${plant.image.file}`)} alt="" width="76" height="76" loading="lazy" />
+        </a>
+        <div class="plant-row-copy">
+          <p class="plant-family">{plant.family}</p>
+          <h2><a class="plant-name" href={plantPath(plant.slug)}>{plant.name}</a></h2>
+          <p class="plant-scientific" lang="la">{plant.scientificName}</p>
+          <p class="plant-summary">{plant.appearance}</p>
+        </div>
+        <a class="map-shortcut" href={`${sitePath('map/')}#map-point-${plant.slug}`}>地圖位置<span aria-hidden="true">↗</span></a>
       </li>
     ))}
   </ol>
