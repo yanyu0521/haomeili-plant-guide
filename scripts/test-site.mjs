@@ -30,8 +30,13 @@ function listNames(content) {
   const match = content.match(/<ol\b[^>]*data-plant-list[^>]*>([\s\S]*?)<\/ol>/);
   return match ? [...match[1].matchAll(/<li\b[^>]*>[\s\S]*?<a\b[^>]*>([^<]+)<\/a>/g)].map((m)=>m[1].trim()) : [];
 }
-assert.deepEqual(listNames(home),published.map((p)=>p.name),'首頁清單順序錯誤');
-assert.deepEqual(listNames(list),published.map((p)=>p.name),'/plants/ 與首頁不一致');
+function homeFeaturedSlugs(content) {
+  return [...content.matchAll(/<a\b[^>]*class="plant-rail-card"[^>]*href="([^"]+)"[^>]*aria-label="第 \d+ 個點位：[^，]+，查看植物介紹"/g)]
+    .map((match) => match[1].replace(`${base}plants/`, '').replace(/\/$/, ''));
+}
+assert.deepEqual(homeFeaturedSlugs(home),published.slice(0,3).map((p)=>p.slug),'首頁精選點位順序錯誤');
+assert(home.includes(`aria-label="瀏覽全部 ${published.length} 種植物"`),'首頁植物總數錯誤');
+assert.deepEqual(listNames(list),published.map((p)=>p.name),'/plants/ 名錄順序錯誤');
 let pagesChecked=0;
 for (const [index, p] of published.entries()) {
   assert(existsSync(join(dist,route(p.slug))), `缺少植物頁：${p.slug}`);
