@@ -61,21 +61,21 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
 </figure>
 
 <script>
-  document.querySelectorAll('[data-forest-map]').forEach((map) => {
-    /** @type {HTMLButtonElement | null} */
+  document.querySelectorAll('[data-forest-map]').forEach((mapElement) => {
+    if (!(mapElement instanceof HTMLDivElement)) return;
+    const map = mapElement;
     const zoomIn = map.querySelector('[data-map-zoom-in]');
-    /** @type {HTMLButtonElement | null} */
     const zoomOut = map.querySelector('[data-map-zoom-out]');
-    /** @type {HTMLButtonElement | null} */
     const reset = map.querySelector('[data-map-reset]');
     const markers = Array.from(map.querySelectorAll('.map-marker[data-point-x][data-point-y]'));
     let zoom = 1;
 
-    function setZoom(nextZoom) {
+    function setZoom(nextZoom = zoom) {
       zoom = Math.max(1, Math.min(2.5, nextZoom));
       map.style.backgroundSize = `${100 * zoom}% ${100 * zoom}%`;
       map.dataset.zoom = String(zoom);
       markers.forEach((marker) => {
+        if (!(marker instanceof HTMLAnchorElement)) return;
         const x = (Number(marker.dataset.pointX) / 963) * 100;
         const y = (Number(marker.dataset.pointY) / 638) * 100;
         if (zoom === 1) {
@@ -86,13 +86,13 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
           marker.style.top = `${50 + (y - 50) * zoom}%`;
         }
       });
-      if (zoomIn) zoomIn.disabled = zoom >= 2.5;
-      if (zoomOut) zoomOut.disabled = zoom <= 1;
-      if (reset) reset.disabled = zoom === 1;
+      if (zoomIn instanceof HTMLButtonElement) zoomIn.disabled = zoom >= 2.5;
+      if (zoomOut instanceof HTMLButtonElement) zoomOut.disabled = zoom <= 1;
+      if (reset instanceof HTMLButtonElement) reset.disabled = zoom === 1;
     }
 
-    zoomIn?.addEventListener('click', () => setZoom(zoom + 0.25));
-    zoomOut?.addEventListener('click', () => setZoom(zoom - 0.25));
-    reset?.addEventListener('click', () => setZoom(1));
+    if (zoomIn instanceof HTMLButtonElement) zoomIn.addEventListener('click', () => setZoom(zoom + 0.25));
+    if (zoomOut instanceof HTMLButtonElement) zoomOut.addEventListener('click', () => setZoom(zoom - 0.25));
+    if (reset instanceof HTMLButtonElement) reset.addEventListener('click', () => setZoom(1));
   });
 </script>

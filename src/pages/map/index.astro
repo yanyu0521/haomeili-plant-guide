@@ -76,32 +76,32 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
 </BaseLayout>
 
 <script>
-  const explorer = document.querySelector('[data-map-explorer]');
-
-  if (explorer) {
-    /** @type {HTMLInputElement | null} */
+  document.querySelectorAll('[data-map-explorer]').forEach((explorerElement) => {
+    if (!(explorerElement instanceof HTMLElement)) return;
+    const explorer = explorerElement;
     const searchInput = explorer.querySelector('[data-map-search]');
-    /** @type {HTMLSelectElement | null} */
     const familyFilter = explorer.querySelector('[data-map-family]');
-    /** @type {HTMLButtonElement | null} */
     const clearButton = explorer.querySelector('[data-map-clear]');
     const countLabel = explorer.querySelector('[data-map-count]');
     const emptyState = explorer.querySelector('[data-map-empty]');
     const searchLegend = explorer.querySelector('[data-map-search-legend]');
     const list = explorer.querySelector('.map-index-list');
     const items = Array.from(explorer.querySelectorAll('[data-map-index-item]'));
-    const markers = new Map(
-      Array.from(explorer.querySelectorAll('.map-marker[data-map-slug]'))
-        .map((marker) => [marker.dataset.mapSlug, marker]),
-    );
+
+    function findMarker(slug = '') {
+      return Array.from(explorer.querySelectorAll('.map-marker[data-map-slug]')).find((marker) =>
+        marker instanceof HTMLAnchorElement && marker.dataset.mapSlug === slug,
+      );
+    }
 
     function applyFilters() {
-      const query = searchInput?.value.trim().toLocaleLowerCase('zh-Hant') || '';
-      const family = familyFilter?.value || '';
+      const query = searchInput instanceof HTMLInputElement ? searchInput.value.trim().toLocaleLowerCase('zh-Hant') : '';
+      const family = familyFilter instanceof HTMLSelectElement ? familyFilter.value : '';
       const hasFilter = Boolean(query || family);
       let visibleCount = 0;
 
       items.forEach((item) => {
+        if (!(item instanceof HTMLElement)) return;
         const matchesQuery = !query || (item.dataset.mapSearchIndex || '').includes(query);
         const matchesFamily = !family || item.dataset.mapFamily === family;
         const matches = matchesQuery && matchesFamily;
@@ -110,8 +110,8 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
         item.hidden = !matches;
         item.classList.toggle('map-index-item--first-visible', isFirstVisible);
 
-        const marker = markers.get(item.dataset.mapSlug);
-        if (marker) {
+        const marker = findMarker(item.dataset.mapSlug || '');
+        if (marker instanceof HTMLAnchorElement) {
           marker.hidden = !matches;
           marker.classList.toggle('map-marker--search-hit', matches && hasFilter);
           marker.classList.remove('map-marker--preview', 'map-marker--dimmed');
@@ -120,15 +120,17 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
         if (matches) visibleCount += 1;
       });
 
-      list?.classList.toggle('map-index-list--filtered', hasFilter);
-      if (countLabel) countLabel.textContent = hasFilter ? `顯示 ${visibleCount} / ${items.length} 種` : `${items.length} 種植物`;
-      if (emptyState) emptyState.hidden = visibleCount > 0;
-      if (clearButton) clearButton.disabled = !hasFilter;
-      if (searchLegend) searchLegend.hidden = !hasFilter;
+      if (list instanceof HTMLElement) list.classList.toggle('map-index-list--filtered', hasFilter);
+      if (countLabel instanceof HTMLElement) countLabel.textContent = hasFilter ? `顯示 ${visibleCount} / ${items.length} 種` : `${items.length} 種植物`;
+      if (emptyState instanceof HTMLElement) emptyState.hidden = visibleCount > 0;
+      if (clearButton instanceof HTMLButtonElement) clearButton.disabled = !hasFilter;
+      if (searchLegend instanceof HTMLElement) searchLegend.hidden = !hasFilter;
     }
 
-    function highlightPlant(slug) {
-      markers.forEach((marker, markerSlug) => {
+    function highlightPlant(slug = '') {
+      explorer.querySelectorAll('.map-marker[data-map-slug]').forEach((marker) => {
+        if (!(marker instanceof HTMLAnchorElement)) return;
+        const markerSlug = marker.dataset.mapSlug || '';
         const isPreview = Boolean(slug) && markerSlug === slug;
         marker.classList.toggle('map-marker--preview', isPreview);
         marker.classList.toggle('map-marker--dimmed', Boolean(slug) && markerSlug !== slug && !marker.hidden);
@@ -136,6 +138,7 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
     }
 
     items.forEach((item) => {
+      if (!(item instanceof HTMLElement)) return;
       const link = item.querySelector('a');
       const slug = item.dataset.mapSlug || '';
       item.addEventListener('pointerenter', () => highlightPlant(slug));
@@ -147,10 +150,10 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
     searchInput?.addEventListener('input', applyFilters);
     familyFilter?.addEventListener('change', applyFilters);
     clearButton?.addEventListener('click', () => {
-      if (searchInput) searchInput.value = '';
-      if (familyFilter) familyFilter.value = '';
+      if (searchInput instanceof HTMLInputElement) searchInput.value = '';
+      if (familyFilter instanceof HTMLSelectElement) familyFilter.value = '';
       applyFilters();
-      searchInput?.focus();
+      if (searchInput instanceof HTMLInputElement) searchInput.focus();
     });
-  }
+  });
 </script>
