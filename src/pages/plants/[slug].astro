@@ -3,6 +3,7 @@ import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PlantNavigation from '../../components/PlantNavigation.astro';
 import PlantInfoCard from '../../components/PlantInfoCard.astro';
+import AudioGuide from '../../components/AudioGuide.astro';
 import ForestMap from '../../components/ForestMap.astro';
 import { publishedPlants, getAdjacentPlants } from '../../lib/plants';
 import type { PublishedPlant } from '../../lib/plantSchema';
@@ -73,6 +74,8 @@ const sourceLabel = (url: string) => {
     </header>
 
     <p class="field-note">植物圖示與圖上位置沿用參考地圖；地圖點位不是 GPS 測量座標。</p>
+
+    <AudioGuide plants={publishedPlants} activeSlug={plant.slug} />
 
     <section class="info-section" aria-labelledby="appearance">
       <PlantInfoCard sectionId="appearance" title="外觀特徵" text={plant.appearance} />

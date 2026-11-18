@@ -1,0 +1,176 @@
+---
+import type { PublishedPlant } from '../lib/plantSchema';
+
+interface Props {
+  plants: PublishedPlant[];
+  activeSlug?: string;
+}
+
+const { plants, activeSlug } = Astro.props;
+const narration = (plant: PublishedPlant) =>
+  `${plant.name}，屬於${plant.family}。${plant.appearance} 生長環境：${plant.habitat} 防風林裡的角色：${plant.windbreakRole} 生態功能：${plant.ecologicalFunctions}`;
+---
+{plants.length > 0 && (
+  <section class="audio-guide" id="audio-guide" aria-labelledby="audio-guide-title" data-audio-guide>
+    <div class="audio-guide-heading">
+      <div>
+        <h2 id="audio-guide-title">植物語音導覽</h2>
+        <p class="audio-guide-intro">選擇植物後按下播放，依地圖點位聆聽介紹。語音由你的裝置即時合成，音色會因手機或瀏覽器而異。</p>
+      </div>
+      <span class="audio-guide-count">共 {plants.length} 個導覽點</span>
+    </div>
+
+    <div class="audio-guide-picker">
+      <label for="audio-guide-plant">選擇導覽點</label>
+      <select id="audio-guide-plant" data-guide-select>
+        {plants.map((plant, index) => (
+          <option value={plant.slug} data-guide-script={narration(plant)} selected={plant.slug === activeSlug || (!activeSlug && index === 0)}>
+            {String(index + 1).padStart(2, '0')} · {plant.name}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <div class="audio-guide-controls" role="group" aria-label="語音播放控制">
+      <button class="audio-guide-button" type="button" data-guide-previous>上一站</button>
+      <button class="audio-guide-button audio-guide-button--primary" type="button" data-guide-play>播放介紹</button>
+      <button class="audio-guide-button" type="button" data-guide-stop>停止</button>
+      <button class="audio-guide-button" type="button" data-guide-next>下一站</button>
+    </div>
+
+    <p class="audio-guide-status" data-guide-status role="status" aria-live="polite">選好導覽點後，按「播放介紹」開始。</p>
+
+    <details class="audio-guide-transcript">
+      <summary>閱讀本段導覽逐字稿</summary>
+      <p data-guide-transcript></p>
+    </details>
+  </section>
+)}
+
+<script>
+  document.querySelectorAll('[data-audio-guide]').forEach((root) => {
+    /** @type {HTMLSelectElement | null} */
+    const select = root.querySelector('[data-guide-select]');
+    /** @type {HTMLButtonElement | null} */
+    const playButton = root.querySelector('[data-guide-play]');
+    /** @type {HTMLButtonElement | null} */
+    const stopButton = root.querySelector('[data-guide-stop]');
+    /** @type {HTMLButtonElement | null} */
+    const previousButton = root.querySelector('[data-guide-previous]');
+    /** @type {HTMLButtonElement | null} */
+    const nextButton = root.querySelector('[data-guide-next]');
+    const status = root.querySelector('[data-guide-status]');
+    const transcript = root.querySelector('[data-guide-transcript]');
+
+    if (!select || !playButton || !stopButton || !previousButton || !nextButton || !status || !transcript) return;
+
+    const synth = window.speechSynthesis;
+    const canSpeak = Boolean(synth && window.SpeechSynthesisUtterance);
+    /** @type {SpeechSynthesisUtterance | null} */
+    let activeUtterance = null;
+
+    const selectedOption = () => select.options[select.selectedIndex];
+    const selectedName = () => selectedOption()?.textContent?.replace(/^\d+\s*·\s*/, '').trim() || '所選植物';
+
+    function updateGuideText() {
+      const option = selectedOption();
+      transcript.textContent = option?.dataset.guideScript || '';
+      previousButton.disabled = select.selectedIndex <= 0;
+      nextButton.disabled = select.selectedIndex >= select.options.length - 1;
+    }
+
+    function stopSpeech() {
+      if (activeUtterance) {
+        activeUtterance.onend = null;
+        activeUtterance.onerror = null;
+      }
+      synth?.cancel();
+      activeUtterance = null;
+      playButton.textContent = '播放介紹';
+    }
+
+    function speakSelection() {
+      if (!canSpeak) return;
+      stopSpeech();
+
+      const utterance = new window.SpeechSynthesisUtterance(selectedOption()?.dataset.guideScript || '');
+      utterance.lang = 'zh-TW';
+      utterance.rate = 0.94;
+
+      const voices = synth.getVoices();
+      utterance.voice = voices.find((voice) => voice.lang.toLowerCase() === 'zh-tw')
+        || voices.find((voice) => voice.lang.toLowerCase().startsWith('zh'))
+        || null;
+
+      activeUtterance = utterance;
+      status.textContent = `正在播放：${selectedName()}。`;
+      playButton.textContent = '暫停';
+
+      utterance.onend = () => {
+        if (activeUtterance !== utterance) return;
+        activeUtterance = null;
+        playButton.textContent = '重新播放';
+        status.textContent = `播放完成：${selectedName()}。`;
+      };
+
+      utterance.onerror = () => {
+        if (activeUtterance !== utterance) return;
+        activeUtterance = null;
+        playButton.textContent = '重試播放';
+        status.textContent = '語音無法播放。請檢查裝置音量與中文語音設定，或閱讀下方逐字稿。';
+      };
+
+      synth.speak(utterance);
+    }
+
+    select.addEventListener('change', () => {
+      stopSpeech();
+      updateGuideText();
+      status.textContent = `已選擇：${selectedName()}。按「播放介紹」開始。`;
+    });
+
+    playButton.addEventListener('click', () => {
+      if (!canSpeak) return;
+      if (synth.paused && activeUtterance) {
+        synth.resume();
+        playButton.textContent = '暫停';
+        status.textContent = `繼續播放：${selectedName()}。`;
+      } else if (synth.speaking && activeUtterance) {
+        synth.pause();
+        playButton.textContent = '繼續播放';
+        status.textContent = `已暫停：${selectedName()}。`;
+      } else {
+        speakSelection();
+      }
+    });
+
+    stopButton.addEventListener('click', () => {
+      stopSpeech();
+      status.textContent = `已停止：${selectedName()}。`;
+    });
+
+    previousButton.addEventListener('click', () => {
+      if (select.selectedIndex <= 0) return;
+      select.selectedIndex -= 1;
+      updateGuideText();
+      speakSelection();
+    });
+
+    nextButton.addEventListener('click', () => {
+      if (select.selectedIndex >= select.options.length - 1) return;
+      select.selectedIndex += 1;
+      updateGuideText();
+      speakSelection();
+    });
+
+    updateGuideText();
+
+    if (!canSpeak) {
+      playButton.disabled = true;
+      stopButton.disabled = true;
+      previousButton.disabled = true;
+      nextButton.disabled = true;
+      status.textContent = '這個瀏覽器不支援語音朗讀；你仍可展開逐字稿閱讀介紹。';
+    }
+  });
+</script>

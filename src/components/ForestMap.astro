@@ -7,14 +7,29 @@ interface Props {
   activeSlug?: string;
   compact?: boolean;
   showCredit?: boolean;
+  mapArtwork?: string;
+  showMarkers?: boolean;
 }
 
-const { plants, activeSlug, compact = false, showCredit = false } = Astro.props;
-const baseStyle = `--map-background:url('${sitePath('images/forest-map.svg')}')`;
+const { plants, activeSlug, compact = false, showCredit = false, mapArtwork, showMarkers = true } = Astro.props;
+const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest-map.svg')}')`;
 ---
 <figure class:list={['map-figure', { 'map-figure--compact': compact }]}>
-  <div class="forest-map" style={baseStyle} role="group" aria-label="好美里保安林植物位置互動地圖；選擇編號標記前往植物介紹">
-    {plants.map((plant, index) => {
+  <div class="forest-map" style={baseStyle} role="group" aria-label={showMarkers ? '好美里保安林植物位置互動地圖；選擇編號標記前往植物介紹' : '好美里保安林地圖預覽'} data-forest-map>
+    <div class="map-controls" role="group" aria-label="地圖檢視控制">
+      <div class="map-zoom-group" role="group" aria-label="地圖縮放">
+        <button class="map-control-button" type="button" data-map-zoom-in aria-label="放大地圖" title="放大地圖">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" /></svg>
+        </button>
+        <button class="map-control-button" type="button" data-map-zoom-out aria-label="縮小地圖" title="縮小地圖" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14" /></svg>
+        </button>
+      </div>
+      <button class="map-control-button map-control-button--reset" type="button" data-map-reset aria-label="回到地圖全覽" title="回到地圖全覽" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3" /><circle cx="12" cy="12" r="8.5" /><path d="M12 1v3m0 16v3M1 12h3m16 0h3" /></svg>
+      </button>
+    </div>
+    {showMarkers && plants.map((plant, index) => {
       const point = plant.mapPosition;
       const markerStyle = `--point-x:${(point.x / 963) * 100}%;--point-y:${(point.y / 638) * 100}%;--marker-art:url('${sitePath(`plants/${plant.image.file}`)}')`;
       const active = plant.slug === activeSlug;
@@ -22,6 +37,9 @@ const baseStyle = `--map-background:url('${sitePath('images/forest-map.svg')}')`
         <a
           id={`map-point-${plant.slug}`}
           class:list={['map-marker', { 'map-marker--active': active, 'map-marker--muted': activeSlug && !active }]}
+          data-map-slug={plant.slug}
+          data-point-x={point.x}
+          data-point-y={point.y}
           href={plantPath(plant.slug)}
           style={markerStyle}
           aria-label={`第 ${index + 1} 個地圖點位：${plant.name}，前往植物介紹`}
@@ -41,3 +59,40 @@ const baseStyle = `--map-background:url('${sitePath('images/forest-map.svg')}')`
     </figcaption>
   )}
 </figure>
+
+<script>
+  document.querySelectorAll('[data-forest-map]').forEach((map) => {
+    /** @type {HTMLButtonElement | null} */
+    const zoomIn = map.querySelector('[data-map-zoom-in]');
+    /** @type {HTMLButtonElement | null} */
+    const zoomOut = map.querySelector('[data-map-zoom-out]');
+    /** @type {HTMLButtonElement | null} */
+    const reset = map.querySelector('[data-map-reset]');
+    const markers = Array.from(map.querySelectorAll('.map-marker[data-point-x][data-point-y]'));
+    let zoom = 1;
+
+    function setZoom(nextZoom) {
+      zoom = Math.max(1, Math.min(2.5, nextZoom));
+      map.style.backgroundSize = `${100 * zoom}% ${100 * zoom}%`;
+      map.dataset.zoom = String(zoom);
+      markers.forEach((marker) => {
+        const x = (Number(marker.dataset.pointX) / 963) * 100;
+        const y = (Number(marker.dataset.pointY) / 638) * 100;
+        if (zoom === 1) {
+          marker.style.removeProperty('left');
+          marker.style.removeProperty('top');
+        } else {
+          marker.style.left = `${50 + (x - 50) * zoom}%`;
+          marker.style.top = `${50 + (y - 50) * zoom}%`;
+        }
+      });
+      if (zoomIn) zoomIn.disabled = zoom >= 2.5;
+      if (zoomOut) zoomOut.disabled = zoom <= 1;
+      if (reset) reset.disabled = zoom === 1;
+    }
+
+    zoomIn?.addEventListener('click', () => setZoom(zoom + 0.25));
+    zoomOut?.addEventListener('click', () => setZoom(zoom - 0.25));
+    reset?.addEventListener('click', () => setZoom(1));
+  });
+</script>

@@ -1,18 +1,62 @@
 ---
 import { sitePath } from '../lib/paths';
-const isList = Astro.url.pathname === sitePath('plants/');
-const isMap = Astro.url.pathname === sitePath('map/');
+
+const path = Astro.url.pathname;
+const isPlants = path.startsWith(sitePath('plants/'));
+const isMap = path.startsWith(sitePath('map/'));
 ---
 <a class="skip-link" href="#content">跳至主要內容</a>
 <header class="site-header">
-  <div class="container header-row">
+  <div class="header-row">
     <a class="brand" href={sitePath()}>
-      <span class="brand-mark" style={`--brand-image:url('${sitePath('favicon.svg')}')`} aria-hidden="true"></span>
-      <span>好美里植物導覽</span>
+      <span>好美里防風林植物導覽</span>
     </a>
-    <nav aria-label="主要導覽">
-      <a class="header-nav" href={sitePath('plants/')} aria-current={isList ? 'page' : undefined}>植物名錄</a>
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-label="開啟導覽選單"
+      aria-expanded="false"
+      aria-controls="site-navigation"
+      data-menu-toggle
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M1 3h22M1 12h22M1 21h22" />
+      </svg>
+    </button>
+    <nav id="site-navigation" aria-label="主要導覽" data-site-navigation data-open="false">
+      <a class="header-nav" href={sitePath('plants/')} aria-current={isPlants ? 'page' : undefined}>植物名錄</a>
       <a class="header-nav" href={sitePath('map/')} aria-current={isMap ? 'page' : undefined}>分布地圖</a>
     </nav>
   </div>
 </header>
+
+<script>
+  const menuToggle = document.querySelector('[data-menu-toggle]');
+  const siteNavigation = document.querySelector('[data-site-navigation]');
+
+  if (menuToggle instanceof HTMLButtonElement && siteNavigation instanceof HTMLElement) {
+    const closeMenu = () => {
+      siteNavigation.dataset.open = 'false';
+      menuToggle.setAttribute('aria-expanded', 'false');
+      menuToggle.setAttribute('aria-label', '開啟導覽選單');
+    };
+
+    menuToggle.addEventListener('click', () => {
+      const isOpen = siteNavigation.dataset.open === 'true';
+      siteNavigation.dataset.open = String(!isOpen);
+      menuToggle.setAttribute('aria-expanded', String(!isOpen));
+      menuToggle.setAttribute('aria-label', isOpen ? '開啟導覽選單' : '關閉導覽選單');
+    });
+
+    siteNavigation.addEventListener('click', (event) => {
+      if (event.target instanceof HTMLAnchorElement) closeMenu();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && siteNavigation.dataset.open === 'true') {
+        closeMenu();
+        menuToggle.focus();
+      }
+    });
+  }
+</script>
