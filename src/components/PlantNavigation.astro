@@ -5,16 +5,12 @@ interface Props { previous?: PublishedPlant; next?: PublishedPlant }
 const { previous, next } = Astro.props;
 ---
 <nav class="plant-pager" aria-label="相鄰植物">
-  {previous ? (
-    <a class="pager-link" href={plantPath(previous.slug)}>
-      <span class="pager-label">← 上一種植物</span>
-      <span class="pager-name">{previous.name}</span>
-    </a>
-  ) : <span class="pager-empty" aria-hidden="true"></span>}
-  {next ? (
-    <a class="pager-link pager-next" href={plantPath(next.slug)}>
-      <span class="pager-label">下一種植物 →</span>
-      <span class="pager-name">{next.name}</span>
-    </a>
-  ) : <span class="pager-empty" aria-hidden="true"></span>}
+  <a class="pager-link" href={previous ? plantPath(previous.slug) : undefined} data-plant-previous hidden={!previous}>
+      <span class="pager-label">← 上一個導覽點</span>
+      <span class="pager-name">{previous?.name}</span>
+  </a>
+  <a class="pager-link pager-next" href={next ? plantPath(next.slug) : undefined} data-plant-next hidden={!next}>
+      <span class="pager-label">下一個導覽點 →</span>
+      <span class="pager-name">{next?.name}</span>
+  </a>
 </nav>

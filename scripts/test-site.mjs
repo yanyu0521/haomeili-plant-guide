@@ -35,7 +35,7 @@ function homeFeaturedSlugs(content) {
     .map((match) => match[1].replace(`${base}plants/`, '').replace(/\/$/, ''));
 }
 assert.deepEqual(homeFeaturedSlugs(home),published.slice(0,3).map((p)=>p.slug),'首頁精選點位順序錯誤');
-assert(home.includes(`aria-label="瀏覽全部 ${published.length} 種植物"`),'首頁植物總數錯誤');
+assert(home.includes(`aria-label="瀏覽全部 ${published.length} 個植物導覽點"`),'首頁植物總數錯誤');
 assert.deepEqual(listNames(list),published.map((p)=>p.name),'/plants/ 名錄順序錯誤');
 let pagesChecked=0;
 for (const [index, p] of published.entries()) {
