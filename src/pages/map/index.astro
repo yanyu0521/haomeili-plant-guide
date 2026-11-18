@@ -33,7 +33,7 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
       <aside class="map-index" aria-labelledby="map-index-title">
         <div class="map-index-heading">
           <h2 id="map-index-title">地圖點位</h2>
-          <span data-map-count aria-live="polite">{publishedPlants.length} 種植物</span>
+          <span data-map-count aria-live="polite">{publishedPlants.length} 個導覽點</span>
         </div>
         <div class="map-index-filters">
           <div class="map-filter-fields">
@@ -86,7 +86,8 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
     const emptyState = explorer.querySelector('[data-map-empty]');
     const searchLegend = explorer.querySelector('[data-map-search-legend]');
     const list = explorer.querySelector('.map-index-list');
-    const items = Array.from(explorer.querySelectorAll('[data-map-index-item]'));
+    const items = Array.from(explorer.querySelectorAll('[data-map-index-item]'))
+      .filter((item): item is HTMLElement => item instanceof HTMLElement);
 
     function findMarker(slug = '') {
       return Array.from(explorer.querySelectorAll('.map-marker[data-map-slug]')).find((marker) =>
@@ -121,10 +122,13 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
       });
 
       if (list instanceof HTMLElement) list.classList.toggle('map-index-list--filtered', hasFilter);
-      if (countLabel instanceof HTMLElement) countLabel.textContent = hasFilter ? `顯示 ${visibleCount} / ${items.length} 種` : `${items.length} 種植物`;
+      if (countLabel instanceof HTMLElement) countLabel.textContent = hasFilter ? `顯示 ${visibleCount} / ${items.length} 個導覽點` : `${items.length} 個導覽點`;
       if (emptyState instanceof HTMLElement) emptyState.hidden = visibleCount > 0;
       if (clearButton instanceof HTMLButtonElement) clearButton.disabled = !hasFilter;
       if (searchLegend instanceof HTMLElement) searchLegend.hidden = !hasFilter;
+      const map = explorer.querySelector('[data-forest-map]');
+      const visibleSlugs = items.filter((item) => !item.hidden).map((item) => item.dataset.mapSlug || '');
+      if (map instanceof HTMLElement) map.dispatchEvent(new CustomEvent('map:fit', { detail: { slugs: hasFilter ? visibleSlugs : [] } }));
     }
 
     function highlightPlant(slug = '') {

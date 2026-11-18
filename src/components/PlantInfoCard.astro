@@ -4,7 +4,7 @@ const { title, text, sectionId } = Astro.props;
 const value = text?.trim();
 ---
 {value && (
-  <section class="card" aria-labelledby={sectionId}>
+  <section class="card" aria-labelledby={sectionId} data-detail-section={sectionId}>
     <h2 id={sectionId}>{title}</h2>
     <p>{value}</p>
   </section>

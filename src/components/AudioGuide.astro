@@ -1,54 +1,113 @@
 ---
 import type { PublishedPlant } from '../lib/plantSchema';
+import { plantPath, sitePath } from '../lib/paths';
+import { sourceLabel } from '../lib/sourceLabels';
 
 interface Props {
   plants: PublishedPlant[];
   activeSlug?: string;
+  syncDetail?: boolean;
 }
 
-const { plants, activeSlug } = Astro.props;
+const { plants, activeSlug, syncDetail = false } = Astro.props;
+const activePlant = plants.find((plant) => plant.slug === activeSlug);
 const narration = (plant: PublishedPlant) =>
-  `${plant.name}，屬於${plant.family}。${plant.appearance} 生長環境：${plant.habitat} 防風林裡的角色：${plant.windbreakRole} 生態功能：${plant.ecologicalFunctions}`;
+  `${plant.name}。現場辨識重點是，${plant.fieldCue} ${plant.name}屬於${plant.family}。${plant.appearance} 生長環境：${plant.habitat} 防風林裡的角色：${plant.windbreakRole} 生態功能：${plant.ecologicalFunctions}`;
+const guideEntry = (plant: PublishedPlant, index: number) => ({
+  slug: plant.slug,
+  url: plantPath(plant.slug),
+  mapUrl: `${sitePath('map/')}#map-point-${plant.slug}`,
+  name: plant.name,
+  scientificName: plant.scientificName,
+  family: plant.family,
+  aliases: plant.aliases ?? [],
+  fieldCue: plant.fieldCue,
+  appearance: plant.appearance,
+  habitat: plant.habitat,
+  ecologicalFunctions: plant.ecologicalFunctions,
+  windbreakRole: plant.windbreakRole,
+  imageUrl: sitePath(`plants/${plant.image.file}`),
+  imageAlt: plant.image.alt,
+  imageCredit: plant.image.credit ?? '',
+  point: index + 1,
+  sources: (plant.sourceUrls ?? []).map((url) => ({ url, label: sourceLabel(url) })),
+  previous: index > 0 ? { name: plants[index - 1].name, url: plantPath(plants[index - 1].slug) } : null,
+  next: index + 1 < plants.length ? { name: plants[index + 1].name, url: plantPath(plants[index + 1].slug) } : null,
+});
 ---
 {plants.length > 0 && (
-  <section class="audio-guide" id="audio-guide" aria-labelledby="audio-guide-title" data-audio-guide>
-    <div class="audio-guide-heading">
-      <div>
-        <h2 id="audio-guide-title">植物語音導覽</h2>
-        <p class="audio-guide-intro">選擇植物後按下播放，依地圖點位聆聽介紹。語音由你的裝置即時合成，音色會因手機或瀏覽器而異。</p>
+  <section class="audio-guide" id="audio-guide" aria-labelledby="audio-guide-title" data-audio-guide data-sync-detail={syncDetail ? 'true' : 'false'}>
+    <details class="audio-guide-disclosure">
+      <summary><span data-guide-summary>{activePlant ? `聽 ${activePlant.name} 的介紹` : '聽植物介紹'}</span></summary>
+      <div class="audio-guide-content">
+        <div class="audio-guide-heading">
+          <div>
+            <h2 id="audio-guide-title">植物語音導覽</h2>
+            <p class="audio-guide-intro">選擇植物後按下播放，依地圖點位聆聽介紹。語音由你的裝置即時合成，音色會因手機或瀏覽器而異。</p>
+          </div>
+          <span class="audio-guide-count">共 {plants.length} 個植物導覽點</span>
+        </div>
+
+        <div class="audio-guide-picker">
+          <label for="audio-guide-plant">選擇導覽點</label>
+          <select id="audio-guide-plant" data-guide-select>
+            {plants.map((plant, index) => (
+              <option
+                value={plant.slug}
+                data-guide-script={narration(plant)}
+                data-guide-entry={JSON.stringify(guideEntry(plant, index))}
+                selected={plant.slug === activeSlug || (!activeSlug && index === 0)}
+              >
+                {String(index + 1).padStart(2, '0')} · {plant.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div class="audio-guide-controls" role="group" aria-label="語音播放控制">
+          <button class="audio-guide-button" type="button" data-guide-previous>上一站</button>
+          <button class="audio-guide-button audio-guide-button--primary" type="button" data-guide-play>播放介紹</button>
+          <button class="audio-guide-button" type="button" data-guide-stop>停止</button>
+          <button class="audio-guide-button" type="button" data-guide-next>下一站</button>
+        </div>
+
+        <p class="audio-guide-status" data-guide-status role="status" aria-live="polite">選好導覽點後，按「播放介紹」開始。</p>
+
+        <details class="audio-guide-transcript">
+          <summary>閱讀本段導覽逐字稿</summary>
+          <p data-guide-transcript></p>
+        </details>
       </div>
-      <span class="audio-guide-count">共 {plants.length} 個導覽點</span>
-    </div>
-
-    <div class="audio-guide-picker">
-      <label for="audio-guide-plant">選擇導覽點</label>
-      <select id="audio-guide-plant" data-guide-select>
-        {plants.map((plant, index) => (
-          <option value={plant.slug} data-guide-script={narration(plant)} selected={plant.slug === activeSlug || (!activeSlug && index === 0)}>
-            {String(index + 1).padStart(2, '0')} · {plant.name}
-          </option>
-        ))}
-      </select>
-    </div>
-
-    <div class="audio-guide-controls" role="group" aria-label="語音播放控制">
-      <button class="audio-guide-button" type="button" data-guide-previous>上一站</button>
-      <button class="audio-guide-button audio-guide-button--primary" type="button" data-guide-play>播放介紹</button>
-      <button class="audio-guide-button" type="button" data-guide-stop>停止</button>
-      <button class="audio-guide-button" type="button" data-guide-next>下一站</button>
-    </div>
-
-    <p class="audio-guide-status" data-guide-status role="status" aria-live="polite">選好導覽點後，按「播放介紹」開始。</p>
-
-    <details class="audio-guide-transcript">
-      <summary>閱讀本段導覽逐字稿</summary>
-      <p data-guide-transcript></p>
     </details>
   </section>
 )}
 
 <script>
-  document.querySelectorAll('[data-audio-guide]').forEach((root) => {
+  interface GuideEntry {
+    slug: string;
+    url: string;
+    mapUrl: string;
+    name: string;
+    scientificName: string;
+    family: string;
+    aliases: string[];
+    fieldCue: string;
+    appearance: string;
+    habitat: string;
+    ecologicalFunctions: string;
+    windbreakRole: string;
+    imageUrl: string;
+    imageAlt: string;
+    imageCredit: string;
+    point: number;
+    sources: Array<{ url: string; label: string }>;
+    previous: { name: string; url: string } | null;
+    next: { name: string; url: string } | null;
+  }
+
+  document.querySelectorAll('[data-audio-guide]').forEach((rootElement) => {
+    if (!(rootElement instanceof HTMLElement)) return;
+    const root = rootElement;
     const select = root.querySelector('[data-guide-select]');
     const playButton = root.querySelector('[data-guide-play]');
     const stopButton = root.querySelector('[data-guide-stop]');
@@ -56,6 +115,8 @@ const narration = (plant: PublishedPlant) =>
     const nextButton = root.querySelector('[data-guide-next]');
     const status = root.querySelector('[data-guide-status]');
     const transcript = root.querySelector('[data-guide-transcript]');
+    const summary = root.querySelector('[data-guide-summary]');
+    const syncDetail = root.dataset.syncDetail === 'true';
 
     if (!(select instanceof HTMLSelectElement)
       || !(playButton instanceof HTMLButtonElement)
@@ -72,6 +133,7 @@ const narration = (plant: PublishedPlant) =>
     const nextControl = nextButton;
     const guideStatus = status;
     const guideTranscript = transcript;
+    const guideSummary = summary;
     const synth = window.speechSynthesis;
     const canSpeak = Boolean(synth && window.SpeechSynthesisUtterance);
     let utteranceSequence = 0;
@@ -80,11 +142,98 @@ const narration = (plant: PublishedPlant) =>
     const selectedOption = () => guideSelect.options[guideSelect.selectedIndex];
     const selectedName = () => selectedOption()?.textContent?.replace(/^\d+\s*·\s*/, '').trim() || '所選植物';
 
+    function selectedEntry(): GuideEntry | null {
+      const data = selectedOption()?.dataset.guideEntry;
+      if (!data) return null;
+      try {
+        return JSON.parse(data) as GuideEntry;
+      } catch {
+        return null;
+      }
+    }
+
+    function updateDetail(entry: GuideEntry | null, updateAddress = true) {
+      if (!syncDetail || !entry) return;
+      const detail = document.querySelector('[data-plant-detail]');
+      if (!(detail instanceof HTMLElement)) return;
+
+      const setText = (selector: string, value: string) => {
+        const element = detail.querySelector(selector);
+        if (element instanceof HTMLElement) element.textContent = value;
+      };
+      setText('[data-detail-name]', entry.name);
+      setText('[data-detail-scientific]', entry.scientificName);
+      setText('[data-detail-family]', entry.family);
+      setText('[data-detail-aliases]', entry.aliases.join('、'));
+      setText('[data-detail-field-cue]', entry.fieldCue);
+      setText('[data-detail-point]', String(entry.point).padStart(2, '0'));
+      setText('[data-detail-location-text]', `參考地圖第 ${String(entry.point).padStart(2, '0')} 點。選擇其他圖示可前往相應植物頁面。`);
+
+      const aliasesRow = detail.querySelector('[data-detail-aliases-row]');
+      if (aliasesRow instanceof HTMLElement) aliasesRow.hidden = entry.aliases.length === 0;
+      const image = detail.querySelector('[data-detail-image]');
+      if (image instanceof HTMLImageElement) {
+        image.src = entry.imageUrl;
+        image.alt = entry.imageAlt;
+      }
+      setText('[data-detail-image-credit]', entry.imageCredit);
+      const contentFields = ['appearance', 'habitat', 'ecologicalFunctions', 'windbreakRole'] as const;
+      contentFields.forEach((field) => {
+        const section = detail.querySelector(`[data-detail-section="${field}"] p`);
+        if (section instanceof HTMLElement) section.textContent = entry[field];
+      });
+
+      const mapLink = detail.querySelector('[data-detail-map-link]');
+      if (mapLink instanceof HTMLAnchorElement) mapLink.href = entry.mapUrl;
+      const map = detail.querySelector('[data-detail-location-map] [data-forest-map]');
+      if (map instanceof HTMLElement) map.dispatchEvent(new CustomEvent('map:active', { detail: { slug: entry.slug } }));
+
+      const sources = detail.querySelector('[data-detail-sources]');
+      if (sources instanceof HTMLElement) {
+        sources.replaceChildren();
+        entry.sources.forEach((source) => {
+          const item = document.createElement('li');
+          const link = document.createElement('a');
+          link.href = source.url;
+          link.target = '_blank';
+          link.rel = 'noreferrer';
+          link.textContent = source.label;
+          item.append(link);
+          sources.append(item);
+        });
+      }
+
+      const updateNeighbour = (selector: string, neighbour: GuideEntry['previous'] | GuideEntry['next'], label: string) => {
+        const link = detail.querySelector(selector);
+        if (!(link instanceof HTMLAnchorElement)) return;
+        link.hidden = !neighbour;
+        if (neighbour) {
+          link.href = neighbour.url;
+          const name = link.querySelector('.pager-name');
+          if (name instanceof HTMLElement) name.textContent = neighbour.name;
+          const pagerLabel = link.querySelector('.pager-label');
+          if (pagerLabel instanceof HTMLElement) pagerLabel.textContent = label;
+        }
+      };
+      updateNeighbour('[data-plant-previous]', entry.previous, '← 上一個導覽點');
+      updateNeighbour('[data-plant-next]', entry.next, '下一個導覽點 →');
+
+      document.title = `${entry.name}｜好美里防風林植物數位導覽`;
+      const description = document.querySelector('meta[name="description"]');
+      if (description instanceof HTMLMetaElement) description.content = `${entry.name}：${entry.fieldCue}`;
+      const canonical = document.querySelector('link[rel="canonical"]');
+      if (canonical instanceof HTMLLinkElement) canonical.href = new URL(entry.url, window.location.href).href;
+      if (updateAddress && window.location.pathname !== new URL(entry.url, window.location.href).pathname) {
+        window.history.pushState({ plantSlug: entry.slug }, '', entry.url);
+      }
+    }
+
     function updateGuideText() {
       const option = selectedOption();
       guideTranscript.textContent = option?.dataset.guideScript || '';
       previousControl.disabled = guideSelect.selectedIndex <= 0;
       nextControl.disabled = guideSelect.selectedIndex >= guideSelect.options.length - 1;
+      if (guideSummary instanceof HTMLElement) guideSummary.textContent = `聽 ${selectedName()} 的介紹`;
     }
 
     function stopSpeech() {
@@ -132,6 +281,7 @@ const narration = (plant: PublishedPlant) =>
     guideSelect.addEventListener('change', () => {
       stopSpeech();
       updateGuideText();
+      updateDetail(selectedEntry());
       guideStatus.textContent = `已選擇：${selectedName()}。按「播放介紹」開始。`;
     });
 
@@ -155,21 +305,36 @@ const narration = (plant: PublishedPlant) =>
       guideStatus.textContent = `已停止：${selectedName()}。`;
     });
 
-    previousControl.addEventListener('click', () => {
-      if (guideSelect.selectedIndex <= 0) return;
-      guideSelect.selectedIndex -= 1;
+    function moveSelection(step: number) {
+      const nextIndex = guideSelect.selectedIndex + step;
+      if (nextIndex < 0 || nextIndex >= guideSelect.options.length) return;
+      guideSelect.selectedIndex = nextIndex;
       updateGuideText();
+      updateDetail(selectedEntry());
       speakSelection();
-    });
+    }
 
-    nextControl.addEventListener('click', () => {
-      if (guideSelect.selectedIndex >= guideSelect.options.length - 1) return;
-      guideSelect.selectedIndex += 1;
-      updateGuideText();
-      speakSelection();
-    });
+    previousControl.addEventListener('click', () => moveSelection(-1));
+    nextControl.addEventListener('click', () => moveSelection(1));
+
+    if (syncDetail) {
+      window.addEventListener('popstate', () => {
+        const currentPath = window.location.pathname;
+        const index = Array.from(guideSelect.options).findIndex((option) => {
+          const entry = JSON.parse(option.dataset.guideEntry || '{}') as GuideEntry;
+          return new URL(entry.url, window.location.href).pathname === currentPath;
+        });
+        if (index < 0) return;
+        stopSpeech();
+        guideSelect.selectedIndex = index;
+        updateGuideText();
+        updateDetail(selectedEntry(), false);
+        guideStatus.textContent = `已選擇：${selectedName()}。按「播放介紹」開始。`;
+      });
+    }
 
     updateGuideText();
+    if (syncDetail) updateDetail(selectedEntry(), false);
 
     if (!canSpeak) {
       playControl.disabled = true;
