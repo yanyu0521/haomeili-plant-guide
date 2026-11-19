@@ -15,23 +15,23 @@ interface Props {
 const { plants, activeSlug, compact = false, showCredit = false, mapArtwork, showMarkers = true, controls = true } = Astro.props;
 const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest-map.svg')}')`;
 ---
-<figure class:list={['map-figure', { 'map-figure--compact': compact }]}>
-  <div class="forest-map" style={baseStyle} role="group" aria-label={showMarkers ? '好美里保安林植物位置互動地圖；選擇編號標記前往植物介紹' : '好美里保安林地圖預覽'} data-forest-map>
-    {controls && (
-      <div class="map-controls" role="group" aria-label="地圖檢視控制">
-        <div class="map-zoom-group" role="group" aria-label="地圖縮放">
-          <button class="map-control-button" type="button" data-map-zoom-in aria-label="放大地圖" title="放大地圖">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" /></svg>
-          </button>
-          <button class="map-control-button" type="button" data-map-zoom-out aria-label="縮小地圖" title="縮小地圖" disabled>
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14" /></svg>
-          </button>
-        </div>
+<figure class:list={['map-figure', { 'map-figure--compact': compact }]} data-map-figure>
+  {controls && (
+    <div class="map-controls" role="group" aria-label="地圖檢視控制">
+      <div class="map-zoom-group" role="group" aria-label="地圖縮放">
+        <button class="map-control-button" type="button" data-map-zoom-in aria-label="放大地圖" title="放大地圖">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" /></svg>
+        </button>
+        <button class="map-control-button" type="button" data-map-zoom-out aria-label="縮小地圖" title="縮小地圖" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14" /></svg>
+        </button>
         <button class="map-control-button map-control-button--reset" type="button" data-map-reset aria-label="回到地圖全覽" title="回到地圖全覽" disabled>
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3" /><circle cx="12" cy="12" r="8.5" /><path d="M12 1v3m0 16v3M1 12h3m16 0h3" /></svg>
+          全覽
         </button>
       </div>
-    )}
+    </div>
+  )}
+  <div class="forest-map" style={baseStyle} role="group" aria-label={showMarkers ? '好美里保安林植物位置互動地圖；選擇編號標記前往植物介紹' : '好美里保安林地圖預覽'} data-forest-map>
     {showMarkers && plants.map((plant, index) => {
       const point = plant.mapPosition;
       const markerStyle = `--point-x:${(point.x / 963) * 100}%;--point-y:${(point.y / 638) * 100}%;--marker-art:url('${sitePath(`plants/${plant.image.file}`)}')`;
@@ -41,6 +41,8 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
           id={`map-point-${plant.slug}`}
           class:list={['map-marker', { 'map-marker--active': active, 'map-marker--muted': activeSlug && !active }]}
           data-map-slug={plant.slug}
+          data-map-name={plant.name}
+          data-map-number={String(index + 1).padStart(2, '0')}
           data-point-x={point.x}
           data-point-y={point.y}
           href={plantPath(plant.slug)}
@@ -69,42 +71,157 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
   document.querySelectorAll('[data-forest-map]').forEach((mapElement) => {
     if (!(mapElement instanceof HTMLDivElement)) return;
     const map = mapElement;
-    const zoomIn = map.querySelector('[data-map-zoom-in]');
-    const zoomOut = map.querySelector('[data-map-zoom-out]');
-    const reset = map.querySelector('[data-map-reset]');
-    const clusterPanel = map.closest('.map-figure')?.querySelector('[data-map-cluster-panel]');
+    const figure = map.closest('[data-map-figure]');
+    const zoomIn = figure?.querySelector('[data-map-zoom-in]');
+    const zoomOut = figure?.querySelector('[data-map-zoom-out]');
+    const reset = figure?.querySelector('[data-map-reset]');
+    const clusterPanel = figure?.querySelector('[data-map-cluster-panel]');
     const markers = Array.from(map.querySelectorAll('.map-marker[data-point-x][data-point-y]'))
       .filter((marker): marker is HTMLAnchorElement => marker instanceof HTMLAnchorElement);
     const clusterLayer = map.querySelector('[data-map-cluster-layer]');
+    if (!(clusterPanel instanceof HTMLElement) || !(clusterLayer instanceof HTMLElement)) return;
+
+    type Point = { x: number; y: number };
+    type ClusterEntry = { marker: HTMLAnchorElement; position: Point };
+    type Target = { entries: ClusterEntry[]; position: Point; width: number };
+
+    const targetHeight = 44;
+    const clusterWidth = 54;
+    const clusterOffsets: Point[] = [];
+    // Move group badges a short distance before combining them into larger groups.
+    for (let x = -24; x <= 24; x += 6) {
+      for (let y = -24; y <= 24; y += 6) {
+        if (Math.hypot(x, y) <= 24) clusterOffsets.push({ x, y });
+      }
+    }
+    clusterOffsets.sort((a, b) => Math.hypot(a.x, a.y) - Math.hypot(b.x, b.y));
+
+    const clusterList = clusterLayer;
+    const optionsPanel = clusterPanel;
     let zoom = 1;
     let panX = 0;
     let panY = 0;
-    let dragStart: { x: number; y: number; panX: number; panY: number; pointerId: number } | null = null;
-    let dragged = false;
+    let width = map.clientWidth;
+    let height = map.clientHeight;
+    let locatedMarker: HTMLAnchorElement | undefined;
+    let activeMarker = markers.find((marker) => marker.classList.contains('map-marker--active'));
+    let openClusterMarker: HTMLAnchorElement | undefined;
+    let filtered = false;
+    let dragStart: { x: number; y: number; panX: number; panY: number; pointerId: number; panning: boolean } | null = null;
 
-    function pointPosition(marker: HTMLAnchorElement): { x: number; y: number } {
-      const x = (Number(marker.dataset.pointX) / 963) * map.clientWidth;
-      const y = (Number(marker.dataset.pointY) / 638) * map.clientHeight;
+    function basePosition(marker: HTMLAnchorElement): Point {
       return {
-        x: map.clientWidth / 2 + (x - map.clientWidth / 2) * zoom + panX,
-        y: map.clientHeight / 2 + (y - map.clientHeight / 2) * zoom + panY,
+        x: (Number(marker.dataset.pointX) / 963) * width,
+        y: (Number(marker.dataset.pointY) / 638) * height,
       };
     }
 
-    function renderClusters() {
-      if (!(clusterLayer instanceof HTMLElement)) return;
-      clusterLayer.replaceChildren();
-      if (clusterPanel instanceof HTMLElement) {
-        clusterPanel.hidden = true;
-        clusterPanel.replaceChildren();
+    function pointPosition(marker: HTMLAnchorElement): Point {
+      const { x, y } = basePosition(marker);
+      return {
+        x: width / 2 + (x - width / 2) * zoom + panX,
+        y: height / 2 + (y - height / 2) * zoom + panY,
+      };
+    }
+
+    function markerLabel(marker: HTMLAnchorElement) {
+      return `${marker.dataset.mapNumber} ${marker.dataset.mapName}`;
+    }
+
+    function renderOptions(entries?: ClusterEntry[]) {
+      optionsPanel.hidden = !entries;
+      optionsPanel.replaceChildren();
+      if (!entries) return;
+
+      const current = locatedMarker ?? activeMarker;
+      const includesCurrent = current && entries.some(({ marker }) => marker === current);
+      const heading = document.createElement('h3');
+      heading.className = 'map-cluster-panel-title';
+      heading.textContent = includesCurrent ? `第 ${markerLabel(current)} · 相鄰點位` : `選擇相鄰的 ${entries.length} 個植物點位`;
+      const options = document.createElement('div');
+      options.className = 'map-cluster-options';
+      options.setAttribute('role', 'group');
+      options.setAttribute('aria-label', '選擇植物點位');
+      entries.forEach(({ marker }) => {
+        const option = document.createElement('a');
+        option.href = marker.href;
+        option.className = 'map-cluster-option';
+        if (marker === current) option.setAttribute('aria-current', 'location');
+        const numberLabel = document.createElement('span');
+        numberLabel.className = 'map-cluster-option-number';
+        numberLabel.textContent = marker.dataset.mapNumber ?? '';
+        const nameLabel = document.createElement('span');
+        nameLabel.textContent = marker.dataset.mapName ?? '';
+        option.append(numberLabel, nameLabel);
+        options.append(option);
+      });
+      optionsPanel.append(heading, options);
+    }
+
+    function makeTarget(entries: ClusterEntry[]): Target {
+      const sum = entries.reduce((center, { position }) => ({ x: center.x + position.x, y: center.y + position.y }), { x: 0, y: 0 });
+      return {
+        entries,
+        position: { x: sum.x / entries.length, y: sum.y / entries.length },
+        width: entries.length === 1 ? targetHeight : clusterWidth,
+      };
+    }
+
+    function adjustedTarget(target: Target, offset = { x: 0, y: 0 }): Target {
+      const halfWidth = target.width / 2;
+      const halfHeight = targetHeight / 2;
+      return {
+        ...target,
+        position: {
+          x: Math.max(halfWidth, Math.min(width - halfWidth, target.position.x + offset.x)),
+          y: Math.max(halfHeight, Math.min(height - halfHeight, target.position.y + offset.y)),
+        },
+      };
+    }
+
+    function targetsOverlap(first: Target, second: Target) {
+      return Math.abs(first.position.x - second.position.x) < (first.width + second.width) / 2 + 1 &&
+        Math.abs(first.position.y - second.position.y) < targetHeight + 1;
+    }
+
+    function placeTargets(groups: ClusterEntry[][]): Target[] {
+      const targets = groups.map(makeTarget).sort((a, b) => a.entries.length - b.entries.length);
+      const placed: Target[] = [];
+      for (const target of targets) {
+        const preferred = adjustedTarget(target);
+        const conflicting = placed.find((other) => targetsOverlap(preferred, other));
+        if (!conflicting) {
+          placed.push(preferred);
+          continue;
+        }
+        const alternative = target.entries.length > 1 && clusterOffsets
+          .map((offset) => adjustedTarget(target, offset))
+          .find((candidate) => placed.every((other) => !targetsOverlap(candidate, other)));
+        if (alternative) {
+          placed.push(alternative);
+          continue;
+        }
+
+        // Keep every point reachable when a separate target cannot fit here.
+        const separateGroups = groups.filter((group) => group !== target.entries && group !== conflicting.entries);
+        const combined = [...target.entries, ...conflicting.entries].sort((a, b) => Number(a.marker.dataset.mapNumber) - Number(b.marker.dataset.mapNumber));
+        return placeTargets([...separateGroups, combined]);
       }
-      const visibleMarkers = markers.filter((marker) => !marker.hidden);
-      const positions = visibleMarkers.map((marker) => pointPosition(marker));
-      const markerSize = visibleMarkers[0]?.getBoundingClientRect().width || 28;
-      const clusterDistance = Math.max(36, markerSize * 1.28);
-      const groups: Array<Array<{ marker: HTMLAnchorElement; position: { x: number; y: number } }>> = [];
-      visibleMarkers.forEach((marker, index) => {
-        const entry = { marker, position: positions[index] };
+      return placed;
+    }
+
+    function renderClusters() {
+      clusterList.replaceChildren();
+      const groups: ClusterEntry[][] = [];
+      const clusterDistance = 44;
+      markers.forEach((marker) => {
+        const position = pointPosition(marker);
+        const offscreen = position.x < 0 || position.x > width || position.y < 0 || position.y > height;
+        marker.style.left = `${position.x}px`;
+        marker.style.top = `${position.y}px`;
+        marker.classList.toggle('map-marker--offscreen', offscreen);
+        if (marker.hidden || offscreen) return;
+        const entry = { marker, position };
         const group = groups.find((entries) => entries.every((other) =>
           Math.hypot(entry.position.x - other.position.x, entry.position.y - other.position.y) < clusterDistance,
         ));
@@ -112,142 +229,112 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
         else groups.push([entry]);
       });
 
-      const clusteredMarkers = new Set(groups.filter((entries) => entries.length > 1).flatMap((entries) => entries.map((entry) => entry.marker)));
-      visibleMarkers.forEach((marker) => {
+      const targets = placeTargets(groups);
+      const clusterTargets = targets.filter(({ entries }) => entries.length > 1);
+      const clusteredMarkers = new Set(clusterTargets.flatMap(({ entries }) => entries.map(({ marker }) => marker)));
+      markers.forEach((marker) => {
         const groupContainsMarker = clusteredMarkers.has(marker);
         marker.classList.toggle('map-marker--clustered', groupContainsMarker);
-        if (groupContainsMarker) marker.setAttribute('aria-hidden', 'true');
+        if (groupContainsMarker || marker.classList.contains('map-marker--offscreen')) marker.setAttribute('aria-hidden', 'true');
         else marker.removeAttribute('aria-hidden');
       });
 
-      const clusterEntries = groups.filter((entries) => entries.length > 1).map((entries) => {
-        const center = entries.reduce((sum, entry) => ({ x: sum.x + entry.position.x, y: sum.y + entry.position.y }), { x: 0, y: 0 });
-        return { entries, x: center.x / entries.length, y: center.y / entries.length };
+      targets.filter(({ entries }) => entries.length === 1).forEach(({ entries: [entry], position }) => {
+        // Near an edge, keep the full tap area inside the map and the art on its actual position.
+        entry.marker.style.left = `${position.x}px`;
+        entry.marker.style.top = `${position.y}px`;
+        entry.marker.style.setProperty('--map-pin-offset-x', `${entry.position.x - position.x}px`);
+        entry.marker.style.setProperty('--map-pin-offset-y', `${entry.position.y - position.y}px`);
+        entry.marker.classList.toggle('map-marker--label-left', position.x > width - 110);
       });
-      // Keep the touch targets separate even when several clusters follow a tight row of trees.
-      for (let pass = 0; pass < 48; pass += 1) {
-        for (let first = 0; first < clusterEntries.length; first += 1) {
-          for (let second = first + 1; second < clusterEntries.length; second += 1) {
-            const a = clusterEntries[first];
-            const b = clusterEntries[second];
-            const dx = b.x - a.x;
-            const dy = b.y - a.y;
-            const distance = Math.hypot(dx, dy) || 1;
-            if (distance >= 48) continue;
-            const shift = (48 - distance) / 2;
-            const unitX = dx / distance;
-            const unitY = dy / distance;
-            a.x -= shift * unitX;
-            a.y -= shift * unitY;
-            b.x += shift * unitX;
-            b.y += shift * unitY;
-          }
-        }
-        clusterEntries.forEach((entry) => {
-          entry.x = Math.max(24, Math.min(map.clientWidth - 24, entry.x));
-          entry.y = Math.max(24, Math.min(map.clientHeight - 24, entry.y));
-        });
-      }
 
-      clusterEntries.forEach(({ entries, x: centerX, y: centerY }) => {
+      let openEntries: ClusterEntry[] | undefined;
+      clusterTargets.forEach(({ entries, position }) => {
         const cluster = document.createElement('div');
         cluster.className = 'map-cluster';
         cluster.dataset.mapClusterSlugs = entries.map(({ marker }) => marker.dataset.mapSlug).join(' ');
-        cluster.style.left = `${centerX}px`;
-        cluster.style.top = `${centerY}px`;
-        if (centerY > map.clientHeight - 110) cluster.classList.add('map-cluster--above');
-        if (centerX > map.clientWidth - 130) cluster.classList.add('map-cluster--right');
+        cluster.style.left = `${position.x}px`;
+        cluster.style.top = `${position.y}px`;
+        const current = entries.find(({ marker }) => marker === (locatedMarker ?? activeMarker))?.marker;
+        cluster.classList.toggle('map-cluster--current', Boolean(current));
+        cluster.classList.toggle('map-cluster--search-hit', entries.some(({ marker }) => marker.classList.contains('map-marker--search-hit')));
+        const open = entries.some(({ marker }) => marker === openClusterMarker);
+        cluster.classList.toggle('map-cluster--open', open);
+        if (open) openEntries = entries;
 
         const toggle = document.createElement('button');
         toggle.type = 'button';
         toggle.className = 'map-cluster-toggle';
-        toggle.textContent = String(entries.length);
-        toggle.setAttribute('aria-expanded', 'false');
-        toggle.setAttribute('aria-label', `展開 ${entries.length} 個相鄰植物點位`);
-        toggle.title = `展開 ${entries.length} 個相鄰植物點位`;
+        toggle.textContent = `${entries.length} 個點`;
+        const label = current ? `${entries.length} 個相鄰植物點位，含 ${markerLabel(current)}` : `${entries.length} 個相鄰植物點位`;
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', label);
+        toggle.title = label;
         toggle.addEventListener('click', () => {
-          const open = cluster.classList.toggle('map-cluster--open');
-          toggle.setAttribute('aria-expanded', String(open));
-          clusterLayer.querySelectorAll('.map-cluster--open').forEach((other) => {
-            if (other === cluster) return;
+          const shouldOpen = !cluster.classList.contains('map-cluster--open');
+          clusterList.querySelectorAll('.map-cluster--open').forEach((other) => {
             other.classList.remove('map-cluster--open');
             other.querySelector('.map-cluster-toggle')?.setAttribute('aria-expanded', 'false');
           });
-          if (!(clusterPanel instanceof HTMLElement)) return;
-          if (!open) {
-            clusterPanel.hidden = true;
-            clusterPanel.replaceChildren();
-            return;
-          }
-          clusterPanel.replaceChildren();
-          const heading = document.createElement('h3');
-          heading.className = 'map-cluster-panel-title';
-          heading.textContent = `選擇相鄰的 ${entries.length} 個植物點位`;
-          const options = document.createElement('div');
-          options.className = 'map-cluster-options';
-          options.setAttribute('role', 'group');
-          options.setAttribute('aria-label', '選擇植物點位');
-          entries.forEach(({ marker }) => {
-            const option = document.createElement('a');
-            option.href = marker.href;
-            option.className = 'map-cluster-option';
-            const number = marker.title?.match(/^\d+/)?.[0] || '';
-            const name = marker.getAttribute('aria-label')?.match(/：(.+)，前往/)?.[1] || marker.title || '植物';
-            const numberLabel = document.createElement('span');
-            numberLabel.className = 'map-cluster-option-number';
-            numberLabel.textContent = number;
-            const nameLabel = document.createElement('span');
-            nameLabel.textContent = name;
-            option.append(numberLabel, nameLabel);
-            options.append(option);
-          });
-          clusterPanel.append(heading, options);
-          clusterPanel.hidden = false;
+          openClusterMarker = shouldOpen ? current ?? entries[0].marker : undefined;
+          cluster.classList.toggle('map-cluster--open', shouldOpen);
+          toggle.setAttribute('aria-expanded', String(shouldOpen));
+          renderOptions(shouldOpen ? entries : undefined);
+          updateResetButton();
         });
         cluster.append(toggle);
-        clusterLayer.append(cluster);
+        clusterList.append(cluster);
       });
+      renderOptions(openEntries);
     }
 
-    function setView(nextZoom = zoom, nextPanX = panX, nextPanY = panY) {
+    function updateResetButton() {
+      if (reset instanceof HTMLButtonElement) reset.disabled = zoom === 1 && !panX && !panY && !locatedMarker && !openClusterMarker && !filtered;
+    }
+
+    function setView(nextZoom = zoom, nextPanX = panX, nextPanY = panY, centerMarker?: HTMLAnchorElement) {
       zoom = Math.max(1, Math.min(2.5, nextZoom));
-      const maxPanX = ((zoom - 1) * map.clientWidth) / 2;
-      const maxPanY = ((zoom - 1) * map.clientHeight) / 2;
+      const maxPanX = ((zoom - 1) * width) / 2;
+      const maxPanY = ((zoom - 1) * height) / 2;
       panX = Math.max(-maxPanX, Math.min(maxPanX, nextPanX));
       panY = Math.max(-maxPanY, Math.min(maxPanY, nextPanY));
+      if (centerMarker) {
+        const { x, y } = basePosition(centerMarker);
+        panX = (width / 2 - x) * zoom;
+        panY = (height / 2 - y) * zoom;
+      }
       map.style.backgroundSize = `${100 * zoom}% ${100 * zoom}%`;
       map.style.backgroundPosition = `calc(50% + ${panX}px) calc(50% + ${panY}px)`;
       map.dataset.zoom = String(zoom);
-      markers.forEach((marker) => {
-        if (!(marker instanceof HTMLAnchorElement)) return;
-        const position = pointPosition(marker);
-        marker.style.left = `${position.x}px`;
-        marker.style.top = `${position.y}px`;
-      });
       if (zoomIn instanceof HTMLButtonElement) zoomIn.disabled = zoom >= 2.5;
       if (zoomOut instanceof HTMLButtonElement) zoomOut.disabled = zoom <= 1;
-      if (reset instanceof HTMLButtonElement) reset.disabled = zoom === 1 && panX === 0 && panY === 0;
+      updateResetButton();
       renderClusters();
     }
 
+    function selectMarker(marker?: HTMLAnchorElement) {
+      locatedMarker = marker;
+      openClusterMarker = marker;
+      markers.forEach((point) => {
+        const selected = point === marker;
+        point.classList.toggle('map-marker--located', selected);
+        if (selected || point === activeMarker) point.setAttribute('aria-current', 'location');
+        else point.removeAttribute('aria-current');
+      });
+    }
+
     function fitMarkers(slugs: string[] = []) {
+      selectMarker();
       const matches = markers.filter((marker) => !marker.hidden && slugs.includes(marker.dataset.mapSlug || ''));
       if (matches.length === 0) {
         setView(1, 0, 0);
         return;
       }
       if (matches.length === 1) {
-        const targetZoom = Math.max(zoom, 2.5);
-        const point = matches[0];
-        const baseX = (Number(point.dataset.pointX) / 963) * map.clientWidth;
-        const baseY = (Number(point.dataset.pointY) / 638) * map.clientHeight;
-        setView(targetZoom, -(baseX - map.clientWidth / 2) * targetZoom, -(baseY - map.clientHeight / 2) * targetZoom);
+        setView(2.5, 0, 0, matches[0]);
         return;
       }
-      const points = matches.map((marker) => ({
-        x: (Number(marker.dataset.pointX) / 963) * map.clientWidth,
-        y: (Number(marker.dataset.pointY) / 638) * map.clientHeight,
-      }));
+      const points = matches.map(basePosition);
       const xs = points.map((point) => point.x);
       const ys = points.map((point) => point.y);
       const minX = Math.min(...xs);
@@ -255,40 +342,69 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
       const minY = Math.min(...ys);
       const maxY = Math.max(...ys);
       const margin = 48;
-      const fitZoom = Math.min(2.5, (map.clientWidth - margin * 2) / Math.max(1, maxX - minX), (map.clientHeight - margin * 2) / Math.max(1, maxY - minY));
+      const fitZoom = Math.min(2.5, (width - margin * 2) / Math.max(1, maxX - minX), (height - margin * 2) / Math.max(1, maxY - minY));
       const targetZoom = Math.max(1, fitZoom);
       const centerX = (minX + maxX) / 2;
       const centerY = (minY + maxY) / 2;
-      setView(targetZoom, -(centerX - map.clientWidth / 2) * targetZoom, -(centerY - map.clientHeight / 2) * targetZoom);
+      setView(targetZoom, (width / 2 - centerX) * targetZoom, (height / 2 - centerY) * targetZoom);
     }
 
     if (zoomIn instanceof HTMLButtonElement) zoomIn.addEventListener('click', () => setView(zoom + 0.25, panX * ((zoom + 0.25) / zoom), panY * ((zoom + 0.25) / zoom)));
     if (zoomOut instanceof HTMLButtonElement) zoomOut.addEventListener('click', () => setView(zoom - 0.25, panX * ((zoom - 0.25) / zoom), panY * ((zoom - 0.25) / zoom)));
-    if (reset instanceof HTMLButtonElement) reset.addEventListener('click', () => setView(1, 0, 0));
+    if (reset instanceof HTMLButtonElement) {
+      reset.addEventListener('click', () => {
+        selectMarker();
+        setView(1, 0, 0);
+        map.dispatchEvent(new CustomEvent('map:reset'));
+      });
+      // Mobile browsers can suppress the first click after a pan, even for a new tap.
+      // A completed tap on this button resets and disables it before a later click.
+      reset.addEventListener('pointerup', (event) => {
+        if (event.pointerType === 'touch' && event.isPrimary && reset.contains(document.elementFromPoint(event.clientX, event.clientY))) {
+          reset.click();
+        }
+      });
+    }
     map.addEventListener('map:fit', (event) => {
-      if (event instanceof CustomEvent && Array.isArray(event.detail?.slugs)) fitMarkers(event.detail.slugs);
+      if (event instanceof CustomEvent && Array.isArray(event.detail?.slugs)) {
+        filtered = Boolean(event.detail.filtered);
+        fitMarkers(event.detail.slugs);
+      }
+    });
+    map.addEventListener('map:locate', (event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const marker = markers.find((point) => point.dataset.mapSlug === event.detail?.slug && !point.hidden);
+      if (!marker) return;
+      selectMarker(marker);
+      setView(2.5, 0, 0, marker);
     });
     map.addEventListener('map:active', (event) => {
       if (!(event instanceof CustomEvent)) return;
+      activeMarker = markers.find((point) => point.dataset.mapSlug === event.detail?.slug);
+      selectMarker();
       markers.forEach((marker) => {
-        const active = marker instanceof HTMLAnchorElement && marker.dataset.mapSlug === event.detail?.slug;
+        const active = marker === activeMarker;
         marker.classList.toggle('map-marker--active', active);
+        marker.classList.toggle('map-marker--muted', !active && Boolean(activeMarker));
         if (active) marker.setAttribute('aria-current', 'location');
         else marker.removeAttribute('aria-current');
       });
-      renderClusters();
+      setView(1, 0, 0);
     });
     map.addEventListener('pointerdown', (event) => {
-      if (zoom <= 1 || event.target instanceof Element && event.target.closest('a, button')) return;
-      dragStart = { x: event.clientX, y: event.clientY, panX, panY, pointerId: event.pointerId };
-      dragged = false;
-      map.setPointerCapture(event.pointerId);
+      if (zoom <= 1 || !event.isPrimary || event.button !== 0) return;
+      dragStart = { x: event.clientX, y: event.clientY, panX, panY, pointerId: event.pointerId, panning: false };
     });
     map.addEventListener('pointermove', (event) => {
       if (!dragStart || dragStart.pointerId !== event.pointerId) return;
       const deltaX = event.clientX - dragStart.x;
       const deltaY = event.clientY - dragStart.y;
-      if (Math.hypot(deltaX, deltaY) > 4) dragged = true;
+      if (!dragStart.panning) {
+        if (Math.hypot(deltaX, deltaY) <= 4) return;
+        dragStart.panning = true;
+        // Capture only after movement, so a tap still reaches its marker or group.
+        map.setPointerCapture(event.pointerId);
+      }
       setView(zoom, dragStart.panX + deltaX, dragStart.panY + deltaY);
     });
     const finishDrag = (event: PointerEvent) => {
@@ -298,14 +414,37 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
     };
     map.addEventListener('pointerup', finishDrag);
     map.addEventListener('pointercancel', finishDrag);
-    map.addEventListener('click', (event) => {
-      if (!dragged) return;
-      event.preventDefault();
-      event.stopPropagation();
-      dragged = false;
-    }, true);
-    const resizeObserver = new ResizeObserver(() => setView(zoom, panX, panY));
+    map.addEventListener('lostpointercapture', (event) => {
+      if (event.target === map) finishDrag(event);
+    });
+    map.addEventListener('pointerleave', (event) => {
+      if (!map.hasPointerCapture(event.pointerId)) finishDrag(event);
+    });
+    map.addEventListener('dragstart', (event) => event.preventDefault());
+    const resizeObserver = new ResizeObserver(() => {
+      const nextWidth = map.clientWidth;
+      const nextHeight = map.clientHeight;
+      if (nextWidth === width && nextHeight === height) return;
+      const scaledPanX = width ? (panX / width) * nextWidth : 0;
+      const scaledPanY = height ? (panY / height) * nextHeight : 0;
+      width = nextWidth;
+      height = nextHeight;
+      setView(zoom, scaledPanX, scaledPanY);
+    });
     resizeObserver.observe(map);
     setView(1, 0, 0);
+    map.dataset.mapReady = 'true';
+    map.dispatchEvent(new Event('map:ready'));
   });
 </script>
+
+<style is:global>
+  .map-marker--label-left .map-marker-label { left: auto; right: calc(100% + 5px); }
+  .map-marker--offscreen { visibility: hidden; pointer-events: none; }
+  .map-marker--located { z-index: 4; outline: 3px solid #ffd46f; outline-offset: 2px; }
+  .map-marker--located:not(.map-marker--clustered, .map-marker--offscreen) .map-marker-label,
+  .map-marker--single-result:not(.map-marker--offscreen) .map-marker-label { visibility: visible; }
+  .map-cluster--current .map-cluster-toggle,
+  .map-cluster--search-hit .map-cluster-toggle { outline: 3px solid #ffd46f; outline-offset: 1px; }
+  .map-cluster-option[aria-current="location"] { border-color: #ffd46f; }
+</style>

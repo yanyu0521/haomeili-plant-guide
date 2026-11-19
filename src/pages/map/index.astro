@@ -11,11 +11,31 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
 <BaseLayout title="植物分布地圖" description="在好美里 1920 保安林地圖上，選擇標記探索植物與其生長位置。">
   <div class="container--wide map-page">
     <header class="page-heading map-heading">
-      <h1>沿著林徑找到植物</h1>
-      <p class="lead">搜尋植物名稱、學名或科別，快速定位地圖點位；點選標記或名錄即可開啟個別介紹。</p>
+      <h1>步道植物地圖</h1>
+      <p class="lead">點站號看植物。遇到「3 個點」這類標記，點一下就能選站。</p>
     </header>
 
     <div class="map-layout" data-map-explorer>
+      <div class="map-index-filters" role="search" aria-label="搜尋植物點位">
+        <div class="map-filter-fields">
+          <div class="map-filter-field map-filter-field--search">
+            <label for="map-plant-search">搜尋植物</label>
+            <input id="map-plant-search" type="search" data-map-search placeholder="例如 05、水黃皮" autocomplete="off" />
+          </div>
+          <div class="map-filter-field">
+            <label for="map-family-filter">依科別篩選</label>
+            <select id="map-family-filter" data-map-family>
+              <option value="">全部科別</option>
+              {families.map((family) => <option value={family}>{family}</option>)}
+            </select>
+          </div>
+        </div>
+        <div class="map-filter-footer">
+          <p class="map-filter-help" data-map-count role="status">{publishedPlants.length} 個植物導覽點</p>
+          <button class="map-filter-clear" type="button" data-map-clear disabled>清除篩選</button>
+        </div>
+      </div>
+
       <section class="map-panel" aria-label="植物分布圖">
         <div class="map-panel-heading">
           <h2>好美里 1920 保安林</h2>
@@ -33,30 +53,10 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
       <aside class="map-index" aria-labelledby="map-index-title">
         <div class="map-index-heading">
           <h2 id="map-index-title">地圖點位</h2>
-          <span data-map-count aria-live="polite">{publishedPlants.length} 個導覽點</span>
-        </div>
-        <div class="map-index-filters">
-          <div class="map-filter-fields">
-            <div class="map-filter-field map-filter-field--search">
-              <label for="map-plant-search">搜尋植物</label>
-              <input id="map-plant-search" type="search" data-map-search placeholder="名稱、學名、別名" autocomplete="off" />
-            </div>
-            <div class="map-filter-field">
-              <label for="map-family-filter">依科別篩選</label>
-              <select id="map-family-filter" data-map-family>
-                <option value="">全部科別</option>
-                {families.map((family) => <option value={family}>{family}</option>)}
-              </select>
-            </div>
-          </div>
-          <div class="map-filter-footer">
-            <p class="map-filter-help">結果會同步顯示在地圖與名錄。</p>
-            <button class="map-filter-clear" type="button" data-map-clear disabled>清除條件</button>
-          </div>
         </div>
         <ol class="map-index-list">
           {publishedPlants.map((plant, index) => (
-            <li data-map-index-item data-map-slug={plant.slug} data-map-family={plant.family} data-map-search-index={searchIndex(plant)}>
+            <li data-map-index-item data-map-number={index + 1} data-map-slug={plant.slug} data-map-family={plant.family} data-map-search-index={searchIndex(plant)}>
               <a href={plantPath(plant.slug)}>
                 <span class="map-index-number">{String(index + 1).padStart(2, '0')}</span>
                 <span class="map-index-copy">
@@ -75,6 +75,32 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
   </div>
 </BaseLayout>
 
+<style is:global>
+  .map-page .map-layout {
+    grid-template-areas: 'map filters' 'map points';
+    grid-template-rows: auto 1fr;
+    row-gap: 12px;
+  }
+  .map-page .map-panel { grid-area: map; }
+  .map-page .forest-map { scroll-margin-top: 16px; }
+  .map-page .map-index { grid-area: points; }
+  .map-page .map-index-filters {
+    grid-area: filters;
+    border: 1px solid #31545a;
+    border-radius: 12px;
+  }
+  .map-page .map-filter-help { font-size: 12px; }
+  .map-page .map-filter-clear { min-height: 36px; }
+
+  @media (max-width: 900px) {
+    .map-page .map-layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'filters' 'map' 'points'; grid-template-rows: auto; }
+    .map-page .map-filter-fields { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+    .map-page .map-filter-field input, .map-page .map-filter-field select { min-height: 44px; font-size: 16px; }
+    .map-page .map-filter-clear { min-height: 44px; }
+    .map-page .map-index-filters { gap: 2px; padding-bottom: 4px; }
+  }
+</style>
+
 <script>
   document.querySelectorAll('[data-map-explorer]').forEach((explorerElement) => {
     if (!(explorerElement instanceof HTMLElement)) return;
@@ -86,27 +112,35 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
     const emptyState = explorer.querySelector('[data-map-empty]');
     const searchLegend = explorer.querySelector('[data-map-search-legend]');
     const list = explorer.querySelector('.map-index-list');
+    const map = explorer.querySelector('[data-forest-map]');
+    const markers = Array.from(explorer.querySelectorAll<HTMLAnchorElement>('.map-marker[data-map-slug]'));
     const items = Array.from(explorer.querySelectorAll('[data-map-index-item]'))
       .filter((item): item is HTMLElement => item instanceof HTMLElement);
+    const pointHashPrefix = '#map-point-';
 
     function findMarker(slug = '') {
-      return Array.from(explorer.querySelectorAll('.map-marker[data-map-slug]')).find((marker) =>
-        marker instanceof HTMLAnchorElement && marker.dataset.mapSlug === slug,
-      );
+      return markers.find((marker) => marker.dataset.mapSlug === slug);
+    }
+
+    function clearPointHash() {
+      if (!location.hash.startsWith(pointHashPrefix)) return;
+      history.replaceState(history.state, '', `${location.pathname}${location.search}`);
     }
 
     function applyFilters() {
-      const query = searchInput instanceof HTMLInputElement ? searchInput.value.trim().toLocaleLowerCase('zh-Hant') : '';
+      const query = searchInput instanceof HTMLInputElement ? searchInput.value.normalize('NFKC').trim().toLocaleLowerCase('zh-Hant') : '';
+      const pointNumber = query.match(/^(?:第\s*)?(\d{1,2})(?:\s*[號點])?$/)?.[1];
       const family = familyFilter instanceof HTMLSelectElement ? familyFilter.value : '';
       const hasFilter = Boolean(query || family);
-      let visibleCount = 0;
+      const visibleSlugs: string[] = [];
 
       items.forEach((item) => {
-        if (!(item instanceof HTMLElement)) return;
-        const matchesQuery = !query || (item.dataset.mapSearchIndex || '').includes(query);
+        const matchesQuery = pointNumber
+          ? Number(item.dataset.mapNumber) === Number(pointNumber)
+          : !query || (item.dataset.mapSearchIndex || '').includes(query);
         const matchesFamily = !family || item.dataset.mapFamily === family;
         const matches = matchesQuery && matchesFamily;
-        const isFirstVisible = matches && visibleCount === 0;
+        const isFirstVisible = matches && visibleSlugs.length === 0;
 
         item.hidden = !matches;
         item.classList.toggle('map-index-item--first-visible', isFirstVisible);
@@ -118,17 +152,47 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
           marker.classList.remove('map-marker--preview', 'map-marker--dimmed');
         }
 
-        if (matches) visibleCount += 1;
+        if (matches && item.dataset.mapSlug) visibleSlugs.push(item.dataset.mapSlug);
       });
 
+      const visibleCount = visibleSlugs.length;
+      markers.forEach((marker) => marker.classList.toggle('map-marker--single-result',
+        hasFilter && visibleCount === 1 && marker.dataset.mapSlug === visibleSlugs[0],
+      ));
       if (list instanceof HTMLElement) list.classList.toggle('map-index-list--filtered', hasFilter);
-      if (countLabel instanceof HTMLElement) countLabel.textContent = hasFilter ? `顯示 ${visibleCount} / ${items.length} 個導覽點` : `${items.length} 個導覽點`;
+      if (countLabel instanceof HTMLElement) {
+        countLabel.textContent = hasFilter
+          ? visibleCount ? `找到 ${visibleCount} 個植物導覽點` : '沒有符合的植物'
+          : `${items.length} 個植物導覽點`;
+      }
       if (emptyState instanceof HTMLElement) emptyState.hidden = visibleCount > 0;
       if (clearButton instanceof HTMLButtonElement) clearButton.disabled = !hasFilter;
-      if (searchLegend instanceof HTMLElement) searchLegend.hidden = !hasFilter;
-      const map = explorer.querySelector('[data-forest-map]');
-      const visibleSlugs = items.filter((item) => !item.hidden).map((item) => item.dataset.mapSlug || '');
-      if (map instanceof HTMLElement) map.dispatchEvent(new CustomEvent('map:fit', { detail: { slugs: hasFilter ? visibleSlugs : [] } }));
+      if (searchLegend instanceof HTMLElement) searchLegend.hidden = !hasFilter || visibleCount === 0;
+      if (map instanceof HTMLElement) map.dispatchEvent(new CustomEvent('map:fit', { detail: { slugs: hasFilter ? visibleSlugs : [], filtered: hasFilter } }));
+    }
+
+    function resetFilters() {
+      if (searchInput instanceof HTMLInputElement) searchInput.value = '';
+      if (familyFilter instanceof HTMLSelectElement) familyFilter.value = '';
+      applyFilters();
+    }
+
+    function locateFromHash() {
+      if (!(map instanceof HTMLElement) || !location.hash.startsWith(pointHashPrefix)) return;
+      const slug = location.hash.slice(pointHashPrefix.length);
+      if (!findMarker(slug)) return;
+      resetFilters();
+      map.dispatchEvent(new CustomEvent('map:locate', { detail: { slug } }));
+      const alignMap = () => requestAnimationFrame(() => {
+        if (location.hash === `${pointHashPrefix}${slug}`) {
+          map.scrollTop = 0;
+          map.scrollLeft = 0;
+          map.scrollIntoView({ block: 'start', behavior: 'instant' });
+        }
+      });
+      // The browser may scroll to the marker fragment again while the page loads.
+      if (document.readyState === 'complete') alignMap();
+      else window.addEventListener('load', alignMap, { once: true });
     }
 
     function highlightPlant(slug = '') {
@@ -151,13 +215,27 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
       link?.addEventListener('blur', () => highlightPlant(''));
     });
 
-    searchInput?.addEventListener('input', applyFilters);
-    familyFilter?.addEventListener('change', applyFilters);
-    clearButton?.addEventListener('click', () => {
-      if (searchInput instanceof HTMLInputElement) searchInput.value = '';
-      if (familyFilter instanceof HTMLSelectElement) familyFilter.value = '';
+    function handleFilterChange() {
+      clearPointHash();
       applyFilters();
+    }
+
+    searchInput?.addEventListener('input', handleFilterChange);
+    familyFilter?.addEventListener('change', handleFilterChange);
+    clearButton?.addEventListener('click', () => {
+      clearPointHash();
+      resetFilters();
       if (searchInput instanceof HTMLInputElement) searchInput.focus();
     });
+    map?.addEventListener('map:reset', () => {
+      clearPointHash();
+      resetFilters();
+    });
+    window.addEventListener('hashchange', (event) => {
+      if (location.hash.startsWith(pointHashPrefix)) locateFromHash();
+      else if (new URL(event.oldURL).hash.startsWith(pointHashPrefix)) resetFilters();
+    });
+    if (map instanceof HTMLElement && map.dataset.mapReady === 'true') locateFromHash();
+    else map?.addEventListener('map:ready', locateFromHash, { once: true });
   });
 </script>

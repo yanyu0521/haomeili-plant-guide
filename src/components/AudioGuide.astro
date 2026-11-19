@@ -1,5 +1,6 @@
 ---
 import type { PublishedPlant } from '../lib/plantSchema';
+import { plantNarration } from '../lib/plantNarration';
 import { plantPath, sitePath } from '../lib/paths';
 import { sourceLabel } from '../lib/sourceLabels';
 
@@ -10,9 +11,7 @@ interface Props {
 }
 
 const { plants, activeSlug, syncDetail = false } = Astro.props;
-const activePlant = plants.find((plant) => plant.slug === activeSlug);
-const narration = (plant: PublishedPlant) =>
-  `${plant.name}。現場辨識重點是，${plant.fieldCue} ${plant.name}屬於${plant.family}。${plant.appearance} 生長環境：${plant.habitat} 防風林裡的角色：${plant.windbreakRole} 生態功能：${plant.ecologicalFunctions}`;
+const activePlant = plants.find((plant) => plant.slug === activeSlug) ?? plants[0];
 const guideEntry = (plant: PublishedPlant, index: number) => ({
   slug: plant.slug,
   url: plantPath(plant.slug),
@@ -43,7 +42,7 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
         <div class="audio-guide-heading">
           <div>
             <h2 id="audio-guide-title">植物語音導覽</h2>
-            <p class="audio-guide-intro">選擇植物後按下播放，依地圖點位聆聽介紹。語音由你的裝置即時合成，音色會因手機或瀏覽器而異。</p>
+            <p class="audio-guide-intro">選一個點位，再按「播放介紹」。語音由你的裝置朗讀，也可以看下方的逐字稿。</p>
           </div>
           <span class="audio-guide-count">共 {plants.length} 個植物導覽點</span>
         </div>
@@ -54,9 +53,9 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
             {plants.map((plant, index) => (
               <option
                 value={plant.slug}
-                data-guide-script={narration(plant)}
-                data-guide-entry={JSON.stringify(guideEntry(plant, index))}
-                selected={plant.slug === activeSlug || (!activeSlug && index === 0)}
+                data-guide-script={plantNarration(plant)}
+                data-guide-entry={syncDetail ? JSON.stringify(guideEntry(plant, index)) : undefined}
+                selected={plant.slug === activePlant.slug}
               >
                 {String(index + 1).padStart(2, '0')} · {plant.name}
               </option>
@@ -67,7 +66,7 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
         <div class="audio-guide-controls" role="group" aria-label="語音播放控制">
           <button class="audio-guide-button" type="button" data-guide-previous>上一站</button>
           <button class="audio-guide-button audio-guide-button--primary" type="button" data-guide-play>播放介紹</button>
-          <button class="audio-guide-button" type="button" data-guide-stop>停止</button>
+          <button class="audio-guide-button" type="button" data-guide-stop disabled>停止</button>
           <button class="audio-guide-button" type="button" data-guide-next>下一站</button>
         </div>
 
@@ -75,7 +74,7 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
 
         <details class="audio-guide-transcript">
           <summary>閱讀本段導覽逐字稿</summary>
-          <p data-guide-transcript></p>
+          <p data-guide-transcript>{plantNarration(activePlant)}</p>
         </details>
       </div>
     </details>
@@ -116,6 +115,7 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
     const status = root.querySelector('[data-guide-status]');
     const transcript = root.querySelector('[data-guide-transcript]');
     const summary = root.querySelector('[data-guide-summary]');
+    const disclosure = root.querySelector('.audio-guide-disclosure');
     const syncDetail = root.dataset.syncDetail === 'true';
 
     if (!(select instanceof HTMLSelectElement)
@@ -136,8 +136,7 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
     const guideSummary = summary;
     const synth = window.speechSynthesis;
     const canSpeak = Boolean(synth && window.SpeechSynthesisUtterance);
-    let utteranceSequence = 0;
-    let activeSpeechToken = 0;
+    let activeUtterance: SpeechSynthesisUtterance | null = null;
 
     const selectedOption = () => guideSelect.options[guideSelect.selectedIndex];
     const selectedName = () => selectedOption()?.textContent?.replace(/^\d+\s*·\s*/, '').trim() || '所選植物';
@@ -176,20 +175,28 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
         image.src = entry.imageUrl;
         image.alt = entry.imageAlt;
       }
-      setText('[data-detail-image-credit]', entry.imageCredit);
-      const contentFields = ['appearance', 'habitat', 'ecologicalFunctions', 'windbreakRole'] as const;
-      contentFields.forEach((field) => {
-        const section = detail.querySelector(`[data-detail-section="${field}"] p`);
-        if (section instanceof HTMLElement) section.textContent = entry[field];
-      });
+      const imageCredit = detail.querySelector('[data-detail-image-credit]');
+      const creditLink = detail.querySelector('[data-detail-credit-link]');
+      if (creditLink instanceof HTMLElement) creditLink.hidden = !entry.imageCredit;
+      if (imageCredit instanceof HTMLElement) {
+        imageCredit.textContent = entry.imageCredit;
+        imageCredit.hidden = !entry.imageCredit;
+      }
+      setText('[data-detail-section="appearance"] p', entry.appearance);
+      setText('[data-detail-section="habitat"] p', entry.habitat);
+      setText('[data-detail-section="ecology"] p', entry.ecologicalFunctions);
+      setText('[data-detail-section="windbreak"] p', entry.windbreakRole);
 
-      const mapLink = detail.querySelector('[data-detail-map-link]');
-      if (mapLink instanceof HTMLAnchorElement) mapLink.href = entry.mapUrl;
+      detail.querySelectorAll<HTMLAnchorElement>('[data-detail-map-link]').forEach((link) => {
+        link.href = entry.mapUrl;
+      });
       const map = detail.querySelector('[data-detail-location-map] [data-forest-map]');
       if (map instanceof HTMLElement) map.dispatchEvent(new CustomEvent('map:active', { detail: { slug: entry.slug } }));
 
       const sources = detail.querySelector('[data-detail-sources]');
       if (sources instanceof HTMLElement) {
+        const section = sources.closest('section');
+        if (section) section.hidden = entry.sources.length === 0 && !entry.imageCredit;
         sources.replaceChildren();
         entry.sources.forEach((source) => {
           const item = document.createElement('li');
@@ -207,22 +214,21 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
         const link = detail.querySelector(selector);
         if (!(link instanceof HTMLAnchorElement)) return;
         link.hidden = !neighbour;
-        if (neighbour) {
-          link.href = neighbour.url;
-          const name = link.querySelector('.pager-name');
-          if (name instanceof HTMLElement) name.textContent = neighbour.name;
-          const pagerLabel = link.querySelector('.pager-label');
-          if (pagerLabel instanceof HTMLElement) pagerLabel.textContent = label;
-        }
+        if (neighbour) link.href = neighbour.url;
+        else link.removeAttribute('href');
+        const name = link.querySelector('.pager-name');
+        if (name instanceof HTMLElement) name.textContent = neighbour?.name ?? '';
+        const pagerLabel = link.querySelector('.pager-label');
+        if (pagerLabel instanceof HTMLElement) pagerLabel.textContent = label;
       };
       updateNeighbour('[data-plant-previous]', entry.previous, '← 上一個導覽點');
       updateNeighbour('[data-plant-next]', entry.next, '下一個導覽點 →');
 
       document.title = `${entry.name}｜好美里防風林植物數位導覽`;
       const description = document.querySelector('meta[name="description"]');
-      if (description instanceof HTMLMetaElement) description.content = `${entry.name}：${entry.fieldCue}`;
+      if (description instanceof HTMLMetaElement) description.content = `${entry.name}：${entry.appearance}`;
       const canonical = document.querySelector('link[rel="canonical"]');
-      if (canonical instanceof HTMLLinkElement) canonical.href = new URL(entry.url, window.location.href).href;
+      if (canonical instanceof HTMLLinkElement) canonical.href = new URL(entry.url, canonical.href).href;
       if (updateAddress && window.location.pathname !== new URL(entry.url, window.location.href).pathname) {
         window.history.pushState({ plantSlug: entry.slug }, '', entry.url);
       }
@@ -236,67 +242,95 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
       if (guideSummary instanceof HTMLElement) guideSummary.textContent = `聽 ${selectedName()} 的介紹`;
     }
 
+    function showReady() {
+      guideStatus.textContent = canSpeak
+        ? `已選擇：${selectedName()}。按「播放介紹」開始。`
+        : '這個瀏覽器不支援語音朗讀，你仍可閱讀下方的逐字稿。';
+    }
+
+    function resetPlayback(label: string) {
+      activeUtterance = null;
+      playControl.disabled = !canSpeak;
+      playControl.textContent = label;
+      stopControl.disabled = true;
+    }
+
     function stopSpeech() {
-      utteranceSequence += 1;
-      activeSpeechToken = 0;
-      synth?.cancel();
-      playControl.textContent = '播放介紹';
+      const previousUtterance = activeUtterance;
+      resetPlayback('播放介紹');
+      if (previousUtterance) synth.cancel();
     }
 
     function speakSelection() {
-      if (!canSpeak) return;
-      stopSpeech();
+      const text = selectedOption()?.dataset.guideScript;
+      if (!canSpeak || !text) return;
 
-      const utterance = new window.SpeechSynthesisUtterance(selectedOption()?.dataset.guideScript || '');
+      stopSpeech();
+      if (synth.paused) synth.resume();
+      const name = selectedName();
+      const utterance = new window.SpeechSynthesisUtterance(text);
       utterance.lang = 'zh-TW';
       utterance.rate = 0.94;
-      const speechToken = ++utteranceSequence;
-      activeSpeechToken = speechToken;
-
       const voices = synth.getVoices();
       utterance.voice = voices.find((voice) => voice.lang.toLowerCase() === 'zh-tw')
-        || voices.find((voice) => voice.lang.toLowerCase().startsWith('zh'))
-        || null;
+        ?? voices.find((voice) => voice.lang.toLowerCase().startsWith('zh'))
+        ?? null;
 
-      guideStatus.textContent = `正在播放：${selectedName()}。`;
-      playControl.textContent = '暫停';
+      activeUtterance = utterance;
+      playControl.textContent = '準備播放';
+      playControl.disabled = true;
+      stopControl.disabled = false;
+      guideStatus.textContent = `準備播放：${name}。`;
+
+      utterance.onstart = () => {
+        if (activeUtterance !== utterance) return;
+        playControl.disabled = false;
+        playControl.textContent = '暫停';
+        guideStatus.textContent = `正在播放：${name}。`;
+      };
 
       utterance.onend = () => {
-        if (activeSpeechToken !== speechToken) return;
-        activeSpeechToken = 0;
-        playControl.textContent = '重新播放';
-        guideStatus.textContent = `播放完成：${selectedName()}。`;
+        if (activeUtterance !== utterance) return;
+        resetPlayback('重新播放');
+        guideStatus.textContent = `播放完成：${name}。`;
       };
 
-      utterance.onerror = () => {
-        if (activeSpeechToken !== speechToken) return;
-        activeSpeechToken = 0;
-        playControl.textContent = '重試播放';
-        guideStatus.textContent = '語音無法播放。請檢查裝置音量與中文語音設定，或閱讀下方逐字稿。';
+      const showPlaybackError = () => {
+        if (activeUtterance !== utterance) return;
+        resetPlayback('重試播放');
+        guideStatus.textContent = '目前無法朗讀。可以重試播放，或閱讀下方的逐字稿。';
       };
+      utterance.onerror = showPlaybackError;
 
-      synth.speak(utterance);
+      try {
+        synth.speak(utterance);
+      } catch {
+        showPlaybackError();
+      }
     }
 
-    guideSelect.addEventListener('change', () => {
+    function selectStation(index: number, updateAddress = true) {
       stopSpeech();
+      guideSelect.selectedIndex = index;
       updateGuideText();
-      updateDetail(selectedEntry());
-      guideStatus.textContent = `已選擇：${selectedName()}。按「播放介紹」開始。`;
-    });
+      updateDetail(selectedEntry(), updateAddress);
+      showReady();
+    }
+
+    guideSelect.addEventListener('change', () => selectStation(guideSelect.selectedIndex));
 
     playControl.addEventListener('click', () => {
-      if (!canSpeak) return;
-      if (synth.paused && activeSpeechToken) {
+      if (!activeUtterance) {
+        speakSelection();
+      } else if (synth.paused) {
         synth.resume();
+        if (!activeUtterance) return;
         playControl.textContent = '暫停';
-        guideStatus.textContent = `繼續播放：${selectedName()}。`;
-      } else if (synth.speaking && activeSpeechToken) {
+        guideStatus.textContent = `正在播放：${selectedName()}。`;
+      } else {
         synth.pause();
         playControl.textContent = '繼續播放';
         guideStatus.textContent = `已暫停：${selectedName()}。`;
-      } else {
-        speakSelection();
       }
     });
 
@@ -306,11 +340,9 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
     });
 
     function moveSelection(step: number) {
-      const nextIndex = guideSelect.selectedIndex + step;
-      if (nextIndex < 0 || nextIndex >= guideSelect.options.length) return;
-      guideSelect.selectedIndex = nextIndex;
-      updateGuideText();
-      updateDetail(selectedEntry());
+      const index = guideSelect.selectedIndex + step;
+      if (index < 0 || index >= guideSelect.options.length) return;
+      selectStation(index);
       speakSelection();
     }
 
@@ -321,27 +353,54 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
       window.addEventListener('popstate', () => {
         const currentPath = window.location.pathname;
         const index = Array.from(guideSelect.options).findIndex((option) => {
-          const entry = JSON.parse(option.dataset.guideEntry || '{}') as GuideEntry;
+          const data = option.dataset.guideEntry;
+          if (!data) return false;
+          const entry = JSON.parse(data) as GuideEntry;
           return new URL(entry.url, window.location.href).pathname === currentPath;
         });
         if (index < 0) return;
-        stopSpeech();
-        guideSelect.selectedIndex = index;
-        updateGuideText();
-        updateDetail(selectedEntry(), false);
-        guideStatus.textContent = `已選擇：${selectedName()}。按「播放介紹」開始。`;
+        selectStation(index, false);
       });
     }
 
-    updateGuideText();
-    if (syncDetail) updateDetail(selectedEntry(), false);
-
-    if (!canSpeak) {
-      playControl.disabled = true;
-      stopControl.disabled = true;
-      previousControl.disabled = true;
-      nextControl.disabled = true;
-      guideStatus.textContent = '這個瀏覽器不支援語音朗讀；你仍可展開逐字稿閱讀介紹。';
+    const listenButton = document.querySelector('[data-detail-listen]');
+    function syncDisclosure() {
+      if (!(listenButton instanceof HTMLButtonElement) || !(disclosure instanceof HTMLDetailsElement)) return;
+      listenButton.setAttribute('aria-expanded', String(disclosure.open));
+      const label = listenButton.querySelector('span');
+      if (label) label.textContent = disclosure.open ? '收合介紹' : '聽介紹';
+      root.hidden = !disclosure.open;
     }
+    function openFromHash() {
+      if (disclosure instanceof HTMLDetailsElement && window.location.hash === `#${root.id}`) {
+        disclosure.open = true;
+        syncDisclosure();
+      }
+    }
+
+    if (listenButton instanceof HTMLButtonElement && disclosure instanceof HTMLDetailsElement) {
+      root.dataset.externalToggle = 'true';
+      listenButton.hidden = false;
+      listenButton.addEventListener('click', () => {
+        disclosure.open = !disclosure.open;
+        syncDisclosure();
+      });
+      syncDisclosure();
+    }
+    window.addEventListener('hashchange', openFromHash);
+    window.addEventListener('pagehide', () => {
+      if (!activeUtterance) return;
+      stopSpeech();
+      showReady();
+    });
+    openFromHash();
+    updateGuideText();
+    playControl.disabled = !canSpeak;
+    if (!canSpeak) showReady();
   });
 </script>
+
+<style>
+  .audio-guide[data-external-toggle] .audio-guide-disclosure > summary { display: none; }
+  .audio-guide[data-external-toggle] .audio-guide-content { padding-top: 0; }
+</style>

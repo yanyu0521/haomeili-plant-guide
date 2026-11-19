@@ -2,61 +2,106 @@
 import { sitePath } from '../lib/paths';
 
 const path = Astro.url.pathname;
-const isPlants = path.startsWith(sitePath('plants/'));
 const isMap = path.startsWith(sitePath('map/'));
+const isPlants = path.startsWith(sitePath('plants/'));
+const isHome = path.replace(/\/$/, '') === sitePath().replace(/\/$/, '');
+
+const links = [
+  { label: '首頁', href: sitePath(), current: isHome ? 'page' : undefined, icon: 'm3 10 9-7 9 7v10h-6v-6H9v6H3z' },
+  { label: '地圖', href: sitePath('map/'), current: isMap ? 'page' : undefined, icon: 'm2 5 7-2 6 2 7-2v16l-7 2-6-2-7 2zM9 3v16m6-14v16' },
+  { label: '植物名錄', href: sitePath('plants/'), current: isPlants ? (path === sitePath('plants/') ? 'page' : 'location') : undefined, icon: 'M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1zm0 0v15' },
+] as const;
 ---
 <a class="skip-link" href="#content">跳至主要內容</a>
-<header class="site-header">
+<header class:list={['site-header', { 'site-header--cover': isHome }]}>
   <div class="header-row">
-    <a class="brand" href={sitePath()}>
-      <span>好美里防風林植物導覽</span>
+    <a class="site-brand" href={sitePath()} aria-label="好美里防風林植物導覽首頁">
+      <svg width="23" height="23" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d={links[1].icon} /></svg>
+      <span>好美里植物導覽</span>
     </a>
-    <button
-      class="menu-toggle"
-      type="button"
-      aria-label="開啟導覽選單"
-      aria-expanded="false"
-      aria-controls="site-navigation"
-      data-menu-toggle
-    >
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M1 3h22M1 12h22M1 21h22" />
-      </svg>
-    </button>
-    <nav id="site-navigation" aria-label="主要導覽" data-site-navigation data-open="false">
-      <a class="header-nav" href={sitePath('plants/')} aria-current={isPlants ? 'page' : undefined}>植物名錄</a>
-      <a class="header-nav" href={sitePath('map/')} aria-current={isMap ? 'page' : undefined}>分布地圖</a>
+    {isHome && <span class="site-location">嘉義・布袋</span>}
+    <nav class="main-nav" aria-label="主要導覽">
+      {links.map((item) => (
+        <a class="nav-link" href={item.href} aria-current={item.current}>
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d={item.icon} /></svg>
+          <span>{item.label}</span>
+        </a>
+      ))}
     </nav>
   </div>
 </header>
 
-<script>
-  const menuToggle = document.querySelector('[data-menu-toggle]');
-  const siteNavigation = document.querySelector('[data-site-navigation]');
-
-  if (menuToggle instanceof HTMLButtonElement && siteNavigation instanceof HTMLElement) {
-    const closeMenu = () => {
-      siteNavigation.dataset.open = 'false';
-      menuToggle.setAttribute('aria-expanded', 'false');
-      menuToggle.setAttribute('aria-label', '開啟導覽選單');
-    };
-
-    menuToggle.addEventListener('click', () => {
-      const isOpen = siteNavigation.dataset.open === 'true';
-      siteNavigation.dataset.open = String(!isOpen);
-      menuToggle.setAttribute('aria-expanded', String(!isOpen));
-      menuToggle.setAttribute('aria-label', isOpen ? '開啟導覽選單' : '關閉導覽選單');
-    });
-
-    siteNavigation.addEventListener('click', (event) => {
-      if (event.target instanceof HTMLAnchorElement) closeMenu();
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && siteNavigation.dataset.open === 'true') {
-        closeMenu();
-        menuToggle.focus();
-      }
-    });
+<style>
+  .site-header {
+    position: relative;
+    z-index: 12;
+    color: var(--paper);
+    border-bottom: 1px solid var(--line);
+    background: var(--night);
   }
-</script>
+  .site-header--cover {
+    position: absolute;
+    inset: 0 0 auto;
+    border: 0;
+    background: linear-gradient(to bottom, rgb(5 22 20 / .7), transparent);
+  }
+  .header-row {
+    width: min(calc(100% - 80px), 1260px);
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: 68px;
+  }
+  .site-brand, .nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-decoration: none;
+  }
+  .site-brand {
+    gap: 10px;
+    color: var(--paper);
+    font-size: 1rem;
+    font-weight: 750;
+    letter-spacing: .035em;
+  }
+  .site-header svg {
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.65;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .site-brand svg { color: var(--teal-bright); }
+  .site-location { display: none; }
+  .main-nav { display: flex; align-items: center; gap: 4px; }
+  .nav-link { justify-content: center; gap: 7px; padding: 6px 12px; color: var(--muted); font-size: .9rem; font-weight: 500; }
+  .nav-link:hover, .site-brand:hover { color: var(--paper); }
+  .nav-link[aria-current] { color: var(--teal-bright); font-weight: 800; }
+  .nav-link:first-child[aria-current] svg { fill: currentColor; }
+  @media (max-width: 760px) {
+    .header-row {
+      width: auto;
+      min-height: 48px;
+      margin-inline: max(19px, env(safe-area-inset-left)) max(19px, env(safe-area-inset-right));
+    }
+    .site-brand { gap: 8px; font-size: .87rem; }
+    .site-location { display: inline; color: var(--paper); font-size: .72rem; font-weight: 650; }
+    .main-nav {
+      position: fixed;
+      inset: auto 0 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      min-height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom));
+      padding: 4px env(safe-area-inset-right) calc(4px + env(safe-area-inset-bottom)) env(safe-area-inset-left);
+      border-top: 1px solid var(--line);
+      background: #0e201f;
+    }
+    .nav-link { flex-direction: column; gap: 3px; min-height: 50px; font-size: .75rem; line-height: 1.25; }
+    .nav-link:focus-visible { outline-offset: -4px; }
+  }
+</style>

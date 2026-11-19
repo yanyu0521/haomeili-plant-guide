@@ -1,7 +1,7 @@
 const sourceTitles: Record<string, string> = {
   'nativetree.forest.gov.tw': '臺灣原生樹木資料庫',
   'hctbg.tfri.gov.tw': '林業試驗所恆春熱帶植物園',
-  'cptfri.tfri.gov.tw': '林業試驗所植物園',
+  'activity.dbnsa.gov.tw': '大鵬灣國家風景區管理處',
   'taitung.forest.gov.tw': '林業保育署臺東分署',
   'theme.forest.gov.tw': '林業保育署森林育樂場域',
   'www.forest.gov.tw': '林業保育署',

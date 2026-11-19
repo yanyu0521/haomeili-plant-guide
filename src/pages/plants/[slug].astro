@@ -21,68 +21,191 @@ export const getStaticPaths = (() =>
 
 const { plant, previous, next } = Astro.props as Props;
 const pointIndex = publishedPlants.findIndex((item) => item.slug === plant.slug) + 1;
+const pointLabel = String(pointIndex).padStart(2, '0');
+const mapUrl = `${sitePath('map/')}#map-point-${plant.slug}`;
 ---
 <BaseLayout title={plant.name} description={`${plant.name}：${plant.appearance}`}>
   <article class="container plant-page" data-plant-detail>
-    <a class="back-link" href={sitePath('plants/')}>← 回到植物名錄</a>
-    <header class="plant-intro">
-      <div class="plant-intro-copy">
-        <h1 data-detail-name>{plant.name}</h1>
-        <p class="latin" lang="la" data-detail-scientific>{plant.scientificName}</p>
-        <p class="plant-field-cue" data-detail-field-cue>{plant.fieldCue}</p>
-        <h2 class="plant-facts-heading">基本資料</h2>
-        <dl class="plant-facts">
-          <div><dt>科別</dt><dd data-detail-family>{plant.family}</dd></div>
-          <div data-detail-aliases-row hidden={!plant.aliases || plant.aliases.length === 0}><dt>別名</dt><dd data-detail-aliases>{plant.aliases?.join('、')}</dd></div>
-          <div><dt>參考點位</dt><dd>地圖 <span data-detail-point>{String(pointIndex).padStart(2, '0')}</span></dd></div>
-        </dl>
+    <a class="detail-back" href={sitePath('plants/')}>
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M11 6l-6 6 6 6" /></svg>
+      回到植物名錄
+    </a>
+    <header class="detail-hero">
+      <div class="detail-hero-copy">
+        <h1><span class="detail-stop-number" data-detail-point>{pointLabel}</span> <span data-detail-name>{plant.name}</span></h1>
+        <p class="detail-cue" data-detail-field-cue>{plant.fieldCue}</p>
+        <div class="detail-actions">
+          <button class="detail-action detail-action--primary" type="button" data-detail-listen aria-controls="audio-guide" aria-expanded="false" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 13h3a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4Zm16 0h-3a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-4Z" /></svg>
+            <span>聽介紹</span>
+          </button>
+          <a class="detail-action" data-detail-map-link href={mapUrl}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Zm6-3v15m6-12v15" /></svg>
+            看地圖
+          </a>
+        </div>
       </div>
-      <figure class="plant-artwork">
-        <img
-          src={sitePath(`plants/${plant.image.file}`)}
-          alt={plant.image.alt}
-          data-detail-image
-          width="224"
-          height="224"
-          fetchpriority="high"
-        />
-        {plant.image.credit && <figcaption data-detail-image-credit>{plant.image.credit}</figcaption>}
+      <figure class="detail-illustration">
+        <div class="detail-illustration-plate">
+          <img
+            src={sitePath(`plants/${plant.image.file}`)}
+            alt={plant.image.alt}
+            class="plant-symbol"
+            data-detail-image
+            width="224"
+            height="224"
+            fetchpriority="high"
+          />
+        </div>
+        <figcaption data-detail-credit-link hidden={!plant.image.credit}><a href="#illustration-credit">圖示來源</a></figcaption>
       </figure>
     </header>
 
-    <p class="field-note">植物圖示與圖上位置沿用參考地圖；地圖點位不是 GPS 測量座標。</p>
-
     <AudioGuide plants={publishedPlants} activeSlug={plant.slug} syncDetail={true} />
 
-    <section class="info-section" aria-labelledby="appearance">
+    <section class="detail-profile" aria-labelledby="detail-profile-title">
+      <h2 id="detail-profile-title">基本資料</h2>
+      <dl class="detail-facts">
+        <div><dt>學名</dt><dd class="latin" lang="la" data-detail-scientific>{plant.scientificName}</dd></div>
+        <div><dt>科別</dt><dd data-detail-family>{plant.family}</dd></div>
+        <div data-detail-aliases-row hidden={!plant.aliases?.length}><dt>別名</dt><dd data-detail-aliases>{plant.aliases?.join('、')}</dd></div>
+      </dl>
+    </section>
+
+    <div class="info-section">
       <PlantInfoCard sectionId="appearance" title="外觀特徵" text={plant.appearance} />
       <PlantInfoCard sectionId="habitat" title="生長環境" text={plant.habitat} />
       <PlantInfoCard sectionId="ecology" title="生態功能" text={plant.ecologicalFunctions} />
       <PlantInfoCard sectionId="windbreak" title="防風林角色" text={plant.windbreakRole} />
-    </section>
+    </div>
 
     <section class="location-section" aria-labelledby="location-title">
       <div class="location-copy">
         <div>
           <h2 id="location-title">在地圖上的位置</h2>
-          <p data-detail-location-text>參考地圖第 {String(pointIndex).padStart(2, '0')} 點。選擇其他圖示可前往相應植物頁面。</p>
+          <p data-detail-location-text>參考地圖第 {pointLabel} 點。選擇其他圖示可前往相應植物頁面。</p>
         </div>
-        <a class="text-link" data-detail-map-link href={`${sitePath('map/')}#map-point-${plant.slug}`}>在完整地圖查看 <span aria-hidden="true">→</span></a>
+        <a class="text-link detail-map-link" data-detail-map-link href={mapUrl}>在完整地圖查看 <span aria-hidden="true">→</span></a>
       </div>
       <div data-detail-location-map><ForestMap plants={publishedPlants} activeSlug={plant.slug} compact={true} /></div>
+      <p class="map-credit">點位依參考地圖標註，並非 GPS 座標。</p>
     </section>
 
-    {plant.sourceUrls && plant.sourceUrls.length > 0 && (
-      <section class="sources-section" aria-labelledby="sources-title">
-        <h2 id="sources-title">資料來源</h2>
-        <ul data-detail-sources>
-          {plant.sourceUrls.map((url) => (
-            <li><a href={url} target="_blank" rel="noreferrer">{sourceLabel(url)}</a></li>
-          ))}
-        </ul>
-      </section>
-    )}
+    <section class="sources-section" aria-labelledby="sources-title" hidden={!plant.sourceUrls?.length && !plant.image.credit}>
+      <h2 id="sources-title">資料來源</h2>
+      <p id="illustration-credit" data-detail-image-credit hidden={!plant.image.credit}>{plant.image.credit}</p>
+      <ul data-detail-sources>
+        {plant.sourceUrls?.map((url) => (
+          <li><a href={url} target="_blank" rel="noreferrer">{sourceLabel(url)}</a></li>
+        ))}
+      </ul>
+    </section>
 
     <PlantNavigation previous={previous} next={next} />
   </article>
 </BaseLayout>
+
+<style>
+  .detail-back {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 7px;
+    color: var(--muted);
+    font-size: .88rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+  .detail-back:hover { color: var(--paper); text-decoration: underline; }
+  .detail-back svg, .detail-action svg {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.65;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .detail-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(160px, 30%);
+    align-items: center;
+    gap: clamp(18px, 5vw, 42px);
+    padding: 18px 0 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .detail-hero h1 {
+    display: flex;
+    align-items: baseline;
+    gap: .3em;
+    margin: 0 0 12px;
+    font-size: clamp(2rem, 6vw, 3.6rem);
+    line-height: 1.15;
+    text-wrap: wrap;
+  }
+  .detail-stop-number {
+    flex: none;
+    color: var(--teal-bright);
+    font-variant-numeric: tabular-nums;
+    font-size: .64em;
+    letter-spacing: 0;
+  }
+  .detail-cue {
+    max-width: 31ch;
+    color: var(--paper);
+    font-size: clamp(1.06rem, 2.7vw, 1.35rem);
+    font-weight: 650;
+    line-height: 1.6;
+  }
+  .detail-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+  .detail-action {
+    display: inline-flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--paper);
+    font-size: .95rem;
+    font-weight: 750;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .detail-action:hover { color: var(--paper); background: var(--panel-raised); }
+  .detail-action[hidden] { display: none; }
+  button.detail-action { font-family: inherit; cursor: pointer; }
+  .detail-action--primary { border-color: transparent; color: var(--night); background: var(--teal-bright); }
+  .detail-action--primary:hover { color: var(--night); background: #a4ffe5; }
+  .detail-illustration { min-width: 0; margin: 0; }
+  .detail-illustration-plate {
+    display: grid;
+    min-height: clamp(130px, 20vw, 188px);
+    place-items: center;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #c6d8c6;
+  }
+  .detail-illustration img { display: block; width: min(100%, 195px); height: auto; }
+  .detail-illustration figcaption a { display: inline-flex; min-height: 44px; align-items: center; color: var(--muted); font-size: .8rem; }
+  #illustration-credit { margin: 6px 0 12px; color: var(--muted); font-size: .875rem; }
+  .detail-profile { margin-top: 24px; }
+  .detail-profile h2 { margin-bottom: 8px; font-size: 1.05rem; }
+  .detail-facts { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0; }
+  .detail-facts > div { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: 7px; }
+  .detail-facts > div[hidden] { display: none; }
+  .detail-facts dt { color: var(--muted); font-size: .82rem; }
+  .detail-facts dd { margin: 0; color: var(--paper); font-size: .9rem; }
+  .detail-map-link { min-height: 44px; }
+
+  @media (max-width: 620px) {
+    .detail-hero { grid-template-columns: minmax(0, 1fr) minmax(85px, 28%); align-items: start; gap: 13px; }
+    .plant-page .detail-hero h1 { font-size: clamp(1.9rem, 9vw, 2.55rem); }
+    .detail-cue { font-size: 1.125rem; }
+    .detail-illustration-plate { min-height: 0; aspect-ratio: 1; }
+    .detail-action { padding-inline: 9px; }
+    .detail-action svg { width: 17px; height: 17px; }
+  }
+</style>
