@@ -78,6 +78,11 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
         </details>
       </div>
     </details>
+    <div class="audio-guide-mini" data-guide-mini hidden>
+      <span data-guide-mini-status role="status"></span>
+      <button class="audio-guide-button audio-guide-button--primary" type="button" data-guide-mini-play>暫停</button>
+      <button class="audio-guide-button" type="button" data-guide-mini-stop>停止</button>
+    </div>
   </section>
 )}
 
@@ -115,7 +120,12 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
     const status = root.querySelector('[data-guide-status]');
     const transcript = root.querySelector('[data-guide-transcript]');
     const summary = root.querySelector('[data-guide-summary]');
-    const disclosure = root.querySelector('.audio-guide-disclosure');
+    const disclosure = root.querySelector<HTMLDetailsElement>('.audio-guide-disclosure')!;
+    const mini = root.querySelector<HTMLElement>('[data-guide-mini]')!;
+    const miniStatus = root.querySelector<HTMLElement>('[data-guide-mini-status]')!;
+    const miniPlay = root.querySelector<HTMLButtonElement>('[data-guide-mini-play]')!;
+    const miniStop = root.querySelector<HTMLButtonElement>('[data-guide-mini-stop]')!;
+    const listenButton = document.querySelector<HTMLButtonElement>('[data-detail-listen]');
     const syncDetail = root.dataset.syncDetail === 'true';
 
     if (!(select instanceof HTMLSelectElement)
@@ -136,7 +146,13 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
     const guideSummary = summary;
     const synth = window.speechSynthesis;
     const canSpeak = Boolean(synth && window.SpeechSynthesisUtterance);
+    type PlaybackState = 'ready' | 'starting' | 'playing' | 'paused' | 'stopped' | 'finished' | 'error';
+    let state: PlaybackState = 'ready';
+    let sentences: string[] = [];
+    let sentenceIndex = 0;
     let activeUtterance: SpeechSynthesisUtterance | null = null;
+    let startTimeout: number | undefined;
+    let stationTimer: number | undefined;
 
     const selectedOption = () => guideSelect.options[guideSelect.selectedIndex];
     const selectedName = () => selectedOption()?.textContent?.replace(/^\d+\s*·\s*/, '').trim() || '所選植物';
@@ -235,115 +251,153 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
     }
 
     function updateGuideText() {
-      const option = selectedOption();
-      guideTranscript.textContent = option?.dataset.guideScript || '';
+      const script = selectedOption()?.dataset.guideScript ?? '';
+      guideTranscript.textContent = script;
+      // Keep punctuation with its sentence so the spoken text matches the transcript.
+      sentences = script.match(/[^。！？]+[。！？]*|[。！？]+/gu) ?? [];
+      sentenceIndex = 0;
       previousControl.disabled = guideSelect.selectedIndex <= 0;
       nextControl.disabled = guideSelect.selectedIndex >= guideSelect.options.length - 1;
       if (guideSummary instanceof HTMLElement) guideSummary.textContent = `聽 ${selectedName()} 的介紹`;
     }
 
-    function showReady() {
-      guideStatus.textContent = canSpeak
-        ? `已選擇：${selectedName()}。按「播放介紹」開始。`
-        : '這個瀏覽器不支援語音朗讀，你仍可閱讀下方的逐字稿。';
+    function syncDisclosure() {
+      const compact = !disclosure.open && ['starting', 'playing', 'paused', 'error'].includes(state);
+      mini.hidden = !compact;
+      if (!listenButton) return;
+      listenButton.setAttribute('aria-expanded', String(disclosure.open));
+      const label = listenButton.querySelector('span');
+      if (label) label.textContent = disclosure.open ? '收合介紹' : compact ? '展開介紹' : '聽介紹';
+      root.hidden = !disclosure.open && !compact;
+      root.toggleAttribute('data-collapsed', !disclosure.open);
     }
 
-    function resetPlayback(label: string) {
-      activeUtterance = null;
-      playControl.disabled = !canSpeak;
-      playControl.textContent = label;
-      stopControl.disabled = true;
-    }
-
-    function stopSpeech() {
-      const previousUtterance = activeUtterance;
-      resetPlayback('播放介紹');
-      if (previousUtterance) synth.cancel();
-    }
-
-    function speakSelection() {
-      const text = selectedOption()?.dataset.guideScript;
-      if (!canSpeak || !text) return;
-
-      stopSpeech();
-      if (synth.paused) synth.resume();
+    function setPlayback(next: PlaybackState) {
+      state = next;
       const name = selectedName();
-      const utterance = new window.SpeechSynthesisUtterance(text);
+      const labels: Record<PlaybackState, [string, string]> = {
+        ready: ['播放介紹', `已選擇：${name}。按「播放介紹」開始。`],
+        starting: ['準備播放', `準備播放：${name}。`],
+        playing: ['暫停', `正在播放：${name}。`],
+        paused: ['從本句繼續', `已暫停：${name}。`],
+        stopped: ['播放介紹', `已停止：${name}。`],
+        finished: ['重新播放', `播放完成：${name}。`],
+        error: ['重試播放', '目前無法朗讀。可以重試播放，或閱讀下方的逐字稿。'],
+      };
+      const [button, message] = labels[state];
+      const statusText = canSpeak ? message : '這個瀏覽器不支援語音朗讀，你仍可閱讀下方的逐字稿。';
+      if (guideStatus.textContent !== statusText) guideStatus.textContent = statusText;
+      if (miniStatus.textContent !== statusText) miniStatus.textContent = statusText;
+      playControl.textContent = miniPlay.textContent = button;
+      playControl.disabled = miniPlay.disabled = !canSpeak || state === 'starting';
+      stopControl.disabled = !['starting', 'playing', 'paused'].includes(state);
+      syncDisclosure();
+    }
+
+    function cancelSpeech() {
+      window.clearTimeout(stationTimer);
+      window.clearTimeout(startTimeout);
+      // Some engines deliver end/error synchronously during cancel, others deliver it later.
+      const previous = activeUtterance;
+      activeUtterance = null;
+      if (previous) synth.cancel();
+    }
+
+    function speakSentence() {
+      const text = sentences[sentenceIndex];
+      if (!canSpeak || !text) return;
+      const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'zh-TW';
       utterance.rate = 0.94;
       const voices = synth.getVoices();
-      utterance.voice = voices.find((voice) => voice.lang.toLowerCase() === 'zh-tw')
-        ?? voices.find((voice) => voice.lang.toLowerCase().startsWith('zh'))
+      const voiceLanguage = (voice: SpeechSynthesisVoice) => voice.lang.replace(/_/g, '-');
+      utterance.voice = voices.find(voice => /^(zh|cmn)(-Hant)?-TW$/i.test(voiceLanguage(voice)))
+        ?? voices.find(voice => /^(zh|cmn)(-Hant)?$/i.test(voiceLanguage(voice)))
+        ?? voices.find(voice => /^(zh|cmn)-(CN|Hans)/i.test(voiceLanguage(voice)))
         ?? null;
-
       activeUtterance = utterance;
-      playControl.textContent = '準備播放';
-      playControl.disabled = true;
-      stopControl.disabled = false;
-      guideStatus.textContent = `準備播放：${name}。`;
+      let started = false;
 
+      function failed() {
+        if (activeUtterance !== utterance) return;
+        cancelSpeech();
+        setPlayback('error');
+      }
       utterance.onstart = () => {
         if (activeUtterance !== utterance) return;
-        playControl.disabled = false;
-        playControl.textContent = '暫停';
-        guideStatus.textContent = `正在播放：${name}。`;
+        started = true;
+        window.clearTimeout(startTimeout);
+        setPlayback('playing');
       };
-
       utterance.onend = () => {
         if (activeUtterance !== utterance) return;
-        resetPlayback('重新播放');
-        guideStatus.textContent = `播放完成：${name}。`;
+        if (!started) {
+          failed();
+          return;
+        }
+        window.clearTimeout(startTimeout);
+        activeUtterance = null;
+        sentenceIndex += 1;
+        if (sentenceIndex === sentences.length) {
+          setPlayback('finished');
+          return;
+        }
+        setPlayback('starting');
+        speakSentence();
       };
-
-      const showPlaybackError = () => {
-        if (activeUtterance !== utterance) return;
-        resetPlayback('重試播放');
-        guideStatus.textContent = '目前無法朗讀。可以重試播放，或閱讀下方的逐字稿。';
-      };
-      utterance.onerror = showPlaybackError;
-
+      utterance.onerror = failed;
+      // A speech service may accept speak() without sending a start or error event.
+      startTimeout = window.setTimeout(failed, 7000);
       try {
         synth.speak(utterance);
       } catch {
-        showPlaybackError();
+        failed();
       }
+    }
+
+    function togglePlayback() {
+      if (!canSpeak || state === 'starting') return;
+      if (state === 'playing') {
+        // Android can discard the utterance on native pause. Replay this sentence on demand.
+        cancelSpeech();
+        setPlayback('paused');
+        return;
+      }
+      if (state !== 'paused' && state !== 'error') sentenceIndex = 0;
+      setPlayback('starting');
+      speakSentence();
+    }
+
+    function stopPlayback() {
+      cancelSpeech();
+      sentenceIndex = 0;
+      setPlayback('stopped');
     }
 
     function selectStation(index: number, updateAddress = true) {
-      stopSpeech();
+      const continuePlaying = updateAddress && (state === 'playing' || state === 'starting');
+      cancelSpeech();
       guideSelect.selectedIndex = index;
       updateGuideText();
       updateDetail(selectedEntry(), updateAddress);
-      showReady();
+      if (continuePlaying) {
+        setPlayback('starting');
+        // Let successive station taps settle before starting the newly selected voice.
+        stationTimer = window.setTimeout(speakSentence, 220);
+      } else {
+        setPlayback('ready');
+      }
     }
 
     guideSelect.addEventListener('change', () => selectStation(guideSelect.selectedIndex));
-
-    playControl.addEventListener('click', () => {
-      if (!activeUtterance) {
-        speakSelection();
-      } else if (synth.paused) {
-        synth.resume();
-        if (!activeUtterance) return;
-        playControl.textContent = '暫停';
-        guideStatus.textContent = `正在播放：${selectedName()}。`;
-      } else {
-        synth.pause();
-        playControl.textContent = '繼續播放';
-        guideStatus.textContent = `已暫停：${selectedName()}。`;
-      }
-    });
-
-    stopControl.addEventListener('click', () => {
-      stopSpeech();
-      guideStatus.textContent = `已停止：${selectedName()}。`;
-    });
+    playControl.addEventListener('click', togglePlayback);
+    miniPlay.addEventListener('click', togglePlayback);
+    stopControl.addEventListener('click', stopPlayback);
+    miniStop.addEventListener('click', stopPlayback);
 
     function moveSelection(step: number) {
       const index = guideSelect.selectedIndex + step;
-      if (index < 0 || index >= guideSelect.options.length) return;
-      selectStation(index);
-      speakSelection();
+      if (index >= 0 && index < guideSelect.options.length) selectStation(index);
     }
 
     previousControl.addEventListener('click', () => moveSelection(-1));
@@ -358,27 +412,19 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
           const entry = JSON.parse(data) as GuideEntry;
           return new URL(entry.url, window.location.href).pathname === currentPath;
         });
-        if (index < 0) return;
-        selectStation(index, false);
+        if (index >= 0 && index !== guideSelect.selectedIndex) selectStation(index, false);
       });
     }
 
-    const listenButton = document.querySelector('[data-detail-listen]');
-    function syncDisclosure() {
-      if (!(listenButton instanceof HTMLButtonElement) || !(disclosure instanceof HTMLDetailsElement)) return;
-      listenButton.setAttribute('aria-expanded', String(disclosure.open));
-      const label = listenButton.querySelector('span');
-      if (label) label.textContent = disclosure.open ? '收合介紹' : '聽介紹';
-      root.hidden = !disclosure.open;
-    }
     function openFromHash() {
-      if (disclosure instanceof HTMLDetailsElement && window.location.hash === `#${root.id}`) {
+      if (window.location.hash === `#${root.id}`) {
         disclosure.open = true;
         syncDisclosure();
       }
     }
 
-    if (listenButton instanceof HTMLButtonElement && disclosure instanceof HTMLDetailsElement) {
+    disclosure.addEventListener('toggle', syncDisclosure);
+    if (listenButton) {
       root.dataset.externalToggle = 'true';
       listenButton.hidden = false;
       listenButton.addEventListener('click', () => {
@@ -389,18 +435,44 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
     }
     window.addEventListener('hashchange', openFromHash);
     window.addEventListener('pagehide', () => {
-      if (!activeUtterance) return;
-      stopSpeech();
-      showReady();
+      cancelSpeech();
+      sentenceIndex = 0;
+      setPlayback('ready');
     });
     openFromHash();
     updateGuideText();
-    playControl.disabled = !canSpeak;
-    if (!canSpeak) showReady();
+    setPlayback('ready');
   });
 </script>
 
 <style>
   .audio-guide[data-external-toggle] .audio-guide-disclosure > summary { display: none; }
   .audio-guide[data-external-toggle] .audio-guide-content { padding-top: 0; }
+  .audio-guide[data-external-toggle][data-collapsed] { padding: 0; margin: 0; border: 0; }
+  .audio-guide-mini:not([hidden]) {
+    position: fixed;
+    z-index: 10;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    max-width: min(28rem, calc(100% - 2rem));
+    padding: .5rem .75rem;
+    background: #10302f;
+    border: 1px solid #548079;
+    border-radius: .7rem;
+    box-shadow: 0 3px 14px #0006;
+  }
+  .audio-guide-mini span { flex: 1; font-size: .925rem; line-height: 1.45; }
+  .audio-guide-mini button { flex: none; font-size: .875rem; }
+  :global(body:has([data-guide-mini]:not([hidden])))::after { content: ''; display: block; height: 5.5rem; }
+  @media (max-width: 760px) {
+    .audio-guide-mini:not([hidden]) {
+      right: max(.5rem, env(safe-area-inset-right));
+      left: max(.5rem, env(safe-area-inset-left));
+      bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + .4rem);
+      max-width: none;
+    }
+  }
 </style>

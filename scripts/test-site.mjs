@@ -26,9 +26,24 @@ assert(existsSync(join(dist, 'index.html')), '首頁不存在');
 assert(existsSync(join(dist, 'plants/index.html')), '/plants/ 不存在');
 const home = html('index.html');
 const list = html('plants/index.html');
-function listNames(content) {
-  const match = content.match(/<ol\b[^>]*data-plant-list[^>]*>([\s\S]*?)<\/ol>/);
-  return match ? [...match[1].matchAll(/<li\b[^>]*>[\s\S]*?<a\b[^>]*>([^<]+)<\/a>/g)].map((m)=>m[1].trim()) : [];
+function checkDirectory(content) {
+  const list = content.match(/<ol\b[^>]*data-plant-list[^>]*>([\s\S]*?)<\/ol>/);
+  assert(list, '植物名錄缺少導覽點');
+  const rows = [...list[1].matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)];
+  assert.equal(rows.length, published.length, '植物名錄點位數量錯誤');
+  for (const [index, row] of rows.entries()) {
+    const plant = published[index];
+    const links = [...row[1].matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)];
+    assert.equal(links.length, 2, `${plant.name} 應有獨立的介紹和地圖連結`);
+    assert.deepEqual(findLinks(row[1]), [
+      `${base}plants/${plant.slug}/`,
+      `${base}map/#map-point-${plant.slug}`,
+    ], `${plant.name} 名錄順序或連結目標錯誤`);
+    const detail = links[0][2];
+    assert.equal(htmlText(detail.match(/<h2\b[^>]*>([\s\S]*?)<\/h2>/)?.[1] ?? '').trim(), plant.name);
+    assert(findSources(detail).length === 1 && htmlText(detail).includes(plant.fieldCue),
+      `${plant.name} 的插圖和辨識線索應可點進詳情`);
+  }
 }
 function homeFeaturedSlugs(content) {
   return [...content.matchAll(/<a\b[^>]*class="plant-rail-card"[^>]*href="([^"]+)"[^>]*aria-label="第 \d+ 個點位：[^，]+，查看植物介紹"/g)]
@@ -36,7 +51,7 @@ function homeFeaturedSlugs(content) {
 }
 assert.deepEqual(homeFeaturedSlugs(home),published.slice(0,3).map((p)=>p.slug),'首頁精選點位順序錯誤');
 assert(home.includes(`aria-label="瀏覽全部 ${published.length} 個植物導覽點"`),'首頁植物總數錯誤');
-assert.deepEqual(listNames(list),published.map((p)=>p.name),'/plants/ 名錄順序錯誤');
+checkDirectory(list);
 let pagesChecked=0;
 for (const [index, p] of published.entries()) {
   assert(existsSync(join(dist,route(p.slug))), `缺少植物頁：${p.slug}`);

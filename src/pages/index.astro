@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { publishedPlants } from '../lib/plants';
 import { plantPath, sitePath } from '../lib/paths';
@@ -12,13 +13,24 @@ const shortCues: Record<string, string> = {
   'lumnitzera-racemosa': '厚葉聚在枝端，前端較寬',
 };
 ---
-<BaseLayout title="好美里 1920 保安林" description={`沿著好美里保安林步道，找找地圖上的 ${pointCount} 個植物導覽點。`}>
+<BaseLayout title="好美保安林" description={`沿著好美里保安林步道，找找地圖上的 ${pointCount} 個植物導覽點。`}>
   <div class="trail-home">
     <section class="trail-cover" aria-labelledby="home-title">
-      <img class="cover-map" src={mapPlate.src} width={mapPlate.width} height={mapPlate.height} alt="" fetchpriority="high" />
+      <Image
+        class="cover-map"
+        src={mapPlate}
+        format="webp"
+        quality={82}
+        widths={[640, 800, 1280, 1600]}
+        sizes="(max-width: 604px) 604px, 100vw"
+        loading="eager"
+        fetchpriority="high"
+        alt=""
+      />
       <div class="cover-copy">
         <p class="cover-place">美漾森林 · 地圖預覽</p>
-        <h1 id="home-title">好美里<br /><span class="cover-year">1920</span> 保安林</h1>
+        <h1 id="home-title">好美<wbr />保安林</h1>
+        <p class="cover-designation">第 1920 號飛砂防止保安林</p>
         <p class="cover-intro">沿著步道，認識 {pointCount} 個植物導覽點。</p>
         <div class="cover-actions">
           <a class="open-map" href={sitePath('map/')}>
@@ -101,7 +113,7 @@ const shortCues: Record<string, string> = {
   .cover-place {
     margin: 0 0 6px;
     color: #d2f4db;
-    font-size: 12px;
+    font-size: .8125rem;
     font-weight: 650;
     letter-spacing: .15em;
   }
@@ -109,24 +121,27 @@ const shortCues: Record<string, string> = {
     margin: 0;
     font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", var(--body);
     color: #fafaf3;
-    font-size: clamp(48px, 6.3vw, 84px);
+    font-size: clamp(3rem, 6.3vw, 5.25rem);
     line-height: 1.065;
     letter-spacing: -.035em;
     font-weight: 850;
+    word-break: keep-all;
   }
-  .cover-year { font-family: Arial, sans-serif; letter-spacing: -.025em; }
-  .cover-intro { margin: 10px 0 17px; color: #e3eae6; font-size: clamp(14px, 1.5vw, 19px); }
+  .cover-copy { min-width: 0; }
+  .cover-designation { margin: 9px 0 0; color: #d2f4db; font-size: 1rem; font-weight: 650; line-height: 1.45; }
+  .cover-intro { margin: 4px 0 17px; color: #e3eae6; font-size: clamp(.9375rem, 1.5vw, 1.1875rem); }
   .cover-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
   .cover-actions a {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     min-height: 44px;
-    padding: 0 15px;
+    padding: .45em .95em;
+    max-width: 100%;
     border-radius: 5px;
     color: #102a23;
     background: #92efd3;
-    font-size: 15px;
+    font-size: .9375rem;
     font-weight: 700;
     text-decoration: none;
   }
@@ -145,16 +160,16 @@ const shortCues: Record<string, string> = {
   .cover-actions .open-audio:hover { background: #35544e; }
 
   .stop-shelf { padding: clamp(14px, 2vw, 32px) var(--gutter) 0; }
-  .shelf-heading, .trail-game { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .shelf-heading, .trail-game { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
   .shelf-heading h2, .trail-game h2, .plant-rail-card h3 { margin: 0; font-family: var(--body); }
-  .shelf-heading h2 { font-size: clamp(23px, 2.6vw, 34px); }
+  .shelf-heading h2 { font-size: clamp(1.4375rem, 2.6vw, 2.125rem); }
   .shelf-link {
     display: inline-flex;
     align-items: center;
     gap: 5px;
     min-height: 44px;
     color: #a4dacf;
-    font-size: 14px;
+    font-size: .875rem;
     font-weight: 650;
     text-decoration: none;
     white-space: nowrap;
@@ -194,7 +209,7 @@ const shortCues: Record<string, string> = {
     left: 9px;
     top: 4px;
     color: #274a3d;
-    font: 700 clamp(18px, 1.8vw, 25px)/1.5 Arial, sans-serif;
+    font: 700 clamp(1.125rem, 1.8vw, 1.5625rem)/1.5 Arial, sans-serif;
     font-variant-numeric: tabular-nums;
   }
   .card-plate img {
@@ -203,9 +218,9 @@ const shortCues: Record<string, string> = {
     height: 116%;
     max-width: none;
   }
-  .plant-rail-card h3 { margin-top: 6px; font-size: clamp(18px, 2vw, 24px); line-height: 1.4; }
+  .plant-rail-card h3 { margin-top: 6px; font-size: clamp(1.125rem, 2vw, 1.5rem); line-height: 1.4; }
   .plant-rail-card:hover h3 { color: var(--teal-bright); }
-  .plant-rail-card p, .game-copy p { margin-top: 2px; color: var(--muted); font-size: clamp(13px, 1.2vw, 16px); line-height: 1.55; }
+  .plant-rail-card p, .game-copy p { margin-top: 2px; color: var(--muted); font-size: clamp(.875rem, 1.2vw, 1rem); line-height: 1.55; }
   .trail-game {
     justify-content: start;
     margin: clamp(20px, 3vw, 42px) var(--gutter) 0;
@@ -223,7 +238,7 @@ const shortCues: Record<string, string> = {
     background: #24453e;
   }
   .game-symbol svg { width: 30px; height: 30px; }
-  .trail-game h2 { font-size: clamp(18px, 1.9vw, 23px); }
+  .trail-game h2 { font-size: clamp(1.125rem, 1.9vw, 1.4375rem); }
   .trail-game .shelf-link { margin-left: auto; }
 
   @media (max-width: 600px) {
@@ -231,7 +246,7 @@ const shortCues: Record<string, string> = {
     .stop-cards {
       grid-template-columns: none;
       grid-auto-flow: column;
-      grid-auto-columns: 38vw;
+      grid-auto-columns: min(80vw, max(38vw, 8rem));
       overflow-x: auto;
       margin-inline: calc(-1 * var(--gutter));
       padding: 3px var(--gutter) 6px;
@@ -243,10 +258,9 @@ const shortCues: Record<string, string> = {
     .stop-cards li { scroll-snap-align: start; }
     .stop-cards a:focus-visible { outline-offset: 0; }
     .card-plate { aspect-ratio: 1.32; }
-    .shelf-link { font-size: 13px; }
+    .shelf-link { font-size: .875rem; }
   }
   @media (max-width: 355px) {
-    .cover-actions a { padding-inline: 12px; font-size: 14px; }
-    .shelf-heading h2 { font-size: 21px; }
+    .cover-actions a { padding-inline: .8em; }
   }
 </style>

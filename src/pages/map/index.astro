@@ -81,8 +81,7 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
     grid-template-rows: auto 1fr;
     row-gap: 12px;
   }
-  .map-page .map-panel { grid-area: map; }
-  .map-page .forest-map { scroll-margin-top: 16px; }
+  .map-page .map-panel { grid-area: map; scroll-margin-block-start: 12px; }
   .map-page .map-index { grid-area: points; }
   .map-page .map-index-filters {
     grid-area: filters;
@@ -113,6 +112,7 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
     const searchLegend = explorer.querySelector('[data-map-search-legend]');
     const list = explorer.querySelector('.map-index-list');
     const map = explorer.querySelector('[data-forest-map]');
+    const mapPanel = map?.closest('.map-panel');
     const markers = Array.from(explorer.querySelectorAll<HTMLAnchorElement>('.map-marker[data-map-slug]'));
     const items = Array.from(explorer.querySelectorAll('[data-map-index-item]'))
       .filter((item): item is HTMLElement => item instanceof HTMLElement);
@@ -149,7 +149,6 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
         if (marker instanceof HTMLAnchorElement) {
           marker.hidden = !matches;
           marker.classList.toggle('map-marker--search-hit', matches && hasFilter);
-          marker.classList.remove('map-marker--preview', 'map-marker--dimmed');
         }
 
         if (matches && item.dataset.mapSlug) visibleSlugs.push(item.dataset.mapSlug);
@@ -187,7 +186,7 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
         if (location.hash === `${pointHashPrefix}${slug}`) {
           map.scrollTop = 0;
           map.scrollLeft = 0;
-          map.scrollIntoView({ block: 'start', behavior: 'instant' });
+          mapPanel?.scrollIntoView({ block: 'start', behavior: 'instant' });
         }
       });
       // The browser may scroll to the marker fragment again while the page loads.
@@ -195,24 +194,32 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
       else window.addEventListener('load', alignMap, { once: true });
     }
 
-    function highlightPlant(slug = '') {
-      explorer.querySelectorAll('.map-marker[data-map-slug]').forEach((marker) => {
-        if (!(marker instanceof HTMLAnchorElement)) return;
-        const markerSlug = marker.dataset.mapSlug || '';
-        const isPreview = Boolean(slug) && markerSlug === slug;
-        marker.classList.toggle('map-marker--preview', isPreview);
-        marker.classList.toggle('map-marker--dimmed', Boolean(slug) && markerSlug !== slug && !marker.hidden);
-      });
+    let hoveredSlug = '';
+    let focusedSlug = '';
+    function highlightPlant() {
+      map?.dispatchEvent(new CustomEvent('map:preview', { detail: { slug: hoveredSlug || focusedSlug } }));
     }
 
     items.forEach((item) => {
-      if (!(item instanceof HTMLElement)) return;
       const link = item.querySelector('a');
       const slug = item.dataset.mapSlug || '';
-      item.addEventListener('pointerenter', () => highlightPlant(slug));
-      item.addEventListener('pointerleave', () => highlightPlant(''));
-      link?.addEventListener('focus', () => highlightPlant(slug));
-      link?.addEventListener('blur', () => highlightPlant(''));
+      item.addEventListener('pointerenter', () => {
+        hoveredSlug = slug;
+        highlightPlant();
+      });
+      item.addEventListener('pointerleave', () => {
+        hoveredSlug = '';
+        highlightPlant();
+      });
+      link?.addEventListener('focus', () => {
+        focusedSlug = slug;
+        hoveredSlug = '';
+        highlightPlant();
+      });
+      link?.addEventListener('blur', () => {
+        focusedSlug = '';
+        highlightPlant();
+      });
     });
 
     function handleFilterChange() {

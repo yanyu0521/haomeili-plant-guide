@@ -12,14 +12,16 @@ const imageCredits = [...new Set(plants.flatMap((plant) => plant.image.credit ? 
     <ol class="directory-stops" data-plant-list>
       {plants.map((plant, index) => (
         <li class="directory-stop">
-          <span class="directory-number">{String(index + 1).padStart(2, '0')}</span>
-          <div class="directory-cover">
-            <img src={sitePath(`plants/${plant.image.file}`)} class="plant-symbol" alt="" width="76" height="76" loading="lazy" />
-          </div>
-          <div class="directory-copy">
-            <h2><a class="directory-name" href={plantPath(plant.slug)}>{plant.name}</a></h2>
-            <p>{plant.fieldCue}</p>
-          </div>
+          <a class="directory-detail" href={plantPath(plant.slug)}>
+            <span class="directory-number">{String(index + 1).padStart(2, '0')}</span>
+            <div class="directory-cover">
+              <img src={sitePath(`plants/${plant.image.file}`)} class="plant-symbol" alt="" width="76" height="76" loading="lazy" />
+            </div>
+            <div class="directory-copy">
+              <h2 class="directory-name">{plant.name}</h2>
+              <p>{plant.fieldCue}</p>
+            </div>
+          </a>
           <a class="directory-map" aria-label={`${plant.name}的地圖位置`} href={`${sitePath('map/')}#map-point-${plant.slug}`}>
             地圖位置
             <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 12 12 4M5 4h7v7" /></svg>
@@ -34,12 +36,24 @@ const imageCredits = [...new Set(plants.flatMap((plant) => plant.image.credit ? 
 <style>
   .directory-stops { margin: 0; padding: 0; border-top: 1px solid var(--line); list-style: none; }
   .directory-stop {
+    --station-width: max(26px, 1.6rem);
+    --art-width: 78px;
+    --gap: 16px;
     display: grid;
-    grid-template-columns: 26px 78px minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: 16px;
+    column-gap: var(--gap);
     padding: 14px 0;
     border-bottom: 1px solid var(--line);
+  }
+  .directory-detail {
+    display: grid;
+    grid-template-columns: var(--station-width) var(--art-width) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--gap);
+    min-height: 44px;
+    color: var(--paper);
+    text-decoration: none;
   }
   .directory-number { color: var(--teal-bright); font-family: var(--display); font-variant-numeric: tabular-nums; font-size: .94rem; font-weight: 700; }
   .directory-cover {
@@ -54,25 +68,21 @@ const imageCredits = [...new Set(plants.flatMap((plant) => plant.image.credit ? 
   .directory-copy { min-width: 0; }
   .directory-copy h2 { margin: 0; font-size: clamp(1.13rem, 3vw, 1.35rem); text-wrap: wrap; }
   .directory-copy p { color: var(--muted); font-size: .93rem; line-height: 1.55; }
-  .directory-name, .directory-map { display: inline-flex; min-height: 44px; align-items: center; }
-  .directory-name { color: var(--paper); text-decoration: none; }
-  .directory-name:hover { color: var(--teal-bright); text-decoration: underline; }
-  .directory-map { gap: 5px; color: var(--teal-bright); font-size: .85rem; font-weight: 650; text-decoration: none; white-space: nowrap; }
+  .directory-detail:is(:hover, :focus-visible) .directory-name { color: var(--teal-bright); text-decoration: underline; }
+  .directory-map { display: inline-flex; min-height: 44px; align-items: center; gap: 5px; color: var(--teal-bright); font-size: .85rem; font-weight: 650; text-decoration: none; white-space: nowrap; }
   .directory-map:hover { text-decoration: underline; }
   .directory-map svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.55; stroke-linecap: round; stroke-linejoin: round; }
   .directory-credit { margin-top: 10px; color: var(--muted); font-size: .75rem; }
 
   @media (max-width: 560px) {
     .directory-stop {
-      grid-template-columns: 22px 62px minmax(0, 1fr);
-      grid-template-areas: "number art copy" ". art map";
-      align-items: start;
-      gap: 0 11px;
+      --station-width: max(22px, 1.25rem);
+      --art-width: 62px;
+      --gap: 11px;
+      grid-template-columns: minmax(0, 1fr);
       padding: 10px 0;
     }
-    .directory-number { grid-area: number; display: flex; min-height: 44px; align-items: center; }
-    .directory-cover { grid-area: art; margin-top: 7px; }
-    .directory-copy { grid-area: copy; }
-    .directory-map { grid-area: map; justify-self: start; }
+    .directory-detail { align-items: start; }
+    .directory-map { justify-self: start; margin-left: calc(var(--station-width) + var(--art-width) + var(--gap) * 2); }
   }
 </style>

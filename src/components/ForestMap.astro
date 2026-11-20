@@ -106,6 +106,7 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
     let locatedMarker: HTMLAnchorElement | undefined;
     let activeMarker = markers.find((marker) => marker.classList.contains('map-marker--active'));
     let openClusterMarker: HTMLAnchorElement | undefined;
+    let previewSlug = '';
     let filtered = false;
     let dragStart: { x: number; y: number; panX: number; panY: number; pointerId: number; panning: boolean } | null = null;
 
@@ -126,6 +127,19 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
 
     function markerLabel(marker: HTMLAnchorElement) {
       return `${marker.dataset.mapNumber} ${marker.dataset.mapName}`;
+    }
+
+    function updatePreview() {
+      for (const marker of markers) {
+        const matches = marker.dataset.mapSlug === previewSlug;
+        marker.classList.toggle('map-marker--preview', matches);
+        marker.classList.toggle('map-marker--dimmed', Boolean(previewSlug) && !matches);
+      }
+      for (const cluster of clusterList.querySelectorAll<HTMLElement>('[data-map-cluster-slugs]')) {
+        const matches = cluster.dataset.mapClusterSlugs?.split(' ').includes(previewSlug) ?? false;
+        cluster.classList.toggle('map-cluster--preview', matches);
+        cluster.classList.toggle('map-cluster--dimmed', Boolean(previewSlug) && !matches);
+      }
     }
 
     function renderOptions(entries?: ClusterEntry[]) {
@@ -286,6 +300,7 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
         clusterList.append(cluster);
       });
       renderOptions(openEntries);
+      if (previewSlug) updatePreview();
     }
 
     function updateResetButton() {
@@ -294,15 +309,17 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
 
     function setView(nextZoom = zoom, nextPanX = panX, nextPanY = panY, centerMarker?: HTMLAnchorElement) {
       zoom = Math.max(1, Math.min(2.5, nextZoom));
-      const maxPanX = ((zoom - 1) * width) / 2;
-      const maxPanY = ((zoom - 1) * height) / 2;
-      panX = Math.max(-maxPanX, Math.min(maxPanX, nextPanX));
-      panY = Math.max(-maxPanY, Math.min(maxPanY, nextPanY));
       if (centerMarker) {
         const { x, y } = basePosition(centerMarker);
-        panX = (width / 2 - x) * zoom;
-        panY = (height / 2 - y) * zoom;
+        nextPanX = (width / 2 - x) * zoom;
+        nextPanY = (height / 2 - y) * zoom;
       }
+      // Leave room past the artwork's edge to centre and then drag the outer trail stops.
+      // Both positioning paths use these bounds, which shrink to zero at overview.
+      const edgeMargin = Math.min((zoom - 1) / 2, 0.25);
+      const range = (zoom - 1) / 2 + edgeMargin;
+      panX = Math.max(-range * width, Math.min(range * width, nextPanX));
+      panY = Math.max(-range * height, Math.min(range * height, nextPanY));
       map.style.backgroundSize = `${100 * zoom}% ${100 * zoom}%`;
       map.style.backgroundPosition = `calc(50% + ${panX}px) calc(50% + ${panY}px)`;
       map.dataset.zoom = String(zoom);
@@ -370,6 +387,11 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
         filtered = Boolean(event.detail.filtered);
         fitMarkers(event.detail.slugs);
       }
+    });
+    map.addEventListener('map:preview', (event) => {
+      if (!(event instanceof CustomEvent)) return;
+      previewSlug = event.detail?.slug || '';
+      updatePreview();
     });
     map.addEventListener('map:locate', (event) => {
       if (!(event instanceof CustomEvent)) return;
@@ -445,6 +467,8 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
   .map-marker--located:not(.map-marker--clustered, .map-marker--offscreen) .map-marker-label,
   .map-marker--single-result:not(.map-marker--offscreen) .map-marker-label { visibility: visible; }
   .map-cluster--current .map-cluster-toggle,
+  .map-cluster--preview .map-cluster-toggle,
   .map-cluster--search-hit .map-cluster-toggle { outline: 3px solid #ffd46f; outline-offset: 1px; }
+  .map-cluster--dimmed { opacity: .34; }
   .map-cluster-option[aria-current="location"] { border-color: #ffd46f; }
 </style>
