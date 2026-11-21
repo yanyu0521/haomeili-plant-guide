@@ -1,11 +1,8 @@
 name: Deploy Astro to GitHub Pages
 
-# Temporary push trigger for this owner-approved deployment; it will be removed afterward.
+# Manual deployment only; run after the project owner approves remote deployment.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 permissions:
   contents: read
