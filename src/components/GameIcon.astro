@@ -1,0 +1,16 @@
+---
+const icons = {
+  play: 'M8 5v14l11-7z',
+  arrow: 'M4 12h15m-6-6 6 6-6 6',
+  left: 'm14 5-7 7 7 7',
+  right: 'm10 5 7 7-7 7',
+  leaf: 'M20 3C11 3 4 6 4 13a7 7 0 0 0 7 7c7 0 8-9 9-17ZM3 21l11-12',
+  pause: 'M8 5v14m8-14v14',
+  check: 'm4 12 5 5L20 6',
+  map: 'm3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zm6-3v15m6-12v15',
+  audio: 'm3 9 4 0 5-5v16l-5-5H3zM16 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14',
+  grid: 'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z',
+};
+const { name } = Astro.props as { name: keyof typeof icons };
+---
+<svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill={name === 'play' ? 'currentColor' : 'none'} stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d={icons[name]} /></svg>

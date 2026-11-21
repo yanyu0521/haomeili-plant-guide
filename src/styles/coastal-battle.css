@@ -1,0 +1,394 @@
+.fg-battle {
+  --battle-paper: #f4eddd;
+  --battle-mint: #a5e6ca;
+  --battle-amber: #f4c477;
+  --battle-ink: #102824;
+  width: min(100%, 790px);
+  margin-inline: auto;
+  color: var(--battle-paper);
+}
+
+.fg-battle .fg-battle-head,
+.fg-battle .fg-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.fg-battle .fg-battle-head [data-battle-id] {
+  color: #b4cdc1;
+  font-size: .84rem;
+  font-weight: 650;
+}
+.fg-battle .fg-battle-head h2 {
+  margin: .2rem 0 0;
+  font-size: clamp(1.65rem, 3vw, 2.5rem);
+  line-height: 1.12;
+}
+.fg-battle .fg-utility {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  min-height: 44px;
+  padding: 4px 12px;
+  border: 1px solid #557269;
+  border-radius: 6px;
+  color: var(--battle-paper);
+  background: #16312e;
+  font-weight: 650;
+  cursor: pointer;
+}
+.fg-battle .fg-utility svg { width: 17px; height: 17px; }
+.fg-battle .fg-progress {
+  justify-content: flex-start;
+  margin: 14px 0 9px;
+  color: #cbd9d0;
+  font-size: .82rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.fg-battle .fg-timebar {
+  flex: 1 1 72px;
+  width: 72px;
+  height: 7px;
+  margin-inline-start: auto;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: #49615a;
+  color: var(--battle-mint);
+  accent-color: var(--battle-mint);
+}
+.fg-battle .fg-timebar { appearance: none; }
+.fg-battle .fg-timebar::-webkit-progress-bar { border-radius: 999px; background: #49615a; }
+.fg-battle .fg-timebar::-webkit-progress-value { border-radius: 999px; background: var(--battle-mint); }
+.fg-battle .fg-timebar::-moz-progress-bar { border-radius: 999px; background: var(--battle-mint); }
+.fg-battle .fg-countdown { min-width: 34px; text-align: right; color: #e9efdf; }
+.fg-battle .fg-pips { display: flex; gap: 4px; }
+.fg-battle .fg-pips i { width: 22px; height: 4px; border-radius: 2px; background: #49615a; }
+.fg-battle .fg-pips i.is-full { background: var(--battle-mint); }
+
+.fg-battle .fg-court {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid #6d8472;
+  border-radius: 10px;
+  background: #183e39;
+}
+.fg-battle .fg-arena {
+  position: relative;
+  isolation: isolate;
+  height: clamp(256px, 40svh, 365px);
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: pointer;
+  background: #12342f;
+}
+.fg-battle .fg-arena-cover { position: absolute; z-index: -1; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: center 63%; pointer-events: none; }
+.fg-battle .fg-arena-shade { position: absolute; z-index: 0; inset: 0; background: linear-gradient(180deg, rgb(8 33 31 / .48), rgb(15 40 35 / .29) 45%, rgb(9 30 28 / .68)); pointer-events: none; }
+.fg-battle .coast-lanes {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.fg-battle .coast-lane {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 10px;
+  background: rgb(12 42 34 / .13);
+}
+.fg-battle .coast-lane + .coast-lane { border-inline-start: 1px solid rgb(237 237 206 / .52); }
+.fg-battle .coast-lane-label {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #ebefe2;
+  background: #213d35;
+  font-size: .79rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+.fg-battle .coast-lane.is-current::after {
+  content: '';
+  position: absolute;
+  bottom: 2%;
+  left: 30%;
+  width: 40%;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--battle-mint);
+}
+.fg-battle [data-ready='true'] .is-target {
+  background: linear-gradient(180deg, rgb(165 230 202 / .34), rgb(165 230 202 / .19) 65%, rgb(165 230 202 / .12));
+}
+.fg-battle [data-ready='true'] .is-target .coast-lane-label { color: var(--battle-ink); background: var(--battle-mint); }
+.fg-battle [data-phase='success'] .is-target {
+  background: linear-gradient(180deg, rgb(134 212 163 / .17), rgb(133 213 163 / .26) 50%, rgb(104 180 141 / .10));
+}
+.fg-battle [data-phase='success'] .is-target .coast-lane-label {
+  color: var(--battle-ink);
+  background: var(--battle-mint);
+}
+.fg-battle [data-phase='miss'] .is-target .coast-lane-label {
+  color: #321f17;
+  background: #ecb597;
+}
+
+.fg-battle :is(.coast-event, .coast-effect, .coast-player) {
+  position: absolute;
+  pointer-events: none;
+  width: 27%;
+  height: 23%;
+  color: #efe5c7;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 3px 3px rgb(6 26 20 / .75));
+}
+.fg-battle .coast-event { z-index: 2; }
+.fg-battle .coast-player { z-index: 3; }
+.fg-battle .coast-effect { z-index: 4; }
+.fg-battle :is(.coast-event, .coast-effect, .coast-player) svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.fg-battle :is(.coast-event, .coast-effect) {
+  left: calc((var(--target) + .5) * 100% / 3);
+}
+.fg-battle .coast-event { top: var(--event-start-top, 29%); }
+.fg-battle [data-phase='warning'] .coast-event {
+  animation: coast-approach var(--wave-ms) linear forwards;
+}
+.fg-battle .coast-effect { top: 52%; height: 24%; opacity: 0; }
+.fg-battle [data-phase='success'] .coast-effect {
+  animation: coast-skill-arrive 260ms cubic-bezier(.22, .72, .22, 1) both;
+}
+.fg-battle .coast-player {
+  top: 81%;
+  left: calc((var(--lane) + .5) * 100% / 3);
+  height: 26%;
+  transition: left 150ms cubic-bezier(.23, .85, .35, 1);
+}
+.fg-battle [data-phase='miss'] .coast-event { opacity: .4; }
+.fg-battle [data-phase='success'] .coast-event svg {
+  animation: coast-wind-eases 1550ms ease-out both;
+}
+.fg-battle [data-station='casuarina-equisetifolia'][data-phase='warning'] .coast-event svg g:last-child {
+  animation: coast-sand-blows 630ms linear infinite;
+}
+.fg-battle [data-station='casuarina-equisetifolia'][data-phase='success'] .coast-event {
+  animation: coast-sand-traverses 1800ms ease-out both;
+}
+.fg-battle [data-station='casuarina-equisetifolia'][data-phase='success'] .coast-event svg { animation: coast-sand-fades 1800ms ease-out both; }
+.fg-battle [data-station='pittosporum-tobira'][data-phase='warning'] .coast-event {
+  left: calc((var(--event-start-lane, 1) + .5) * 100% / 3);
+  animation: coast-bird-search var(--wave-ms) linear forwards;
+}
+.fg-battle [data-station='lumnitzera-racemosa'][data-phase='success'] .coast-event svg {
+  animation: coast-tide-ebbs 1500ms ease-out both;
+}
+.fg-battle [data-station='pittosporum-tobira'][data-phase='success'] .coast-event svg {
+  animation: coast-bird-leaves 1550ms ease-in both;
+}
+.fg-battle [data-paused='true'] *,
+.fg-battle [data-paused='true'] *::before { animation-play-state: paused !important; }
+
+.fg-battle .fg-pause-overlay:not([hidden]) {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--battle-paper);
+  background: rgb(12 37 34 / .92);
+}
+.fg-battle .fg-pause-overlay strong { font-size: 1.4rem; }
+.fg-battle .fg-status {
+  min-height: 2.8em;
+  margin: 11px 0 5px;
+  color: var(--battle-paper);
+  font-size: clamp(.92rem, 1.5vw, 1.05rem);
+  line-height: 1.45;
+}
+.fg-battle .fg-player-position { min-height: 1.3em; margin: 3px 0 0; color: #d2e4d8; font-size: .82rem; line-height: 1.3; }
+.fg-battle .fg-status[data-phase='success'] { color: var(--battle-mint); }
+.fg-battle .fg-status[data-phase='miss'] { color: #efbda3; }
+.fg-battle .fg-controls {
+  display: grid;
+  grid-template-columns: minmax(48px, .9fr) minmax(130px, 2.3fr) minmax(48px, .9fr);
+  gap: 8px;
+}
+.fg-battle .fg-controls button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  border: 1px solid #557267;
+  border-radius: 6px;
+  background: #1a3730;
+  color: var(--battle-paper);
+  touch-action: manipulation;
+  cursor: pointer;
+}
+.fg-battle .fg-controls button[data-skill] {
+  padding-inline: 6px;
+  white-space: nowrap;
+  border-color: transparent;
+  background: var(--battle-mint);
+  color: var(--battle-ink);
+}
+.fg-battle .fg-controls svg { width: 20px; height: 20px; }
+.fg-battle .fg-controls button:active:not(:disabled) { transform: translateY(1px); }
+.fg-battle .fg-controls button:disabled { cursor: default; opacity: .55; }
+.fg-battle .fg-control-tip { margin: 10px 0 0; color: #b8c9bf; font-size: .81rem; }
+
+@media (max-width: 760px) {
+  body.coastal-game-playing {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    width: 100%;
+    height: 100dvh;
+    min-width: 320px;
+    flex-direction: column;
+    overflow: hidden;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  body.coastal-game-playing .site-header { flex: 0 0 auto; }
+  body.coastal-game-playing .main-nav,
+  body.coastal-game-playing .site-footer { display: none; }
+  body.coastal-game-playing main#content { display: flex; flex: 1 1 0%; min-height: 0; overflow: hidden; }
+  body.coastal-game-playing #forest-game { width: 100%; height: 100%; min-height: 0; overflow: hidden; }
+  body.coastal-game-playing .fg-session:not([hidden]) {
+    display: flex;
+    width: min(calc(100% - 36px), 790px);
+    height: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    margin: 0 auto;
+    padding: 0;
+  }
+  body.coastal-game-playing .fg-session-nav { min-height: 38px; flex: 0 0 auto; padding-block: 1px; }
+  body.coastal-game-playing .fg-back { min-height: 36px; }
+  body.coastal-game-playing .fg-battle {
+    display: flex;
+    width: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 5px;
+    margin: 0;
+  }
+  body.coastal-game-playing .fg-battle-head { min-height: 42px; flex: 0 0 auto; }
+  body.coastal-game-playing .fg-battle-head h2 { font-size: clamp(1.38rem, 5vw, 1.9rem); }
+  body.coastal-game-playing .fg-utility { min-height: 42px; }
+  body.coastal-game-playing .fg-progress { min-height: 20px; flex: 0 0 auto; margin: 0; gap: 7px; }
+  body.coastal-game-playing .fg-court { display: flex; min-height: 86px; flex: 1 1 auto; }
+  body.coastal-game-playing .fg-arena { width: 100%; height: 100%; min-height: 0; }
+  body.coastal-game-playing .fg-player-position { min-height: 1.15em; flex: 0 0 auto; margin: 1px 0 0; font-size: .76rem; }
+  body.coastal-game-playing .fg-status { min-height: 2.35em; flex: 0 0 auto; margin: 0; font-size: .87rem; line-height: 1.28; }
+  body.coastal-game-playing .fg-controls { flex: 0 0 auto; gap: 7px; }
+  body.coastal-game-playing .fg-controls button { min-height: 46px; }
+  body.coastal-game-playing .fg-control-tip {
+    min-height: 1.25em;
+    flex: 0 0 auto;
+    margin: 0;
+    overflow: hidden;
+    font-size: .72rem;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (hover: hover) {
+  .fg-battle .fg-controls button:hover:not(:disabled), .fg-battle .fg-utility:hover { background: #2b4d40; }
+  .fg-battle .fg-controls button[data-skill]:hover:not(:disabled) { background: #bdf4da; }
+}
+@media (max-width: 540px) {
+  .fg-battle .fg-arena { height: clamp(236px, 36svh, 304px); }
+  .fg-battle .fg-status { font-size: .93rem; }
+  body.coastal-game-playing .fg-status { font-size: .84rem; }
+}
+
+@media (max-height: 440px) and (orientation: landscape) {
+  body.coastal-game-playing .header-row { min-height: 40px; }
+  body.coastal-game-playing .fg-session-nav { min-height: 30px; }
+  body.coastal-game-playing .fg-back { min-height: 30px; }
+  body.coastal-game-playing .fg-battle { gap: 3px; }
+  body.coastal-game-playing .fg-battle-head { min-height: 36px; }
+  body.coastal-game-playing .fg-battle-head h2 { font-size: 1.35rem; }
+  body.coastal-game-playing .fg-utility { min-height: 36px; }
+  body.coastal-game-playing .fg-court { min-height: 70px; }
+  body.coastal-game-playing .fg-player-position { font-size: .7rem; }
+  body.coastal-game-playing .fg-status { min-height: 1.2em; font-size: .78rem; }
+  body.coastal-game-playing .fg-controls button { min-height: 42px; }
+  body.coastal-game-playing .fg-control-tip { min-height: 1.1em; font-size: .68rem; white-space: nowrap; }
+}
+
+@keyframes coast-approach { from { top: 18%; } to { top: 59%; } }
+@keyframes coast-bird-search {
+  0% { left: calc((var(--event-start-lane, 1) + .5) * 100% / 3); top: 18%; }
+  60%, 100% { left: calc((var(--target) + .5) * 100% / 3); top: 44%; }
+}
+@keyframes coast-skill-arrive {
+  from { opacity: .45; transform: translate(-50%, -41%) scale(.79); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes coast-wind-eases {
+  from { opacity: 1; transform: translate(0); }
+  to { opacity: .18; transform: translate(8%, 4%) scale(.78); }
+}
+@keyframes coast-sand-blows {
+  from { opacity: .5; transform: translate(-6px, -2px); }
+  32% { opacity: 1; }
+  to { opacity: .62; transform: translate(5px, 3px); }
+}
+/* The sand keeps its warning position, reaches the trees, then slows down. */
+@keyframes coast-sand-traverses {
+  0% { top: var(--event-start-top, 29%); }
+  20% { top: calc(var(--event-start-top, 29%) + 10%); }
+  38% { top: calc(var(--event-start-top, 29%) + 11.5%); }
+  62% { top: calc(var(--event-start-top, 29%) + 12.2%); }
+  100% { top: calc(var(--event-start-top, 29%) + 13%); }
+}
+@keyframes coast-sand-fades {
+  0%, 20% { opacity: 1; }
+  100% { opacity: .38; }
+}
+@keyframes coast-tide-ebbs {
+  from { opacity: 1; transform: scaleY(1); }
+  to { opacity: .42; transform: translateY(8%) scaleY(.60); }
+}
+@keyframes coast-bird-leaves {
+  0%, 20% { opacity: 1; transform: translate(0); }
+  68% { opacity: .95; transform: translate(12%, -14%) rotate(-8deg); }
+  to { opacity: 0; transform: translate(27%, -46%) rotate(-10deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fg-battle .coast-player { transition: none; }
+  .fg-battle .fg-arena *, .fg-battle .fg-arena *::before { animation: none !important; }
+  .fg-battle .fg-timebar { transition: none; }
+  .fg-battle [data-phase='warning'] .coast-event { top: 43%; opacity: .95; }
+  .fg-battle [data-station='pittosporum-tobira'][data-phase='warning'] .coast-event {
+    left: calc((var(--target) + .5) * 100% / 3);
+  }
+  .fg-battle [data-ready='true'] .coast-event { filter: drop-shadow(0 0 5px #a5e6ca); }
+  .fg-battle [data-phase='success'] .coast-effect { opacity: 1; }
+  .fg-battle [data-phase='success'] .coast-event { opacity: .55; }
+}

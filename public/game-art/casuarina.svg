@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" role="img" aria-label="木麻黃垂下的綠色小枝與木質果序，圓窗放大枝節上圍成一圈的鱗片狀小葉">
+  <defs>
+    <radialGradient id="sky" cx="53%" cy="39%" r="79%"><stop stop-color="#294d45"/><stop offset=".62" stop-color="#173933"/><stop offset="1" stop-color="#0a2726"/></radialGradient>
+    <pattern id="paper" width="17" height="19" patternUnits="userSpaceOnUse"><path d="m2 4 1-.3m10 6 .8.3m-7 6 1-.4" stroke="#cadbb4" stroke-width=".8" opacity=".19"/></pattern>
+    <linearGradient id="stem"><stop stop-color="#485a37"/><stop offset=".18" stop-color="#859455"/><stop offset=".41" stop-color="#c7c786"/><stop offset=".61" stop-color="#8c9e60"/><stop offset="1" stop-color="#4d694b"/></linearGradient>
+    <linearGradient id="scales" x2=".5" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#e7c78e"/><stop offset="1" stop-color="#86975a"/></linearGradient>
+    <radialGradient id="lens"><stop stop-color="#384f3d"/><stop offset="1" stop-color="#1d3932"/></radialGradient>
+    <clipPath id="detail"><circle cx="300" cy="160" r="110"/></clipPath>
+    <g id="spray" fill="none" stroke-linecap="round">
+      <path d="M0 0Q53 71 59 162M0 0Q39 57 36 122M6 8Q55 36 82 93M11 16Q66 64 85 145M21 29Q45 80 45 167M16 20Q33 72 19 114" stroke="#79977a" stroke-width="1.8"/>
+      <path d="M0 0Q53 71 59 162M0 0Q39 57 36 122M6 8Q55 36 82 93M11 16Q66 64 85 145M21 29Q45 80 45 167M16 20Q33 72 19 114" stroke="#c1b88a" stroke-width="2.4" stroke-dasharray="1.2 10"/>
+    </g>
+    <g id="cone">
+      <path d="M0-29C15-29 28-17 26-1S15 27 2 29C-14 29-25 15-24 0S-15-26 0-29Z" fill="#756c4f" stroke="#a49067" stroke-width="1.7"/>
+      <g fill="#32413a" stroke="#c8ac77" stroke-width="1.5" stroke-linejoin="round">
+        <path d="m-14-17 7-6 8 5-7 1-4 5Zm14-4 8-3 8 5-6 1-4 5ZM-21-5l7-7 8 4-7 2-3 6ZM-6-7l8-7 9 5-7 2-4 6ZM11-8l7-5 5 3-5 2-4 5ZM-20 7l7-6 9 3-8 4-4 4ZM-4 8l8-8 9 3-8 5-4 5ZM11 6l7-5 4 2-5 4-4 5ZM-16 18l7-6 8 2-6 4-5 4ZM-1 21l7-9 8 2-7 4-5 7Z"/>
+      </g>
+    </g>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h600v320H0z"/>
+  <path fill="url(#paper)" d="M0 0h600v320H0z"/>
+  <!-- Drooping, articulated branchlets in the background give the detail its scale. -->
+  <path d="M-21 13C59 20 82 51 145 50S231 25 288-12" fill="none" stroke="#998f6d" stroke-width="6"/>
+  <path d="M-20 11C67 19 77 48 144 47S225 27 289-14" fill="none" stroke="#d1bc88" stroke-width="1.3"/>
+  <g opacity=".86">
+    <use href="#spray" transform="translate(7 21) rotate(-4) scale(1.38)"/>
+    <use href="#spray" transform="translate(54 32) rotate(8) scale(1.46 1.6)"/>
+    <use href="#spray" transform="translate(102 48) rotate(-2) scale(1.06 1.3)"/>
+    <use href="#spray" transform="translate(158 48) rotate(18) scale(.77 1.01)"/>
+    <use href="#spray" transform="translate(224 25) rotate(26) scale(.58 .79)"/>
+  </g>
+  <g transform="translate(585 1) scale(-1 1)" opacity=".45"><use href="#spray" transform="rotate(-10) scale(1.35 1.2)"/><use href="#spray" transform="translate(38 0) rotate(14) scale(1.05)"/></g>
+  <g opacity=".92"><path d="M622 123Q543 133 485 186Q465 210 452 234M514 164Q517 181 527 191" fill="none" stroke="#a28e64" stroke-width="3.8"/><use href="#cone" transform="translate(451 250) rotate(32) scale(.96 1.06)"/><use href="#cone" transform="translate(532 206) rotate(-21) scale(.69 .8)"/></g>
+  <circle cx="300" cy="160" r="111" fill="url(#lens)" stroke="#8b9f7b" stroke-width="1.2"/>
+  <circle cx="300" cy="160" r="117" fill="none" stroke="#aeb395" stroke-width=".7" stroke-dasharray="102 633" transform="rotate(-90 300 160)"/>
+  <g clip-path="url(#detail)" transform="translate(0)">
+    <g transform="translate(300 160) rotate(61)">
+      <path d="M-18 148C-16 85-14 30-12-7L-9-138H9L12-8C14 44 17 101 20 148Z" fill="url(#stem)" stroke="#c3bc85" stroke-width="1.4"/>
+      <g fill="none" stroke-linecap="round">
+        <path d="M-13 141Q-12 80-7 14M-4 138Q-6 73-3 18M6 140Q2 83 3 18M15 139Q13 74 9 16M-8-15Q-7-76-6-135M0-18Q-2-85 0-134M6-18Q6-67 4-136" stroke="#536d49" stroke-width="2"/>
+        <path d="M-11 144Q-10 88-5 25M-2 136Q-3 86-1 24M8 134Q7 70 5 25M-5-21Q-5-72-4-132M3-24Q3-73 2-130" stroke="#d6cd8b" stroke-width="1.3"/>
+      </g>
+      <!-- A complete collar bears several triangular scale-leaf teeth at the joint. -->
+      <path d="M-16 10Q-18-1-17-15L-12-8-9-25-5-13-1-28 3-14 8-24 10-10 16-17Q16-4 15 9Q1 16-16 10Z" fill="url(#scales)" stroke="#cbb586" stroke-width="1.1" stroke-linejoin="round"/>
+      <path d="m-17-15 5 7 1 9m2-26 4 12 1 13m3-28 4 14v15m5-25 2 14-1 12m7-19-2 15M-15 9Q-1 14 15 8" fill="none" stroke="#706d49" stroke-width="1.4"/>
+      <path d="M-16 12Q0 18 15 10" fill="none" stroke="#d2c08a" stroke-width="1.4"/>
+    </g>
+  </g>
+  <path d="M191 179 152 220h-26" fill="none" stroke="#b5bd96" stroke-width=".9"/><circle cx="124" cy="220" r="2.7" fill="#d8c798"/>
+  <g stroke="#b9bf92" fill="none" opacity=".65"><path d="M24 287h56m-56 0v-5m14 5v-3m14 3v-3m14 3v-3m14 3v-5"/></g>
+</svg>

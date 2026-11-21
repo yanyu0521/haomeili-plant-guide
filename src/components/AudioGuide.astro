@@ -2,6 +2,7 @@
 import type { PublishedPlant } from '../lib/plantSchema';
 import { plantNarration } from '../lib/plantNarration';
 import { plantPath, sitePath } from '../lib/paths';
+import { gameStationPath } from '../lib/gameStations';
 import { sourceLabel } from '../lib/sourceLabels';
 
 interface Props {
@@ -16,6 +17,7 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
   slug: plant.slug,
   url: plantPath(plant.slug),
   mapUrl: `${sitePath('map/')}#map-point-${plant.slug}`,
+  gameUrl: gameStationPath(plant.slug),
   name: plant.name,
   scientificName: plant.scientificName,
   family: plant.family,
@@ -91,6 +93,7 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
     slug: string;
     url: string;
     mapUrl: string;
+    gameUrl?: string;
     name: string;
     scientificName: string;
     family: string;
@@ -206,6 +209,12 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
       detail.querySelectorAll<HTMLAnchorElement>('[data-detail-map-link]').forEach((link) => {
         link.href = entry.mapUrl;
       });
+      const gameLink = detail.querySelector<HTMLAnchorElement>('[data-detail-game-link]');
+      if (gameLink) {
+        gameLink.hidden = !entry.gameUrl;
+        if (entry.gameUrl) gameLink.href = entry.gameUrl;
+        else gameLink.removeAttribute('href');
+      }
       const map = detail.querySelector('[data-detail-location-map] [data-forest-map]');
       if (map instanceof HTMLElement) map.dispatchEvent(new CustomEvent('map:active', { detail: { slug: entry.slug } }));
 

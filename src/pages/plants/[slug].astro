@@ -8,6 +8,7 @@ import ForestMap from '../../components/ForestMap.astro';
 import { publishedPlants, getAdjacentPlants } from '../../lib/plants';
 import type { PublishedPlant } from '../../lib/plantSchema';
 import { sitePath } from '../../lib/paths';
+import { gameStationPath } from '../../lib/gameStations';
 import { sourceLabel } from '../../lib/sourceLabels';
 
 type Props = { plant: PublishedPlant; previous?: PublishedPlant; next?: PublishedPlant };
@@ -23,6 +24,7 @@ const { plant, previous, next } = Astro.props as Props;
 const pointIndex = publishedPlants.findIndex((item) => item.slug === plant.slug) + 1;
 const pointLabel = String(pointIndex).padStart(2, '0');
 const mapUrl = `${sitePath('map/')}#map-point-${plant.slug}`;
+const gameUrl = gameStationPath(plant.slug);
 ---
 <BaseLayout title={plant.name} description={`${plant.name}：${plant.appearance}`}>
   <article class="container plant-page" data-plant-detail>
@@ -42,6 +44,10 @@ const mapUrl = `${sitePath('map/')}#map-point-${plant.slug}`;
           <a class="detail-action" data-detail-map-link href={mapUrl}>
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Zm6-3v15m6-12v15" /></svg>
             看地圖
+          </a>
+          <a class="detail-action" data-detail-game-link href={gameUrl} hidden={!gameUrl}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 20c1-5 5-9 11-12M7 15C3 8 11 3 21 3c0 10-5 16-12 13" /></svg>
+            玩本站挑戰
           </a>
         </div>
       </div>

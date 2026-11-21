@@ -26,6 +26,16 @@ assert(existsSync(join(dist, 'index.html')), '首頁不存在');
 assert(existsSync(join(dist, 'plants/index.html')), '/plants/ 不存在');
 const home = html('index.html');
 const list = html('plants/index.html');
+const game = html('game/index.html');
+const missions = JSON.parse(game.match(/<script\b[^>]*id="coastal-stations"[^>]*>([\s\S]*?)<\/script>/)?.[1] ?? 'null');
+assert(Array.isArray(missions) && missions.length === 4, '遊戲需要四個植物任務');
+for (const [i, mission] of missions.entries()) {
+  assert.equal(mission.slug, published[i].slug);
+  assert.equal(mission.mapUrl, `${base}map/#map-point-${mission.slug}`);
+  assert.equal(mission.detailUrl, `${base}plants/${mission.slug}/`);
+  assert(assetExists(mission.artUrl), `缺少關卡插圖：${mission.slug}`);
+  assert(findLinks(game).includes(mission.stationUrl), `缺少關卡入口：${mission.slug}`);
+}
 function checkDirectory(content) {
   const list = content.match(/<ol\b[^>]*data-plant-list[^>]*>([\s\S]*?)<\/ol>/);
   assert(list, '植物名錄缺少導覽點');
@@ -51,6 +61,8 @@ function homeFeaturedSlugs(content) {
 }
 assert.deepEqual(homeFeaturedSlugs(home),published.slice(0,3).map((p)=>p.slug),'首頁精選點位順序錯誤');
 assert(home.includes(`aria-label="瀏覽全部 ${published.length} 個植物導覽點"`),'首頁植物總數錯誤');
+assert(findLinks(home).includes(`${base}game/`), '首頁缺少守林挑戰入口');
+assert(findLinks(home).includes('https://haomeili-game.angela950730.workers.dev/'), '首頁缺少岸全第一入口');
 checkDirectory(list);
 let pagesChecked=0;
 for (const [index, p] of published.entries()) {
@@ -62,6 +74,7 @@ for (const [index, p] of published.entries()) {
     assert(content.includes(title),`${p.slug} 缺少資訊卡：${title}`);
   if (p.isDemo) assert(content.includes('尚未確認為好美里現場植物'),`${p.slug} 缺示範警語`);
   const links=findLinks(content);
+  assert.equal(links.includes(`${base}game/?station=${p.slug}`), index < 4, `${p.name} 的本站挑戰入口錯誤`);
   const prev = index ? `${base}plants/${published[index-1].slug}/` : null;
   const next = index+1<published.length ? `${base}plants/${published[index+1].slug}/` : null;
   if (prev) assert(links.includes(prev),`${p.slug} 缺上一種連結`);
@@ -74,7 +87,7 @@ for(const p of draft) {
   assert(!existsSync(join(dist,route(p.slug))),`草稿不應產出：${p.slug}`);
   assert(!home.includes(`${base}plants/${p.slug}/`),`草稿不應出現在首頁：${p.slug}`);
 }
-for(const page of [home,list,...published.map((p)=>html(route(p.slug)))]) {
+for(const page of [home,list,game,...published.map((p)=>html(route(p.slug)))]) {
   for(const href of findLinks(page)) {
     if (href.startsWith('https:')||href.startsWith('http:')||href.startsWith('#')||href.startsWith('mailto:')) continue;
     assert(href.startsWith(base),`站內連結未套 base：${href}`);
@@ -83,4 +96,4 @@ for(const page of [home,list,...published.map((p)=>html(route(p.slug)))]) {
     assert(existsSync(target),`站內連結不存在：${href}`);
   }
 }
-console.log(`靜態輸出驗收成功：首頁、植物清單、${pagesChecked} 個植物頁、draft 排除、導覽、圖片與 base 路徑。`);
+console.log(`靜態輸出驗收成功：首頁、四站遊戲、植物清單、${pagesChecked} 個植物頁、draft 排除、導覽、圖片與 base 路徑。`);

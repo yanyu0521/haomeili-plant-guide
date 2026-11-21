@@ -66,6 +66,17 @@ const shortCues: Record<string, string> = {
       </ol>
     </section>
 
+    <section class="forest-challenge" aria-labelledby="forest-challenge-title">
+      <div class="challenge-copy">
+        <h2 id="forest-challenge-title">好美里閃身戰</h2>
+        <p>滑動換線，跟四種步道植物一起守住防風林。</p>
+        <a class="challenge-link" href={sitePath('game/')}>
+          開始守林挑戰 <span aria-hidden="true">→</span>
+        </a>
+      </div>
+      <img src={sitePath('game-art/casuarina.svg')} alt="" loading="lazy" width="600" height="320" />
+    </section>
+
     <section class="trail-game" aria-labelledby="game-title">
       <span class="game-symbol" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="m5 11 6-8 6 8M2 15c5-6 9 6 14 0 2-2 3-2 6-1M2 20c5-6 9 6 14 0 2-2 3-2 6-1" /></svg>
@@ -221,9 +232,35 @@ const shortCues: Record<string, string> = {
   .plant-rail-card h3 { margin-top: 6px; font-size: clamp(1.125rem, 2vw, 1.5rem); line-height: 1.4; }
   .plant-rail-card:hover h3 { color: var(--teal-bright); }
   .plant-rail-card p, .game-copy p { margin-top: 2px; color: var(--muted); font-size: clamp(.875rem, 1.2vw, 1rem); line-height: 1.55; }
+  .forest-challenge {
+    display: grid;
+    grid-template-columns: 1fr minmax(190px, 39%);
+    align-items: stretch;
+    margin: clamp(20px, 3vw, 42px) var(--gutter) 0;
+    overflow: hidden;
+    background: #193a32;
+    border-radius: 6px;
+  }
+  .challenge-copy { align-self: center; padding: clamp(18px, 3.5vw, 42px); }
+  .challenge-copy h2 { margin: 0; font: 750 clamp(1.5rem, 3.3vw, 2.625rem)/1.16 var(--body); }
+  .challenge-copy p { margin: 8px 0 15px; color: #d1e4d9; }
+  .challenge-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 44px;
+    padding: 7px 15px;
+    border-radius: 5px;
+    color: var(--night);
+    background: var(--teal-bright);
+    font-weight: 750;
+    text-decoration: none;
+  }
+  .challenge-link:hover { color: var(--night); background: #b2ffe3; }
+  .forest-challenge img { display: block; width: 100%; height: 100%; max-height: 220px; object-fit: cover; }
   .trail-game {
     justify-content: start;
-    margin: clamp(20px, 3vw, 42px) var(--gutter) 0;
+    margin: 18px var(--gutter) 0;
     padding: 17px 0;
     border-top: 1px solid #31443e;
   }
@@ -259,6 +296,9 @@ const shortCues: Record<string, string> = {
     .stop-cards a:focus-visible { outline-offset: 0; }
     .card-plate { aspect-ratio: 1.32; }
     .shelf-link { font-size: .875rem; }
+    .forest-challenge { grid-template-columns: 1fr 31%; }
+    .challenge-copy { padding: 16px; }
+    .challenge-copy p { font-size: .9rem; }
   }
   @media (max-width: 355px) {
     .cover-actions a { padding-inline: .8em; }

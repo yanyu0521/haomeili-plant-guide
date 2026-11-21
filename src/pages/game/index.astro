@@ -1,0 +1,123 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/GameIcon.astro';
+import cover from '../../assets/game/coastal-forest.webp';
+import { gameStations, gameStationPath } from '../../lib/gameStations';
+import { publishedPlants } from '../../lib/plants';
+import { plantPath, sitePath } from '../../lib/paths';
+import '../../styles/coastal-game.css';
+import '../../styles/coastal-battle.css';
+
+const stations = gameStations.map((station) => {
+  const i = publishedPlants.findIndex((plant) => plant.slug === station.slug);
+  if (i < 0) throw new Error(`找不到遊戲植物 ${station.slug}`);
+  const plant = publishedPlants[i];
+  return {
+    ...station, name: plant.name, number: String(i + 1).padStart(2, '0'),
+    artUrl: sitePath(`game-art/${station.art}.svg`), detailUrl: plantPath(plant.slug),
+    mapUrl: sitePath(`map/#map-point-${plant.slug}`), stationUrl: gameStationPath(plant.slug)!,
+  };
+});
+---
+<BaseLayout title="好美里閃身戰・守住防風林" description="左右閃身、運用四種植物的技能，守住好美里防風林，再到步道上找找它們。">
+  <div class="forest-game" id="forest-game">
+    <section class="fg-lobby" aria-labelledby="game-title" data-lobby>
+      <div class="fg-cover">
+        <Image src={cover} alt="" widths={[600, 960, 1440]} sizes="100vw" format="webp" loading="eager" fetchpriority="high" />
+        <div class="fg-cover-copy">
+          <h1 id="game-title">好美里閃身戰<span>守住防風林</span></h1>
+          <p>迎著海風左右閃身，用四種植物的本領守住這片海岸林。</p>
+          <div class="fg-actions">
+            <a class="fg-primary" data-quick href={stations[0].stationUrl}><Icon name="play" /><span>開始守林</span></a>
+            <a class="fg-quiet fg-on-cover" href="#game-stations">選擇關卡 <Icon name="right" /></a>
+          </div>
+        </div>
+      </div>
+      <section class="fg-stations fg-width" id="game-stations" aria-labelledby="stations-title">
+        <div class="fg-section-title"><h2 id="stations-title">植物守護任務</h2><span data-total>已完成 0 / 4 站</span></div>
+        <div class="fg-card-grid">
+          {stations.map((s) => (
+            <a class="fg-card" href={s.stationUrl} data-station-link={s.slug} aria-label={`第 ${s.number} 站 ${s.name}，${s.skill}`}>
+              <div class="fg-card-art">
+                <img src={s.artUrl} width="600" height="320" alt="" />
+                <span class="fg-station-number">第 {s.number} 站</span>
+                <span class="fg-done-tag" hidden><Icon name="check" /> 已完成</span>
+              </div>
+              <div class="fg-card-info"><div><h3>{s.name}</h3><p>{s.skill}</p></div><Icon name="arrow" /></div>
+            </a>
+          ))}
+        </div>
+      </section>
+    </section>
+    <noscript><p class="fg-width">請開啟瀏覽器的 JavaScript 以遊玩閃身戰，或前往<a href={sitePath('plants/')}>植物名錄</a>閱讀介紹。</p></noscript>
+    <section class="fg-session fg-width" data-session hidden aria-label="植物守護任務">
+      <div class="fg-session-nav">
+        <a class="fg-back" data-home href={sitePath('game/')}><Icon name="left" /> 選擇關卡</a>
+        <span>好美里閃身戰</span>
+      </div>
+      <div data-brief class="fg-split">
+        <div class="fg-panel-art"><img data-brief-art src={stations[0].artUrl} width="600" height="320" alt="" /></div>
+        <div class="fg-panel-copy">
+          <span class="fg-station-ref" data-brief-id></span>
+          <h2 data-brief-title tabindex="-1"></h2><p class="fg-intro" data-brief-mission></p>
+          <ol class="fg-instructions"><li data-brief-task></li><li>第一波時機較寬，熟悉節奏後，守住三波再辨認植物特徵。</li></ol>
+          <button type="button" class="fg-primary" data-start><Icon name="play" /> 開始挑戰</button>
+        </div>
+      </div>
+      <div data-battle class="fg-battle" hidden>
+        <div class="fg-battle-head"><div><span data-battle-id></span><h2 data-battle-title tabindex="-1"></h2></div>
+          <button type="button" class="fg-utility" data-pause><Icon name="pause" /><span>暫停</span></button>
+        </div>
+        <div class="fg-progress">
+          <div class="fg-pips" aria-hidden="true"><i></i><i></i><i></i></div>
+          <span data-waves></span>
+          <progress class="fg-timebar" data-timebar max="100" value="100" aria-label="本波剩餘時間"></progress>
+          <span class="fg-countdown" data-countdown aria-hidden="true">15 秒</span>
+        </div>
+        <div class="fg-court">
+          <div class="fg-arena" data-arena role="group" aria-label="三線守林場，點選跑道或左右滑動移動">
+            <Image class="fg-arena-cover" src={cover} alt="" widths={[600, 960, 1440]} sizes="100vw" format="webp" loading="eager" />
+            <span class="fg-arena-shade" aria-hidden="true"></span>
+          </div>
+          <div class="fg-pause-overlay" data-pause-overlay hidden><strong>遊戲已暫停</strong><button type="button" class="fg-primary" data-resume><Icon name="play" /> 繼續挑戰</button></div>
+        </div>
+        <p class="fg-player-position" data-player-position role="status" aria-live="polite" aria-atomic="true">目前位置：中線</p>
+        <p class="fg-status" data-status role="status" aria-live="polite"></p>
+        <div class="fg-controls">
+          <button type="button" data-left aria-label="向左移動"><Icon name="left" /></button>
+          <button type="button" class="fg-primary" data-skill><Icon name="leaf" /><strong></strong></button>
+          <button type="button" data-right aria-label="向右移動"><Icon name="right" /></button>
+        </div>
+        <p class="fg-control-tip">點選跑道或左右滑動移動，再按技能。鍵盤用 ←／→ 或 A／D 移動，F 發動技能。</p>
+      </div>
+      <div data-quiz class="fg-split" hidden>
+        <div class="fg-panel-art fg-quiz-art"><img data-quiz-art src={stations[0].artUrl} width="600" height="320" alt="" />
+          <button type="button" data-point-img class="fg-point-img" aria-label="在木麻黃特寫圖上尋找小葉，也可以用下方文字選項作答" tabindex="-1" hidden></button>
+        </div>
+        <div class="fg-panel-copy">
+          <span class="fg-station-ref" data-quiz-id></span><h2 data-question tabindex="-1"></h2>
+          <p class="fg-quiz-guide" data-quiz-guide></p><div class="fg-choices" data-choices></div>
+          <p class="fg-quiz-note" role="status" data-quiz-note></p>
+        </div>
+      </div>
+      <div data-result class="fg-split" hidden>
+        <div class="fg-panel-art"><img data-result-art src={stations[0].artUrl} width="600" height="320" alt="" /></div>
+        <div class="fg-panel-copy">
+          <span class="fg-station-ref" data-result-id></span><h2 data-result-title tabindex="-1"></h2>
+          <p class="fg-intro" data-fact></p>
+          <button type="button" class="fg-speak" data-speak hidden><Icon name="audio" /><span>聽這個特徵</span></button>
+          <p class="fg-voice-status" data-voice-status aria-live="polite"></p>
+          <div class="fg-result-links"><a data-map href={sitePath('map/')}><Icon name="map" /><span></span></a><a data-audio href={sitePath('plants/')}><Icon name="audio" /><span></span></a></div>
+          <div class="fg-actions"><button type="button" class="fg-primary" data-next><span></span><Icon name="arrow" /></button><button type="button" class="fg-quiet" data-replay>再玩一次</button></div>
+          <p class="fg-result-progress" data-result-progress></p>
+        </div>
+      </div>
+    </section>
+    <script type="application/json" id="coastal-stations" set:html={JSON.stringify(stations).replace(/</g, '\\u003c')} />
+  </div>
+</BaseLayout>
+<script>
+  import { initForestGame } from '../../lib/forestGamePage';
+  initForestGame();
+</script>

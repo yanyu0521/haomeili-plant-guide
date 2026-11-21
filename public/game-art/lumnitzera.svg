@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" role="img" aria-label="欖李生長在潮間帶，泥岸剖面顯示地下根與小型屈膝根，圓窗放大枝端聚生的倒卵形厚葉">
+  <defs>
+    <radialGradient id="sky" cx="53%" cy="39%" r="79%"><stop stop-color="#294d45"/><stop offset=".62" stop-color="#173933"/><stop offset="1" stop-color="#0a2726"/></radialGradient>
+    <pattern id="paper" width="17" height="19" patternUnits="userSpaceOnUse"><path d="m2 4 1-.3m10 6 .8.3m-7 6 1-.4" stroke="#cadbb4" stroke-width=".8" opacity=".19"/></pattern>
+    <linearGradient id="foliage" x1="0" x2="1" y1="1" y2="0"><stop stop-color="#56816b"/><stop offset=".56" stop-color="#8ba780"/><stop offset="1" stop-color="#bbc29a"/></linearGradient>
+    <linearGradient id="water" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#537a70"/><stop offset="1" stop-color="#799286"/></linearGradient>
+    <linearGradient id="mud" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#837a64"/><stop offset=".31" stop-color="#716b55"/><stop offset="1" stop-color="#484c41"/></linearGradient>
+    <g id="leaf"><path d="M0 0C-5-10-16-24-18-39C-20-50-14-58-5-59C5-61 14-59 17-51C23-38 11-17 0 0Z" fill="url(#foliage)" stroke="#adc09a" stroke-width=".9"/><path d="M0 0Q1-24-3-51" fill="none" stroke="#ced1ad" stroke-width="1.2"/><path d="M0-19Q-5-25-9-28m9-1q5-6 8-11" fill="none" stroke="#b1bb98" stroke-width=".75"/></g>
+    <g id="cluster"><use href="#leaf" transform="rotate(-81) scale(.77 .86)"/><use href="#leaf" transform="rotate(-49) scale(.97)"/><use href="#leaf" transform="rotate(-15) scale(.89 1.06)"/><use href="#leaf" transform="rotate(25) scale(.83 .94)"/><use href="#leaf" transform="rotate(62) scale(.88 .85)"/></g>
+    <g id="twig" fill="none" stroke="#657f6c" stroke-width="2"><path d="M0 0q13-25 14-44m-5 33q17-17 26-19M9-20Q5-35 1-40"/><use href="#cluster" transform="translate(13 -44) scale(.28)"/><use href="#cluster" transform="translate(35 -30) rotate(35) scale(.21)"/><use href="#cluster" transform="translate(1 -40) rotate(-34) scale(.23)"/></g>
+    <pattern id="silt" width="37" height="19" patternUnits="userSpaceOnUse"><g fill="none" stroke="#c4b296" opacity=".55" stroke-linecap="round"><path d="m1 5 3-.8m12 9 5-1.3m9-8 1-.4" stroke-width=".9"/><path d="m10 4 1 .2m15 14 2-1" stroke-width="1.6"/></g></pattern>
+    <path id="bank" d="M0 233C48 223 78 232 130 222S225 225 272 214S352 219 402 226S520 234 600 224V320H0Z"/>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h600v320H0z"/>
+  <path fill="url(#paper)" d="M0 0h600v320H0z"/>
+  <g opacity=".25"><use href="#twig" transform="translate(0 156) scale(1.34)"/><use href="#twig" transform="translate(28 168) scale(.87)"/><use href="#twig" transform="translate(391 175) scale(.85)"/><use href="#twig" transform="translate(416 175) rotate(17) scale(.74)"/><use href="#twig" transform="translate(574 177) scale(.9)"/></g>
+  <path d="M0 161Q58 149 106 156T224 164Q345 149 407 159T600 160V262H0Z" fill="url(#water)"/>
+  <g fill="none" stroke-linecap="round"><path d="M0 171q38-3 65 1t58-2m246 2q28-3 71 1m43-3q29 0 44 2m-142 17q37-4 68-1t75 0M4 198q25-3 59-1m257 5q28-4 68-3t67 2m84-16q41-5 66-2" stroke="#c1c9ab" stroke-width="1.4" opacity=".73"/><path d="M8 183q53-4 95-1m279-6q11-1 20 0m62 18q26 2 41 0m31 16q29-5 52-2" stroke="#405f58" stroke-width="1.2"/></g>
+  <use href="#bank" fill="url(#mud)"/><use href="#bank" fill="url(#silt)"/>
+  <!-- Roots branch inside the bank. The scattered, low knee roots emerge just above the mud. -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#ac9d79"><path d="M227 219Q210 241 176 252T125 278M221 223Q253 237 286 248T346 265M224 222Q226 243 208 271T200 310" stroke-width="5.6"/><path d="M203 238Q169 238 151 245T95 253m82-2q-1 12-20 27t-23 21m110-64q39-7 76 0t64 1m-99 13q-1 20 22 38m-66-53q9 23 26 39t24 32m-74-48q-25 10-33 23m146-20q22-1 37 4" stroke-width="2.7"/></g>
+    <path d="M128 275q-14 6-26 6m57-4q-7 1-15 8m177-50q25-6 48-4m-62 54 12 11m-129-14q-6 7-8 12m37-49q-7 1-14 7" stroke="#c2ae84" stroke-width="1.3"/>
+    <path d="M117 225q6-4 8-12q2-4 5 1l7 10m172-9q5-2 7-12q2-6 6-1l7 13m38 7q6-5 8-11q2-4 4 1l5 10" stroke="#5f634f" stroke-width="5"/>
+    <path d="M118 224q5-3 7-11q2-4 5 1m181 0q4-4 6-12q2-4 5 1m46 18q5-3 8-11" stroke="#b5a777" stroke-width="1.6"/>
+  </g>
+  <path d="M205 228Q219 212 215 181Q210 155 198 140Q164 119 150 89L156 87Q174 116 194 122Q191 105 191 91L196 90Q197 106 207 126Q221 145 226 156Q222 132 242 103Q252 84 253 69L259 68Q260 86 249 107Q271 92 285 73L291 74Q278 98 253 115Q235 146 237 161Q256 141 271 137Q293 132 309 113L314 116Q293 144 275 148Q250 158 236 183Q230 210 243 223Q231 223 225 229Z" fill="#928467" stroke="#a59875" stroke-width="1.1"/>
+  <path d="M222 219Q229 184 223 160Q216 140 207 131m21 48q9-25 25-37m-30 20q-2-17-11-25m23 26q-5-24 7-44M157 96q13 21 29 29" fill="none" stroke="#655f50" stroke-width="2" stroke-linecap="round"/>
+  <g><use href="#cluster" transform="translate(151 92) rotate(-51) scale(.66)"/><use href="#cluster" transform="translate(191 94) rotate(-16) scale(.57)"/><use href="#cluster" transform="translate(252 73) rotate(5) scale(.68)"/><use href="#cluster" transform="translate(287 77) rotate(25) scale(.59)"/><use href="#cluster" transform="translate(311 115) rotate(71) scale(.54)"/></g>
+  <path d="M342 94 365 77h23" fill="none" stroke="#b5bd96" stroke-width=".9"/>
+  <circle cx="460" cy="80" r="64" fill="#28473d" stroke="#90a98b" stroke-width="1"/>
+  <path d="M438 134q8-28 22-42" stroke="#a69269" stroke-width="4.5" fill="none"/>
+  <use href="#cluster" transform="translate(459 91) rotate(7) scale(.84 .90)"/>
+  <g stroke="#c2bf98" fill="none" opacity=".73"><path d="M24 287h56m-56 0v-5m14 5v-3m14 3v-3m14 3v-3m14 3v-5"/></g>
+</svg>

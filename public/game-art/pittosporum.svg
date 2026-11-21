@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" role="img" aria-label="海桐花枝端有光澤的厚葉與裂開的蒴果，紅種子集中在果內，一隻小鳥停在旁邊的枝上">
+  <defs>
+    <radialGradient id="sky" cx="53%" cy="39%" r="79%"><stop stop-color="#294d45"/><stop offset=".62" stop-color="#173933"/><stop offset="1" stop-color="#0a2726"/></radialGradient>
+    <pattern id="paper" width="17" height="19" patternUnits="userSpaceOnUse"><path d="m2 4 1-.3m10 6 .8.3m-7 6 1-.4" stroke="#cadbb4" stroke-width=".8" opacity=".19"/></pattern>
+    <linearGradient id="leaf" x1=".2" x2=".9" y1="0" y2="1"><stop stop-color="#a7b484"/><stop offset=".35" stop-color="#77976f"/><stop offset="1" stop-color="#416951"/></linearGradient>
+    <linearGradient id="wood" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#c1a96d"/><stop offset=".62" stop-color="#aa8558"/><stop offset="1" stop-color="#725e4c"/></linearGradient>
+    <linearGradient id="coat" x1=".2" x2=".8" y1="0" y2="1"><stop stop-color="#e3b96c"/><stop offset=".65" stop-color="#b78955"/><stop offset="1" stop-color="#805f44"/></linearGradient>
+    <radialGradient id="seed" cx="32%" cy="25%" r="88%"><stop stop-color="#ff9466"/><stop offset=".46" stop-color="#da5a3e"/><stop offset="1" stop-color="#984b39"/></radialGradient>
+    <linearGradient id="bird" x1="0" x2=".65" y1="0" y2="1"><stop stop-color="#99a878"/><stop offset=".45" stop-color="#879b72"/><stop offset="1" stop-color="#c3c0a0"/></linearGradient>
+    <g id="blade"><path d="M0 0C-7-13-18-32-20-53C-22-72-14-82 0-83C13-84 21-74 22-62C22-41 10-17 0 0Z" fill="url(#leaf)" stroke="#a3b38d" stroke-width="1"/><path d="M0 0Q2-29 1-53Q1-67-1-77" fill="none" stroke="#ccce9c" stroke-width="1.4"/><path d="M-12-62Q-12-73-4-76M2-34l10-16M1-52l8-12" fill="none" stroke="#dae0ab" opacity=".65" stroke-width="1.2" stroke-linecap="round"/></g>
+    <g id="sprig"><use href="#blade" transform="rotate(-67) scale(.82 .94)"/><use href="#blade" transform="rotate(-29) scale(.86 1.02)"/><use href="#blade" transform="rotate(10) scale(.92)"/><use href="#blade" transform="rotate(49) scale(.8 .91)"/></g>
+    <g id="kernel"><path d="M-7 2C-10-6-5-12 1-10S13-4 11 3S3 12-2 10Q-7 8-7 2Z" fill="url(#seed)" stroke="#8b4938" stroke-width="1"/><path d="M-4-3Q-4-8 1-7" fill="none" stroke="#fbc69a" stroke-width="1.8" stroke-linecap="round"/></g>
+    <g id="pod">
+      <path d="M0 11C-18 5-29-10-27-23Q-21-40-5-51Q6-52 19-30Q27-13 15 4Z" fill="url(#coat)" stroke="#e3c38c" stroke-width="1.2"/>
+      <path d="M-20-21Q-17-36-5-45Q4-41 12-28Q-2-31-11-15Z" fill="#7d6448"/>
+      <path d="M-2 14C-19 20-48 10-57-10L-63-27Q-43-34-25-23C-12-17-5-6-2 14Z" fill="#b88958" stroke="#dfb985" stroke-width="1.5"/>
+      <path d="M-58-25Q-34-28-18-10L-10 7Q-28 7-47-8Z" fill="#815e48"/>
+      <path d="M2 15C16 18 42 10 56-10Q63-20 63-31Q37-29 22-18Q7-6 2 15Z" fill="url(#coat)" stroke="#e4c08a" stroke-width="1.4"/>
+      <path d="M8 8Q24-16 55-24Q47-4 25 5Z" fill="#896848"/>
+      <g><use href="#kernel" transform="translate(-12 -17) rotate(-10) scale(.72)"/><use href="#kernel" transform="translate(0 -25) rotate(31) scale(.76)"/><use href="#kernel" transform="translate(12 -16) rotate(-24) scale(.81)"/><use href="#kernel" transform="translate(-25 -6) rotate(-51) scale(.8)"/><use href="#kernel" transform="translate(-13 -4) rotate(-12) scale(.91)"/><use href="#kernel" transform="translate(2 -10) rotate(-10) scale(.98)"/><use href="#kernel" transform="translate(19 -5) rotate(29) scale(.85)"/><use href="#kernel" transform="translate(5 5) rotate(57) scale(.91)"/><use href="#kernel" transform="translate(-7 8) rotate(-29) scale(.76)"/></g>
+      <path d="M-24 12Q-15 19 0 23L7 15Q-4 16-10 13Z" fill="#ceab75"/>
+    </g>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h600v320H0z"/>
+  <path fill="url(#paper)" d="M0 0h600v320H0z"/>
+  <g opacity=".24"><use href="#sprig" transform="translate(50 148) rotate(12) scale(1.3)"/><use href="#sprig" transform="translate(543 76) rotate(88) scale(1.13)"/><use href="#sprig" transform="translate(454 298) rotate(-30) scale(.91)"/></g>
+  <path d="M-24 319Q39 291 105 251T210 185Q246 158 262 128M90 260Q99 225 127 186M175 208Q193 208 224 231M224 176Q250 179 274 166M212 183Q203 158 211 138" fill="none" stroke="#63705a" stroke-width="11" stroke-linecap="round"/>
+  <path d="M-16 316Q49 287 104 250Q169 201 209 182Q246 157 261 128M94 251Q103 219 126 187M174 206Q198 210 224 231M222 174Q246 181 272 166M211 181Q205 156 212 137" fill="none" stroke="url(#wood)" stroke-width="6.2" stroke-linecap="round"/>
+  <use href="#sprig" transform="translate(126 188) rotate(-17) scale(.97 1.15)"/>
+  <use href="#sprig" transform="translate(224 231) rotate(125) scale(.79 1.14)"/>
+  <use href="#blade" transform="translate(209 143) rotate(-54) scale(.85 1.04)"/>
+  <use href="#blade" transform="translate(216 141) rotate(-8) scale(.7 .9)"/>
+  <use href="#pod" transform="translate(269 128) rotate(14) scale(1.20)"/>
+  <g transform="translate(274 166) rotate(71) scale(.51)"><path d="M-1 4C-21 7-34-12-33-28Q-32-50-11-54Q14-56 22-35Q31-12 4 4Z" fill="url(#coat)" stroke="#cca975" stroke-width="2"/><path d="M-1 3Q-15-20-8-49" fill="none" stroke="#856f51" stroke-width="2.5"/></g>
+  <!-- A small fruit-eating bird perches within reach of the opened capsule. -->
+  <path d="M617 224Q564 205 509 200Q461 198 407 163M519 201q27-17 35-34m-67 29q8-12 7-24" fill="none" stroke="#837c61" stroke-linecap="round" stroke-width="5"/>
+  <path d="M606 219Q563 205 511 198Q450 191 409 162" fill="none" stroke="#bcab80" stroke-width="1.7"/>
+  <g transform="translate(382 93) rotate(6)">
+    <path d="M62 40Q98 40 130 34L114 48L128 44L117 53Q90 61 62 58Z" fill="#748374" stroke="#a5ae92" stroke-width="1.1"/>
+    <path d="M68 51Q94 50 120 39m-53 16q26-2 47-10" fill="none" stroke="#4e6a5b" stroke-width="1.4"/>
+    <path d="M-7 23Q-14 12-12 2Q-9-15 8-17Q23-21 37-6Q51 8 64 18Q82 29 90 48Q72 62 52 61Q27 59 13 47Q1 38-7 23Z" fill="url(#bird)" stroke="#b8bc96" stroke-width="1.1"/>
+    <path d="M-8 18Q8 22 23 43Q40 61 61 59Q39 66 16 52Q0 40-8 18Z" fill="#d6cbae"/>
+    <path d="M21 10Q35 2 49 15Q67 32 85 45Q64 49 49 40Q36 30 21 10Z" fill="#718469" stroke="#99a588" stroke-width="1.3"/>
+    <g fill="none" stroke="#bac0a0" stroke-width="1.3" stroke-linecap="round"><path d="M34 12Q47 29 73 43m-30-31q13 17 36 30M26 19q10 15 19 21"/></g>
+    <path d="M-11 1Q-4-1 4 5l-5 9q-9-1-13-5Z" fill="#5b705b"/>
+    <circle cx="-4" cy="4" r="5.3" fill="#dadbc0"/><circle cx="-4" cy="4" r="3.5" fill="#273d36"/><circle cx="-4.7" cy="2.7" r=".95" fill="#f4ead1"/>
+    <path d="M-12 4-37 15-12 11Z" fill="#a69a75" stroke="#bfb48e" stroke-width=".8"/><path d="m-35 14 22-6" fill="none" stroke="#566250" stroke-width="1"/>
+    <g fill="none" stroke="#aa9978" stroke-width="2.1" stroke-linecap="round"><path d="m32 56-3 13-11 2m12-2 8 4m14-13 1 15-9 2m9-2 7 4"/></g>
+  </g>
+  <g stroke="#b9bf92" fill="none" opacity=".65"><path d="M24 287h56m-56 0v-5m14 5v-3m14 3v-3m14 3v-3m14 3v-5"/></g>
+</svg>
