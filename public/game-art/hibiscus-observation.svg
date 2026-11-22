@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 214" role="img" aria-label="同一片黃槿心形葉的背面與正面對照，圓窗放大葉脈之間的紋理">
+  <defs>
+    <radialGradient id="ground" cx="51%" cy="42%" r="76%"><stop stop-color="#345345"/><stop offset="1" stop-color="#142e29"/></radialGradient>
+    <pattern id="grain" width="17" height="19" patternUnits="userSpaceOnUse"><path d="m2 4 1-.3m10 6 .8.3m-7 6 1-.4" stroke="#cadbb4" stroke-width=".8" opacity=".15"/></pattern>
+    <g id="paper"><rect width="300" height="214" fill="url(#ground)"/><rect width="300" height="214" fill="url(#grain)"/></g>
+    <linearGradient id="back" x2=".9" y2="1"><stop stop-color="#d7dcc1"/><stop offset=".55" stop-color="#b8c6ad"/><stop offset="1" stop-color="#859a88"/></linearGradient>
+    <linearGradient id="front" x2=".9" y2="1"><stop stop-color="#829c70"/><stop offset=".46" stop-color="#567c5e"/><stop offset="1" stop-color="#355d4c"/></linearGradient>
+    <path id="blade" d="M0 0C-19-42-53-52-85-34C-118-15-124 24-112 62C-99 103-66 137-24 164C-10 173 7 191 14 207C20 180 41 167 68 143C115 104 144 54 132 14C124-18 104-40 78-44C44-50 18-29 0 0Z"/>
+    <path id="veins" d="M0 0C0 51-1 107 14 202M0 0C-32 41-48 82-47 127M0 0C-29 18-64 28-102 39M0 0C33 32 54 67 70 131M0 0C31 6 81 20 123 39M0 54Q-18 72-21 90M0 78Q18 90 28 111M3 112Q15 123 22 142M-29 50Q-42 58-63 65M35 39Q58 44 80 58" fill="none" stroke-linecap="round" stroke-width="2.2"/>
+    <g id="hair" fill="none" stroke="#faf1d8" stroke-linecap="round"><path d="m-5-2 5 2-2-6m2 6 5-4m-5 4 6 2m-6-2-1 6m1-6-6 3"/></g>
+    <pattern id="fuzz" width="17" height="16" patternUnits="userSpaceOnUse"><use href="#hair" transform="translate(4 6) scale(.47)"/><use href="#hair" transform="translate(12 13) rotate(20) scale(.38)"/></pattern>
+  </defs>
+  <svg width="300" height="214" viewBox="0 0 300 214">
+    <use href="#paper"/>
+    <path d="M115-10Q109 20 132 52" fill="none" stroke="#bcba8c" stroke-width="5"/>
+    <g transform="translate(132 52) rotate(10) scale(.73)">
+      <use href="#blade" fill="url(#back)" stroke="#d9d9bd" stroke-width="2"/>
+      <use href="#blade" fill="url(#fuzz)"/>
+      <use href="#veins" stroke="#7d9584"/>
+    </g>
+    <g fill="none" stroke="#e8ddbe" stroke-width="1.35"><circle cx="165" cy="66" r="7"/><path d="m172 65 40-14"/></g>
+    <circle cx="246" cy="44" r="33" fill="#91a696" stroke="#dedbc1" stroke-width="2"/>
+    <use href="#hair" transform="translate(236 50) scale(2)" stroke-width="1.2"/>
+    <use href="#hair" transform="translate(254 32) rotate(15) scale(1.55)" stroke-width="1.2"/>
+    <use href="#hair" transform="translate(260 58) rotate(36) scale(1.2)" stroke-width="1.2"/>
+  </svg>
+  <svg x="300" width="300" height="214" viewBox="0 0 300 214">
+    <use href="#paper"/>
+    <path d="M119-10Q112 20 132 52" fill="none" stroke="#bcba8c" stroke-width="5"/>
+    <g transform="translate(132 52) rotate(-10) scale(-.73 .73)">
+      <use href="#blade" fill="url(#front)" stroke="#91a47e" stroke-width="2"/>
+      <use href="#veins" stroke="#aac095"/>
+    </g>
+    <g fill="none" stroke="#e8ddbe" stroke-width="1.35"><circle cx="166" cy="67" r="7"/><path d="m173 65 40-14"/></g>
+    <circle cx="246" cy="44" r="33" fill="url(#front)" stroke="#dedbc1" stroke-width="2"/>
+    <path d="M216 53q18-2 36-18m-20 14q9 2 18 0" fill="none" stroke="#a6b78c" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</svg>

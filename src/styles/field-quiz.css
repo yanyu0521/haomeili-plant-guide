@@ -1,0 +1,46 @@
+.forest-game [data-quiz] .fg-panel-copy {
+  width: min(100%, 780px);
+  margin: 0 auto;
+  padding-block: clamp(10px, 2vw, 28px);
+}
+.forest-game [data-quiz] h2 {
+  max-width: 24em;
+  font-size: clamp(1.45rem, 3vw, 2.4rem);
+  line-height: 1.36;
+}
+.forest-game [data-choices] {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: clamp(8px, 2vw, 18px);
+}
+.forest-game [data-choices] button {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+.fg-specimen-crop {
+  display: block;
+  width: 100%;
+  aspect-ratio: 300 / 214;
+  overflow: hidden;
+}
+.fg-specimen-crop img {
+  display: block;
+  width: 200%;
+  max-width: none;
+  height: auto;
+}
+.forest-game [data-choice="1"] .fg-specimen-crop img {
+  transform: translateX(-50%);
+}
+.fg-specimen-caption {
+  padding: .65em .75em;
+  line-height: 1.5;
+}
+.forest-game .fg-field-task {
+  margin: 12px 0 4px;
+  color: var(--paper);
+  line-height: 1.6;
+}

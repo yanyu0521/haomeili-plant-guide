@@ -1,0 +1,77 @@
+.coast-scene {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.coast-scene .scene-sprite {
+  position: absolute;
+  z-index: 2;
+  width: 31%;
+  height: clamp(65px, 56%, 185px);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.coast-scene .scene-sprite svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 2px 2px rgb(0 21 15 / 72%));
+}
+.coast-scene [data-scene-part='ranger'] {
+  z-index: 3;
+  height: clamp(25px, 26%, 88px);
+  width: 21%;
+}
+
+/* Bird and perch keep identical view boxes so the extended toes meet the branch. */
+.coast-scene [data-scene-part='bird'] { z-index: 3; }
+.coast-scene .wing-fold, .coast-scene .toes, .coast-scene .carried-seed { display: none; }
+.coast-scene .wing-beat {
+  transform-origin: 50px 44px;
+  transform: rotate(var(--wing-angle, 0deg));
+}
+.coast-scene :is([data-pose='taking'], [data-pose='perched']) :is(.wing-fold,.toes) { display: block; }
+.coast-scene :is([data-pose='taking'], [data-pose='perched']) .wing-beat { display: none; }
+.coast-scene [data-pose='taking'] .bird-body {
+  transform-origin: 47px 66px;
+  transform: rotate(11deg);
+}
+.coast-scene :is([data-pose='carrying'], [data-pose='taking']) .carried-seed { display: block; }
+.coast-scene .seed-taken .pod circle:nth-child(3) { visibility: hidden; }
+
+.coast-scene [data-scene-part='sand'] { z-index: 3; }
+.coast-scene [data-side='from-right'] svg { transform: scaleX(-1); }
+.coast-scene [data-pose='forming'] .sand-grains { visibility: hidden; }
+.coast-scene [data-pose='sheltered'] .sand-trails { opacity: .12; }
+.coast-scene [data-pose='sheltered'] .sand-grains { fill: #e2be89; }
+.coast-scene [data-scene-part='row'] { z-index: 4; }
+
+.coast-scene :is(.tidal-water,.notch,.mud-crumbs,.mud-roots,.heart-shield,.leaf-turn) { display: none; }
+.coast-scene .with-water .tidal-water,
+.coast-scene [data-scene-part='bank'] .notch { display: block; }
+.coast-scene .ripples { stroke-dashoffset: var(--ripple-shift, 0); }
+.coast-scene .notch {
+  transform-origin: 50px 52px;
+  transform: scaleX(var(--crack-width, .1));
+}
+.coast-scene:is([data-phase='opportunity'],[data-phase='miss']) [data-scene-part='bank'] .mud-crumbs {
+  display: block;
+  transform: translate(var(--mud-dx), var(--mud-dy));
+}
+.coast-scene[data-phase='success'] [data-scene-part='bank'] .mud-roots { display: block; }
+
+.coast-scene .sapling-crown {
+  transform-origin: 51px 79px;
+  transform: rotate(var(--bend, 0deg));
+}
+.coast-scene[data-phase='opportunity'] [data-scene-part='seedling'] .leaf-turn,
+.coast-scene[data-phase='success'] [data-scene-part='seedling'] .heart-shield { display: block; }
+.coast-scene[data-phase='opportunity'] [data-scene-part='seedling'] .signal-leaf {
+  fill: #e8edd7;
+  stroke: #627965;
+}
+.coast-scene [data-scene-part='wind'] { width: 22%; height: 31%; }
+.coast-scene[data-phase='success'] [data-scene-part='wind'] { opacity: .55; }
