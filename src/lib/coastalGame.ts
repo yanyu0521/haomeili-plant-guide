@@ -29,7 +29,7 @@ const encounters: Record<string, Encounter> = {
     approaching: '風剛起，留意飛砂的來向。', opportunity: '飛砂朝布置線逼近。',
     action: '布置林帶', early: '風剛起，等看清砂團在哪一線再布置。',
     wrongLane: '這裡沒有飛砂，跟著砂團找到前方的布置線。', late: '砂已越過布置線，這次來不及擋住它。',
-    effect: '林帶已就位，觀察砂粒穿過樹列前後的速度。',
+    effect: '飛砂穿過木麻黃樹列後慢下來，林帶削弱了風力。',
   },
   'lumnitzera-racemosa': {
     waves: [[0, 2300, 5200], [2, 2500, 4200], [1, 3000, 3900]],

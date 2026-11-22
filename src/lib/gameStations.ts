@@ -16,7 +16,7 @@ export const gameStations = [
     slug: 'casuarina-equisetifolia', art: 'casuarina', skill: '林帶減風',
     mission: '讓樹列後方的飛砂慢下來。',
     task: '看砂團往哪段林帶吹，在飛砂到達布置線前種下樹列。',
-    question: '沿著這根木麻黃綠枝找找，哪一段看得到鱗片狀的小葉？',
+    question: '剛才你布置的木麻黃林帶讓飛砂慢下來。沿著這根綠枝找找，哪個枝節有一圈鱗片狀小葉？',
     choices: ['兩節交接處翹起一圈小齒', '枝條中段只有平行的直紋'], answer: 0,
     hint: '把兩張特寫的邊緣比一比，哪裡有一圈朝外的小尖角？',
     fact: '木麻黃的綠色小枝一節接一節，鱗片狀的小葉就長在節上。成排的木麻黃能減弱海風與飛砂。',
