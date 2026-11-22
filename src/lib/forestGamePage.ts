@@ -1,4 +1,5 @@
-import { mountCoastalGame, type CoastalGameState } from './coastalGame';
+import { laneNames, mountCoastalGame, type CoastalGameState } from './coastalGame';
+import { renderFieldQuiz } from './fieldQuiz';
 import type { gameStations } from './gameStations';
 
 type Station = (typeof gameStations)[number] & {
@@ -21,8 +22,9 @@ export function initForestGame() {
   const skill = el<HTMLButtonElement>('[data-skill]');
   const pause = el<HTMLButtonElement>('[data-pause]');
   const resume = el<HTMLButtonElement>('[data-resume]');
-  const pointImage = el<HTMLButtonElement>('[data-point-img]');
-  const note = el('[data-quiz-note]');
+  const hints = el<HTMLButtonElement>('[data-hints]');
+  const retry = el<HTMLButtonElement>('[data-retry]');
+  let fullHints = false;
   const speak = el<HTMLButtonElement>('[data-speak]');
   const storageKey = 'haomeili.coastal-game.completed.v1';
   const completed = new Set<string>();
@@ -31,10 +33,10 @@ export function initForestGame() {
   let voice: SpeechSynthesisUtterance | undefined;
 
   function loadProgress() {
-    completed.clear();
     try {
       const saved: unknown = JSON.parse(localStorage.getItem(storageKey) || '[]');
       if (Array.isArray(saved)) {
+        completed.clear();
         for (const s of stations) if (saved.includes(s.slug)) completed.add(s.slug);
       }
     } catch { /* Storage can be unavailable on a visitor's device. */ }
@@ -86,6 +88,7 @@ export function initForestGame() {
     const selected = stations.find((s) => s.slug === slug);
     updateProgress();
     if (!selected) {
+      document.body.classList.remove('coastal-game-playing');
       session.hidden = true;
       lobby.hidden = false;
       if (focus) {
@@ -124,37 +127,31 @@ export function initForestGame() {
   function updateRound(s: CoastalGameState) {
     el('[data-waves]').textContent = `守住 ${s.cleared} / 3 波`;
     const status = el('[data-status]');
+    const position = el('[data-player-position]');
+    const playerText = `目前位置：${laneNames[s.lane]}`;
+    if (position.textContent !== playerText) position.textContent = playerText;
+    el('[data-event-position]').textContent = `事件位置：${laneNames[s.eventLane]}`;
     if (status.textContent !== s.message) status.textContent = s.message;
     status.dataset.phase = s.phase;
-    const position = el('[data-player-position]');
-    const lineNames = ['左線', '中線', '右線'];
-    const targetText = s.phase === 'warning' && !s.skillReady ? '觀察事件位置' : lineNames[s.targetLane];
-    const positionText = `目前位置：${lineNames[s.lane]}。目標跑道：${targetText}。`;
-    if (position.textContent !== positionText) position.textContent = positionText;
+    const playing = s.phase === 'approach' || s.phase === 'opportunity';
     const timebar = el<HTMLProgressElement>('[data-timebar]');
-    const countdown = el('[data-countdown]');
-    if (s.phase === 'warning') {
-      timebar.value = s.durationMs > 0 ? Math.max(0, s.remainingMs / s.durationMs * 100) : 0;
-      const seconds = Math.ceil(s.remainingMs / 1000);
-      const countText = `${seconds} 秒`;
-      if (countdown.textContent !== countText) countdown.textContent = countText;
-    } else {
-      timebar.value = 100;
-      countdown.textContent = '';
-    }
-    root!.querySelectorAll('.fg-pips i').forEach((pip, index) => {
-      pip.classList.toggle('is-full', index < s.cleared);
-    });
+    timebar.hidden = !playing;
+    timebar.max = Math.ceil(s.durationMs / 1000);
+    timebar.value = s.seconds;
+    const time = s.phase === 'approach' ? '觀察' : '可施放';
+    el('[data-countdown]').textContent = playing ? `${time} ${s.seconds} 秒` : s.phase === 'success' ? '守護成功' : '未能守住';
+    root!.querySelectorAll('.fg-pips i').forEach((pip, index) => pip.classList.toggle('is-full', index < s.cleared));
     const overlay = el('[data-pause-overlay]');
     const justPaused = s.paused && overlay.hidden;
     overlay.hidden = !s.paused;
     pause.disabled = s.paused;
-    skill.disabled = s.paused || s.phase !== 'warning';
-    el<HTMLButtonElement>('[data-left]').disabled = s.paused;
-    el<HTMLButtonElement>('[data-right]').disabled = s.paused;
+    skill.disabled = !playing || s.paused;
+    el<HTMLButtonElement>('[data-left]').disabled = !playing || s.paused;
+    el<HTMLButtonElement>('[data-right]').disabled = !playing || s.paused;
+    retry.hidden = s.phase !== 'miss';
+    retry.disabled = s.paused;
     if (justPaused) resume.focus({ preventScroll: true });
   }
-
   function start() {
     clearRound();
     stopVoice();
@@ -163,45 +160,15 @@ export function initForestGame() {
     el('[data-battle-title]').textContent = station.skill;
     skill.querySelector('strong')!.textContent = `發動${station.skill}`;
     show('battle', '[data-battle-title]');
-    round = mountCoastalGame({ arena: el('[data-arena]'), station: station.slug, onUpdate: updateRound, onComplete: quiz });
+    round = mountCoastalGame({ arena: el('[data-arena]'), station: station.slug, fullHints, onUpdate: updateRound, onComplete: quiz });
   }
 
   function quiz() {
     clearRound();
-    setArt('[data-quiz-art]');
-    pointImage.hidden = station.art !== 'casuarina';
-    el('[data-quiz-id]').textContent = `第 ${station.number} 站 ・ 現地辨識`;
-    el('[data-question]').textContent = station.question;
-    el('[data-quiz-guide]').textContent = pointImage.hidden ? '觀察插畫，選出你看到的特徵。' : '點選圓形特寫裡的小葉，或用下方選項作答。';
-    note.textContent = '';
-    const choices = station.choices.map((label, i) => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = label;
-      button.addEventListener('click', () => {
-        if (i === station.answer) finish();
-        else {
-          button.classList.add('is-incorrect');
-          note.textContent = station.hint;
-        }
-      });
-      return button;
-    });
-    el('[data-choices]').replaceChildren(...choices);
+    el('[data-quiz-id]').textContent = `第 ${station.number} 站 ・ 植物辨識`;
+    renderFieldQuiz(panels.quiz, station, finish);
     show('quiz', '[data-question]');
   }
-
-  pointImage.addEventListener('click', (event) => {
-    const bounds = pointImage.getBoundingClientRect();
-    const x = (event.clientX - bounds.left) / bounds.width * 600;
-    const y = (event.clientY - bounds.top) / bounds.height * 320;
-    // Allow a finger-sized target around the magnified whorl at (306,157).
-    const rx = Math.max(39, 23 * 600 / bounds.width);
-    const ry = Math.max(30, 23 * 320 / bounds.height);
-    if (((x - 306) / rx) ** 2 + ((y - 157) / ry) ** 2 <= 1) finish();
-    else note.textContent = station.hint;
-  });
-
   function nextStation() {
     const i = stations.indexOf(station);
     return [...stations.slice(i + 1), ...stations.slice(0, i)].find((s) => !completed.has(s.slug));
@@ -221,6 +188,7 @@ export function initForestGame() {
     el('[data-result-id]').textContent = `第 ${station.number} 站 ・ 守護成功`;
     el('[data-result-title]').textContent = `認出${station.name}了！`;
     el('[data-fact]').textContent = station.fact;
+    el('[data-field-task]').textContent = station.fieldTask;
     const map = el<HTMLAnchorElement>('[data-map]');
     map.href = station.mapUrl;
     map.querySelector('span')!.textContent = `看地圖上的第 ${station.number} 站`;
@@ -255,6 +223,16 @@ export function initForestGame() {
   el('[data-left]').addEventListener('click', () => round?.move(-1));
   el('[data-right]').addEventListener('click', () => round?.move(1));
   skill.addEventListener('click', () => round?.activate());
+  retry.addEventListener('click', () => {
+    round?.retry();
+    el('[data-battle-title]').focus({ preventScroll: true });
+  });
+  hints.addEventListener('click', () => {
+    fullHints = !fullHints;
+    hints.setAttribute('aria-pressed', String(fullHints));
+    el('[data-hint-value]').textContent = fullHints ? '開' : '關';
+    round?.setHints(fullHints);
+  });
   pause.addEventListener('click', () => round?.pause());
   resume.addEventListener('click', () => { round?.resume(); el('[data-battle-title]').focus({ preventScroll: true }); });
   window.addEventListener('popstate', () => route(true));

@@ -20,14 +20,14 @@ const stations = gameStations.map((station) => {
   };
 });
 ---
-<BaseLayout title="好美里閃身戰・守住防風林" description="左右閃身、運用四種植物的技能，守住好美里防風林，再到步道上找找它們。">
+<BaseLayout title="好美里閃身戰・守住防風林" description="看風向、辨泥岸、等鳥停棲。移到需要守護的跑道，認識好美里海岸的四種植物。">
   <div class="forest-game" id="forest-game">
     <section class="fg-lobby" aria-labelledby="game-title" data-lobby>
       <div class="fg-cover">
         <Image src={cover} alt="" widths={[600, 960, 1440]} sizes="100vw" format="webp" loading="eager" fetchpriority="high" />
         <div class="fg-cover-copy">
           <h1 id="game-title">好美里閃身戰<span>守住防風林</span></h1>
-          <p>迎著海風左右閃身，用四種植物的本領守住這片海岸林。</p>
+          <p>看葉片翻動、飛砂捲來、泥岸鬆動、小鳥停棲。移到需要你的那一線，守住這片海岸林。</p>
           <div class="fg-actions">
             <a class="fg-primary" data-quick href={stations[0].stationUrl}><Icon name="play" /><span>開始守林</span></a>
             <a class="fg-quiet fg-on-cover" href="#game-stations">選擇關卡 <Icon name="right" /></a>
@@ -61,19 +61,22 @@ const stations = gameStations.map((station) => {
         <div class="fg-panel-copy">
           <span class="fg-station-ref" data-brief-id></span>
           <h2 data-brief-title tabindex="-1"></h2><p class="fg-intro" data-brief-mission></p>
-          <ol class="fg-instructions"><li data-brief-task></li><li>第一波時機較寬，熟悉節奏後，守住三波再辨認植物特徵。</li></ol>
+          <p class="fg-instructions" data-brief-task></p>
           <button type="button" class="fg-primary" data-start><Icon name="play" /> 開始挑戰</button>
         </div>
       </div>
       <div data-battle class="fg-battle" hidden>
         <div class="fg-battle-head"><div><span data-battle-id></span><h2 data-battle-title tabindex="-1"></h2></div>
-          <button type="button" class="fg-utility" data-pause><Icon name="pause" /><span>暫停</span></button>
+          <div class="fg-tools">
+            <button type="button" class="fg-utility" data-hints aria-pressed="false" aria-label="完整提示">提示<span data-hint-value>關</span></button>
+            <button type="button" class="fg-utility" data-pause><Icon name="pause" /><span>暫停</span></button>
+          </div>
         </div>
         <div class="fg-progress">
           <div class="fg-pips" aria-hidden="true"><i></i><i></i><i></i></div>
           <span data-waves></span>
-          <progress class="fg-timebar" data-timebar max="100" value="100" aria-label="本波剩餘時間"></progress>
-          <span class="fg-countdown" data-countdown aria-hidden="true">15 秒</span>
+          <progress class="fg-timebar" data-timebar max="100" value="100" aria-hidden="true"></progress>
+          <span class="fg-countdown" data-countdown></span>
         </div>
         <div class="fg-court">
           <div class="fg-arena" data-arena role="group" aria-label="三線守林場，點選跑道或左右滑動移動">
@@ -82,19 +85,16 @@ const stations = gameStations.map((station) => {
           </div>
           <div class="fg-pause-overlay" data-pause-overlay hidden><strong>遊戲已暫停</strong><button type="button" class="fg-primary" data-resume><Icon name="play" /> 繼續挑戰</button></div>
         </div>
-        <p class="fg-player-position" data-player-position role="status" aria-live="polite" aria-atomic="true">目前位置：中線</p>
-        <p class="fg-status" data-status role="status" aria-live="polite"></p>
+        <div class="fg-player-position"><span data-player-position role="status" aria-atomic="true">目前位置：中線</span><span data-event-position></span></div>
+        <div class="fg-feedback"><p class="fg-status" data-status role="status" aria-atomic="true"></p><button type="button" class="fg-utility" data-retry hidden>重試這一波</button></div>
         <div class="fg-controls">
           <button type="button" data-left aria-label="向左移動"><Icon name="left" /></button>
           <button type="button" class="fg-primary" data-skill><Icon name="leaf" /><strong></strong></button>
           <button type="button" data-right aria-label="向右移動"><Icon name="right" /></button>
         </div>
-        <p class="fg-control-tip">點選跑道或左右滑動移動，再按技能。鍵盤用 ←／→ 或 A／D 移動，F 發動技能。</p>
+        <p class="fg-control-tip">點跑道或滑動換線；← →／A／D 換線，F 發動技能。<span class="fg-control-native">空白鍵／Enter 操作焦點按鈕。</span></p>
       </div>
-      <div data-quiz class="fg-split" hidden>
-        <div class="fg-panel-art fg-quiz-art"><img data-quiz-art src={stations[0].artUrl} width="600" height="320" alt="" />
-          <button type="button" data-point-img class="fg-point-img" aria-label="在木麻黃特寫圖上尋找小葉，也可以用下方文字選項作答" tabindex="-1" hidden></button>
-        </div>
+      <div data-quiz hidden>
         <div class="fg-panel-copy">
           <span class="fg-station-ref" data-quiz-id></span><h2 data-question tabindex="-1"></h2>
           <p class="fg-quiz-guide" data-quiz-guide></p><div class="fg-choices" data-choices></div>
@@ -108,6 +108,7 @@ const stations = gameStations.map((station) => {
           <p class="fg-intro" data-fact></p>
           <button type="button" class="fg-speak" data-speak hidden><Icon name="audio" /><span>聽這個特徵</span></button>
           <p class="fg-voice-status" data-voice-status aria-live="polite"></p>
+          <p class="fg-field-task" data-field-task></p>
           <div class="fg-result-links"><a data-map href={sitePath('map/')}><Icon name="map" /><span></span></a><a data-audio href={sitePath('plants/')}><Icon name="audio" /><span></span></a></div>
           <div class="fg-actions"><button type="button" class="fg-primary" data-next><span></span><Icon name="arrow" /></button><button type="button" class="fg-quiet" data-replay>再玩一次</button></div>
           <p class="fg-result-progress" data-result-progress></p>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 214" role="img" aria-label="並排放大的海桐花果實，一顆果皮合攏，一顆開裂露出小圓粒">
+  <defs>
+    <radialGradient id="ground" cx="50%" cy="42%" r="74%"><stop stop-color="#345345"/><stop offset="1" stop-color="#142e29"/></radialGradient>
+    <pattern id="grain" width="17" height="19" patternUnits="userSpaceOnUse"><path d="m2 4 1-.3m10 6 .8.3m-7 6 1-.4" stroke="#cadbb4" stroke-width=".8" opacity=".15"/></pattern>
+    <g id="paper"><rect width="300" height="214" fill="url(#ground)"/><rect width="300" height="214" fill="url(#grain)"/></g>
+    <linearGradient id="coat" x1=".2" x2=".8" y1="0" y2="1"><stop stop-color="#e3b96c"/><stop offset=".65" stop-color="#b78955"/><stop offset="1" stop-color="#805f44"/></linearGradient>
+    <radialGradient id="seed" cx="32%" cy="25%" r="88%"><stop stop-color="#ff9466"/><stop offset=".46" stop-color="#da5a3e"/><stop offset="1" stop-color="#984b39"/></radialGradient>
+    <g id="kernel"><path d="M-7 2C-10-6-5-12 1-10S13-4 11 3S3 12-2 10Q-7 8-7 2Z" fill="url(#seed)" stroke="#8b4938" stroke-width="1"/><path d="M-4-3Q-4-8 1-7" fill="none" stroke="#fbc69a" stroke-width="1.8" stroke-linecap="round"/></g>
+    <g id="pod">
+      <path d="M0 11C-18 5-29-10-27-23Q-21-40-5-51Q6-52 19-30Q27-13 15 4Z" fill="url(#coat)" stroke="#e3c38c" stroke-width="1.2"/>
+      <path d="M-20-21Q-17-36-5-45Q4-41 12-28Q-2-31-11-15Z" fill="#7d6448"/>
+      <path d="M-2 14C-19 20-48 10-57-10L-63-27Q-43-34-25-23C-12-17-5-6-2 14Z" fill="#b88958" stroke="#dfb985" stroke-width="1.5"/>
+      <path d="M-58-25Q-34-28-18-10L-10 7Q-28 7-47-8Z" fill="#815e48"/>
+      <path d="M2 15C16 18 42 10 56-10Q63-20 63-31Q37-29 22-18Q7-6 2 15Z" fill="url(#coat)" stroke="#e4c08a" stroke-width="1.4"/>
+      <path d="M8 8Q24-16 55-24Q47-4 25 5Z" fill="#896848"/>
+      <g><use href="#kernel" transform="translate(-12 -17) rotate(-10) scale(.72)"/><use href="#kernel" transform="translate(0 -25) rotate(31) scale(.76)"/><use href="#kernel" transform="translate(12 -16) rotate(-24) scale(.81)"/><use href="#kernel" transform="translate(-25 -6) rotate(-51) scale(.8)"/><use href="#kernel" transform="translate(-13 -4) rotate(-12) scale(.91)"/><use href="#kernel" transform="translate(2 -10) rotate(-10) scale(.98)"/><use href="#kernel" transform="translate(19 -5) rotate(29) scale(.85)"/><use href="#kernel" transform="translate(5 5) rotate(57) scale(.91)"/><use href="#kernel" transform="translate(-7 8) rotate(-29) scale(.76)"/></g>
+      <path d="M-24 12Q-15 19 0 23L7 15Q-4 16-10 13Z" fill="#ceab75"/>
+    </g>
+  </defs>
+  <svg width="300" height="214" viewBox="0 0 300 214"><use href="#paper"/><path d="M142 227q2-26 13-52" fill="none" stroke="#beab77" stroke-width="7" stroke-linecap="round"/><g transform="translate(155 168) rotate(-12) scale(1.9)"><path d="M-1 4C-21 7-34-12-33-28Q-32-50-11-54Q14-56 22-35Q31-12 4 4Z" fill="url(#coat)" stroke="#cca975" stroke-width="2"/><path d="M-1 3Q-15-20-8-49" fill="none" stroke="#856f51" stroke-width="2.5"/></g></svg>
+  <svg x="300" width="300" height="214" viewBox="0 0 300 214"><use href="#paper"/><path d="M142 227q2-26 13-52" fill="none" stroke="#beab77" stroke-width="7" stroke-linecap="round"/><use href="#pod" transform="translate(149 143) rotate(9) scale(1.72)"/></svg>
+</svg>
