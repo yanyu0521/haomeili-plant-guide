@@ -43,9 +43,8 @@ const searchIndex = (plant: (typeof publishedPlants)[number]) =>
         </div>
         <ForestMap plants={publishedPlants} showCredit={true} />
         <div class="map-legend" aria-label="地圖圖例">
-          <span><i class="legend-forest"></i>保安林</span>
-          <span><i class="legend-water"></i>水道與濕地</span>
-          <span><i class="legend-trail"></i>步道與道路</span>
+          <span><i class="legend-point"></i>植物導覽點</span>
+          <span class="legend-map-note">影像中可辨認林地、魚塭與道路</span>
           <span class="map-search-legend" data-map-search-legend hidden><i class="legend-search"></i>符合篩選</span>
         </div>
       </section>

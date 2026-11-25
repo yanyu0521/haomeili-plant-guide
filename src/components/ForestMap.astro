@@ -14,10 +14,43 @@ interface Props {
 
 const { plants, activeSlug, compact = false, showCredit = false, mapArtwork, showMarkers = true, controls = true } = Astro.props;
 const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest-map.svg')}')`;
+const mapAspectRatio = 963 / 638;
+const mapCenterLongitude = 120.1305047;
+const mapCenterLatitude = 23.345463;
+const mapExtentWidthMeters = 1140;
+const earthRadiusMeters = 6_378_137;
+const longitudeRadians = (mapCenterLongitude * Math.PI) / 180;
+const latitudeRadians = (mapCenterLatitude * Math.PI) / 180;
+const centerMercatorX = earthRadiusMeters * longitudeRadians;
+const centerMercatorY = earthRadiusMeters * Math.log(Math.tan(Math.PI / 4 + latitudeRadians / 2));
+const mapExtentHeightMeters = mapExtentWidthMeters / mapAspectRatio;
+const mapBounds = [
+  centerMercatorX - mapExtentWidthMeters / 2,
+  centerMercatorY - mapExtentHeightMeters / 2,
+  centerMercatorX + mapExtentWidthMeters / 2,
+  centerMercatorY + mapExtentHeightMeters / 2,
+].map((coordinate) => coordinate.toFixed(2)).join(',');
+const satelliteImage = new URLSearchParams({
+  SERVICE: 'WMS',
+  VERSION: '1.1.1',
+  REQUEST: 'GetMap',
+  LAYERS: 'PHOTO2',
+  STYLES: '',
+  SRS: 'EPSG:3857',
+  BBOX: mapBounds,
+  WIDTH: '2048',
+  HEIGHT: '1357',
+  FORMAT: 'image/jpeg',
+}).toString();
+const satelliteImageUrl = `https://wms.nlsc.gov.tw/wms?${satelliteImage}`;
 ---
 <figure class:list={['map-figure', { 'map-figure--compact': compact }]} data-map-figure>
   {controls && (
     <div class="map-controls" role="group" aria-label="地圖檢視控制">
+      <div class="map-basemap-group" role="group" aria-label="切換地圖底圖">
+        <button class="map-control-button map-basemap-button" type="button" data-map-basemap="satellite" aria-pressed="true" aria-label="使用衛星影像底圖" title="顯示衛星影像底圖">衛星影像</button>
+        <button class="map-control-button map-basemap-button" type="button" data-map-basemap="illustration" aria-pressed="false" aria-label="使用原導覽示意圖底圖" title="顯示原導覽示意圖">導覽示意</button>
+      </div>
       <div class="map-zoom-group" role="group" aria-label="地圖縮放">
         <button class="map-control-button" type="button" data-map-zoom-in aria-label="放大地圖" title="放大地圖">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" /></svg>
@@ -31,10 +64,14 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
       </div>
     </div>
   )}
-  <div class="forest-map" style={baseStyle} role="group" aria-label={showMarkers ? '好美里保安林植物位置互動地圖；選擇編號標記前往植物介紹' : '好美里保安林地圖預覽'} data-forest-map>
+  <div class="forest-map" style={baseStyle} data-map-basemap="satellite" role="group" aria-label={showMarkers ? '好美里保安林植物位置互動地圖；選擇編號標記前往植物介紹' : '好美里保安林地圖預覽'} data-forest-map>
+    <img class="map-satellite-image" src={satelliteImageUrl} alt="" aria-hidden="true" data-map-satellite-image loading="lazy" decoding="async" />
     {showMarkers && plants.map((plant, index) => {
       const point = plant.mapPosition;
-      const markerStyle = `--point-x:${(point.x / 963) * 100}%;--point-y:${(point.y / 638) * 100}%;--marker-art:url('${sitePath(`plants/${plant.image.file}`)}')`;
+      // The source locations are drawn on the original guide map, not GPS data.
+      // Compress and shift their horizontal span to follow the visible forest in the orthophoto.
+      const satellitePoint = { x: Math.round(350 + point.x * 0.55), y: point.y };
+      const markerStyle = `--point-x:${(satellitePoint.x / 963) * 100}%;--point-y:${(satellitePoint.y / 638) * 100}%;--marker-art:url('${sitePath(`plants/${plant.image.file}`)}')`;
       const active = plant.slug === activeSlug;
       return (
         <a
@@ -43,8 +80,12 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
           data-map-slug={plant.slug}
           data-map-name={plant.name}
           data-map-number={String(index + 1).padStart(2, '0')}
-          data-point-x={point.x}
-          data-point-y={point.y}
+          data-point-x={satellitePoint.x}
+          data-point-y={satellitePoint.y}
+          data-satellite-x={satellitePoint.x}
+          data-satellite-y={satellitePoint.y}
+          data-illustration-x={point.x}
+          data-illustration-y={point.y}
           href={plantPath(plant.slug)}
           style={markerStyle}
           aria-label={`第 ${index + 1} 個地圖點位：${plant.name}，前往植物介紹`}
@@ -60,11 +101,12 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
     {showMarkers && <div class="map-cluster-layer" data-map-cluster-layer></div>}
   </div>
   {showMarkers && <div class="map-cluster-panel" data-map-cluster-panel hidden aria-live="polite"></div>}
-  {showCredit && (
-    <figcaption class="map-credit">
-      地圖底圖與植物圖示取自 <a href="https://ieason0911.github.io/haomei-1920-forest-map/" target="_blank" rel="noreferrer">「1920 保安林・植物紀錄地圖」</a>；點位依該圖標註，非 GPS 測量座標。
-    </figcaption>
-  )}
+  <figcaption class="map-credit">
+    <span data-map-satellite-credit>衛星底圖：<a href="https://maps.nlsc.gov.tw/" target="_blank" rel="noreferrer">內政部國土測繪中心「臺灣通用正射影像」PHOTO2</a>（影像標示 2023）。</span>
+    <span data-map-illustration-credit hidden>示意圖與植物圖示取自 <a href="https://ieason0911.github.io/haomei-1920-forest-map/" target="_blank" rel="noreferrer">「1920 保安林・植物紀錄地圖」</a>。</span>
+    {showCredit && <span>植物標記沿用參考圖圖示。</span>}
+    <span>植物點位依導覽示意圖相對位置呈現，非 GPS 測量座標。</span>
+  </figcaption>
 </figure>
 
 <script>
@@ -76,6 +118,11 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
     const zoomOut = figure?.querySelector('[data-map-zoom-out]');
     const reset = figure?.querySelector('[data-map-reset]');
     const clusterPanel = figure?.querySelector('[data-map-cluster-panel]');
+    const satelliteImage = map.querySelector('[data-map-satellite-image]');
+    const satelliteCredit = figure?.querySelector('[data-map-satellite-credit]');
+    const illustrationCredit = figure?.querySelector('[data-map-illustration-credit]');
+    const basemapButtons = Array.from(figure?.querySelectorAll('[data-map-basemap]') ?? [])
+      .filter((button): button is HTMLButtonElement => button instanceof HTMLButtonElement);
     const markers = Array.from(map.querySelectorAll('.map-marker[data-point-x][data-point-y]'))
       .filter((marker): marker is HTMLAnchorElement => marker instanceof HTMLAnchorElement);
     const clusterLayer = map.querySelector('[data-map-cluster-layer]');
@@ -109,6 +156,38 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
     let previewSlug = '';
     let filtered = false;
     let dragStart: { x: number; y: number; panX: number; panY: number; pointerId: number; panning: boolean } | null = null;
+
+    function setBasemap(basemap: 'satellite' | 'illustration') {
+      map.dataset.mapBasemap = basemap;
+      markers.forEach((marker) => {
+        marker.dataset.pointX = basemap === 'satellite' ? marker.dataset.satelliteX ?? '' : marker.dataset.illustrationX ?? '';
+        marker.dataset.pointY = basemap === 'satellite' ? marker.dataset.satelliteY ?? '' : marker.dataset.illustrationY ?? '';
+      });
+      basemapButtons.forEach((button) => {
+        const active = button.dataset.mapBasemap === basemap;
+        button.setAttribute('aria-pressed', String(active));
+      });
+      if (satelliteCredit instanceof HTMLElement) satelliteCredit.hidden = basemap !== 'satellite';
+      if (illustrationCredit instanceof HTMLElement) illustrationCredit.hidden = basemap !== 'illustration';
+      renderClusters();
+    }
+
+    basemapButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        setBasemap(button.dataset.mapBasemap === 'illustration' ? 'illustration' : 'satellite');
+      });
+    });
+    if (satelliteImage instanceof HTMLImageElement) {
+      satelliteImage.addEventListener('error', () => {
+        satelliteImage.hidden = true;
+        const satelliteButton = basemapButtons.find((button) => button.dataset.mapBasemap === 'satellite');
+        if (satelliteButton) {
+          satelliteButton.disabled = true;
+          satelliteButton.title = '正射影像服務暫時無法連線';
+        }
+        setBasemap('illustration');
+      }, { once: true });
+    }
 
     function basePosition(marker: HTMLAnchorElement): Point {
       return {
@@ -322,6 +401,7 @@ const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest
       panY = Math.max(-range * height, Math.min(range * height, nextPanY));
       map.style.backgroundSize = `${100 * zoom}% ${100 * zoom}%`;
       map.style.backgroundPosition = `calc(50% + ${panX}px) calc(50% + ${panY}px)`;
+      map.style.setProperty('--map-image-transform', `translate(${panX}px, ${panY}px) scale(${zoom})`);
       map.dataset.zoom = String(zoom);
       if (zoomIn instanceof HTMLButtonElement) zoomIn.disabled = zoom >= 2.5;
       if (zoomOut instanceof HTMLButtonElement) zoomOut.disabled = zoom <= 1;
