@@ -1,0 +1,129 @@
+---
+---
+<fieldset class="guide-media-toggle" data-guide-media-toggle hidden>
+  <legend class="visually-hidden">植物圖片顯示方式</legend>
+  <label>
+    <input type="radio" name="guide-media-mode" value="illustration" checked />
+    <span>植物插圖</span>
+  </label>
+  <label>
+    <input type="radio" name="guide-media-mode" value="photo" />
+    <span>實拍照片</span>
+  </label>
+  <span class="visually-hidden" data-guide-media-status aria-live="polite"></span>
+</fieldset>
+
+<script>
+  type MediaMode = 'illustration' | 'photo';
+
+  const preferenceKey = 'haomeili-plant-guide:media-mode';
+  const switchGroups = document.querySelectorAll<HTMLFieldSetElement>('[data-guide-media-toggle]');
+
+  function savedMode(): MediaMode {
+    try {
+      return localStorage.getItem(preferenceKey) === 'photo' ? 'photo' : 'illustration';
+    } catch {
+      return 'illustration';
+    }
+  }
+
+  function sourceFor(image: HTMLImageElement, mode: MediaMode) {
+    return mode === 'photo'
+      ? { src: image.dataset.photoSrc, srcset: image.dataset.photoSrcset, alt: image.dataset.photoAlt }
+      : { src: image.dataset.illustrationSrc, srcset: image.dataset.illustrationSrcset, alt: image.dataset.illustrationAlt };
+  }
+
+  function applyImage(image: HTMLImageElement, mode: MediaMode, status: HTMLElement | null) {
+    if (!image.dataset.photoSrc || !image.dataset.illustrationSrc) return;
+    image.dataset.currentMode = mode;
+    image.dataset.imageFallback = 'false';
+    image.onerror = () => {
+      if (mode !== 'photo' || image.dataset.currentMode !== mode || image.dataset.imageFallback === 'true') return;
+      image.dataset.imageFallback = 'true';
+      const fallback = sourceFor(image, 'illustration');
+      image.srcset = fallback.srcset ?? '';
+      image.src = fallback.src ?? '';
+      image.alt = fallback.alt ?? '';
+      const frame = image.closest<HTMLElement>('[data-guide-media-frame]');
+      const caption = frame?.querySelector<HTMLElement>('[data-guide-media-caption]');
+      if (caption) caption.textContent = image.dataset.photoErrorCaption ?? '照片暫時無法顯示，現在顯示植物插圖。';
+      if (status) status.textContent = `${image.dataset.displayName ?? '這種植物'}的照片暫時無法顯示，目前顯示插圖。`;
+    };
+    const source = sourceFor(image, mode);
+    image.srcset = source.srcset ?? '';
+    image.src = source.src ?? '';
+    image.alt = source.alt ?? '';
+
+    const frame = image.closest<HTMLElement>('[data-guide-media-frame]');
+    if (frame) {
+      frame.dataset.mediaMode = mode;
+      const caption = frame.querySelector<HTMLElement>('[data-guide-media-caption]');
+      if (caption) {
+        caption.textContent = mode === 'photo'
+          ? image.dataset.photoCaption ?? ''
+          : image.dataset.illustrationCaption ?? '';
+      }
+      const fullsizeLink = frame.querySelector<HTMLAnchorElement>('[data-guide-media-fullsize]');
+      if (fullsizeLink) {
+        fullsizeLink.href = mode === 'photo'
+          ? image.dataset.photoSrc ?? ''
+          : image.dataset.illustrationSrc ?? '';
+      }
+    }
+  }
+
+  function applyMode(mode: MediaMode, group: HTMLFieldSetElement) {
+    document.documentElement.dataset.plantMediaMode = mode;
+    const status = group.querySelector<HTMLElement>('[data-guide-media-status]');
+    if (status) status.textContent = '';
+    document.querySelectorAll<HTMLImageElement>('[data-guide-media-image]').forEach((image) => applyImage(image, mode, status));
+  }
+
+  const initialMode = savedMode();
+  switchGroups.forEach((group) => {
+    const inputs = group.querySelectorAll<HTMLInputElement>('input[name="guide-media-mode"]');
+    inputs.forEach((input) => {
+      input.checked = input.value === initialMode;
+      input.addEventListener('change', () => {
+        if (!input.checked) return;
+        const mode: MediaMode = input.value === 'photo' ? 'photo' : 'illustration';
+        try {
+          localStorage.setItem(preferenceKey, mode);
+        } catch {
+          // The image switch still works when browser storage is unavailable.
+        }
+        applyMode(mode, group);
+      });
+    });
+    applyMode(initialMode, group);
+    group.hidden = false;
+  });
+
+  document.addEventListener('guide-media:update', (event) => {
+    if (!(event.target instanceof HTMLImageElement)) return;
+    const group = document.querySelector<HTMLFieldSetElement>('[data-guide-media-toggle]');
+    const mode = document.documentElement.dataset.plantMediaMode === 'photo' ? 'photo' : 'illustration';
+    applyImage(event.target, mode, group?.querySelector<HTMLElement>('[data-guide-media-status]') ?? null);
+  });
+</script>
+
+<style>
+  .guide-media-toggle {
+    display: flex;
+    width: fit-content;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 0;
+    padding: 4px;
+    border: 1px solid #45686a;
+    border-radius: 7px;
+    background: #0b2027;
+  }
+  .guide-media-toggle[hidden] { display: none; }
+  .guide-media-toggle label { position: relative; display: inline-flex; min-height: 40px; align-items: center; cursor: pointer; }
+  .guide-media-toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .guide-media-toggle label span { display: grid; min-height: 40px; place-items: center; padding: 0 14px; border-radius: 4px; color: #d5e3df; font-size: .875rem; font-weight: 700; }
+  .guide-media-toggle input:checked + span { color: #09231f; background: #92efd3; }
+  .guide-media-toggle input:focus-visible + span { outline: 3px solid #ffd46f; outline-offset: 2px; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+</style>

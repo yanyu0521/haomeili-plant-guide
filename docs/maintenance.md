@@ -2,7 +2,7 @@
 
 ## 網站資料
 
-所有植物集中在 `src/data/plants.json`。已發布資料依 `order` 產生首頁名錄、`/plants/` 名錄、`/map/` 地圖及個別植物頁。新增點位時須補齊植物資料、參考來源與地圖圖示。
+植物識別資料集中在 `src/data/plants.json`。導覽插圖與實拍來源另列在 `src/data/plant-media.json`。已發布資料依 `order` 產生首頁名錄、`/plants/` 名錄、`/map/` 地圖及個別植物頁。
 
 ## 更新植物資料
 
@@ -11,11 +11,14 @@
 3. `mapPosition` 使用參考底圖 963 × 638 畫布上的 `{ "x": 230, "y": 147 }` 格式。它表示圖面相對位置，不是 GPS 座標。
 4. 將圖示 SVG 放入 `public/plants/`，填寫 `image.file` 與描述性 `image.alt`。圖示來源需在 `image.credit` 註明。
 5. 填寫外觀、環境、生態功能、防風林角色及 `sourceUrls`；來源網址會顯示在植物介紹頁。
-6. 執行 `npm run validate:data`、`npm run check` 與 `npm run build`，再檢查地圖標記、植物頁和手機版名錄。
+6. 增加同 slug 的植物辨識圖版與已核 CC0 的實拍媒體資料，填入繁體中文替代文字、照片地點、攝影者及來源紀錄；木麻黃（長枝）要維持屬級標示。
+7. 執行 `npm run media:import`，下載並整理各媒體的 WebP 顯示尺寸；再執行 `npm run validate:data`、`npm run check` 與 `npm run build`，確認地圖標記仍使用既有 SVG。
 
 ## 地圖與圖示來源
 
 目前底圖及 15 個植物圖示取自 [1920 保安林・植物紀錄地圖](https://ieason0911.github.io/haomei-1920-forest-map/)。修改或新增地圖圖像時，保留來源說明。來源圖示是向量插圖，不是現場植物照片。
+
+每個導覽站提供植物辨識插圖及臺灣實拍照片。插圖原稿在 `src/assets/guide-illustrations-source/`，照片資料與 CC0 授權在 `src/data/plant-media.json`。新增照片前須核對該張媒體本身的授權，不可只看觀察紀錄授權。
 
 「木麻黃（長枝）」依來源地圖的標籤只記錄到 `Casuarina sp.`。若日後取得鑑定結果，更新學名、描述與來源，勿僅依枝條外觀推定種名。
 

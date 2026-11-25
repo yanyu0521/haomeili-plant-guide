@@ -4,6 +4,7 @@ import { plantNarration } from '../lib/plantNarration';
 import { plantPath, sitePath } from '../lib/paths';
 import { gameStationPath } from '../lib/gameStations';
 import { sourceLabel } from '../lib/sourceLabels';
+import { getPlantGuideMedia, guideIllustrationPath, guidePhotoPath } from '../lib/plantMedia';
 
 interface Props {
   plants: PublishedPlant[];
@@ -13,28 +14,45 @@ interface Props {
 
 const { plants, activeSlug, syncDetail = false } = Astro.props;
 const activePlant = plants.find((plant) => plant.slug === activeSlug) ?? plants[0];
-const guideEntry = (plant: PublishedPlant, index: number) => ({
-  slug: plant.slug,
-  url: plantPath(plant.slug),
-  mapUrl: `${sitePath('map/')}#map-point-${plant.slug}`,
-  gameUrl: gameStationPath(plant.slug),
-  name: plant.name,
-  scientificName: plant.scientificName,
-  family: plant.family,
-  aliases: plant.aliases ?? [],
-  fieldCue: plant.fieldCue,
-  appearance: plant.appearance,
-  habitat: plant.habitat,
-  ecologicalFunctions: plant.ecologicalFunctions,
-  windbreakRole: plant.windbreakRole,
-  imageUrl: sitePath(`plants/${plant.image.file}`),
-  imageAlt: plant.image.alt,
-  imageCredit: plant.image.credit ?? '',
-  point: index + 1,
-  sources: (plant.sourceUrls ?? []).map((url) => ({ url, label: sourceLabel(url) })),
-  previous: index > 0 ? { name: plants[index - 1].name, url: plantPath(plants[index - 1].slug) } : null,
-  next: index + 1 < plants.length ? { name: plants[index + 1].name, url: plantPath(plants[index + 1].slug) } : null,
-});
+const guideEntry = (plant: PublishedPlant, index: number) => {
+  const media = getPlantGuideMedia(plant.slug);
+  const illustrationUrl = sitePath(guideIllustrationPath(plant.slug));
+  const photoUrl = sitePath(guidePhotoPath(plant.slug));
+  const illustrationSrcset = [480, 960].map((width) => `${sitePath(guideIllustrationPath(plant.slug, width as 480 | 960))} ${width}w`).concat(`${illustrationUrl} 1440w`).join(', ');
+  const photoSrcset = [480, 960].map((width) => `${sitePath(guidePhotoPath(plant.slug, width as 480 | 960))} ${width}w`).concat(`${photoUrl} 1440w`).join(', ');
+
+  return {
+    illustrationUrl,
+    illustrationSrcset,
+    illustrationAlt: media.illustrationAlt,
+    illustrationCaption: media.illustrationCaption,
+    photoUrl,
+    photoSrcset,
+    photoAlt: media.photoAlt,
+    photoCaption: media.photoCaption,
+    photoErrorCaption: `照片暫時無法顯示，現在顯示${plant.name}的植物插圖。`,
+    photoPageUrl: `https://www.inaturalist.org/photos/${media.photoId}`,
+    observationUrl: `https://api.inaturalist.org/v1/observations/${media.observationId}`,
+    slug: plant.slug,
+    url: plantPath(plant.slug),
+    mapUrl: `${sitePath('map/')}#map-point-${plant.slug}`,
+    gameUrl: gameStationPath(plant.slug),
+    name: plant.name,
+    scientificName: plant.scientificName,
+    family: plant.family,
+    aliases: plant.aliases ?? [],
+    fieldCue: plant.fieldCue,
+    appearance: plant.appearance,
+    habitat: plant.habitat,
+    ecologicalFunctions: plant.ecologicalFunctions,
+    windbreakRole: plant.windbreakRole,
+    imageCredit: plant.image.credit ?? '',
+    point: index + 1,
+    sources: (plant.sourceUrls ?? []).map((url) => ({ url, label: sourceLabel(url) })),
+    previous: index > 0 ? { name: plants[index - 1].name, url: plantPath(plants[index - 1].slug) } : null,
+    next: index + 1 < plants.length ? { name: plants[index + 1].name, url: plantPath(plants[index + 1].slug) } : null,
+  };
+};
 ---
 {plants.length > 0 && (
   <section class="audio-guide" id="audio-guide" aria-labelledby="audio-guide-title" data-audio-guide data-sync-detail={syncDetail ? 'true' : 'false'}>
@@ -103,8 +121,17 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
     habitat: string;
     ecologicalFunctions: string;
     windbreakRole: string;
-    imageUrl: string;
-    imageAlt: string;
+    illustrationUrl: string;
+    illustrationSrcset: string;
+    illustrationAlt: string;
+    illustrationCaption: string;
+    photoUrl: string;
+    photoSrcset: string;
+    photoAlt: string;
+    photoCaption: string;
+    photoErrorCaption: string;
+    photoPageUrl: string;
+    observationUrl: string;
     imageCredit: string;
     point: number;
     sources: Array<{ url: string; label: string }>;
@@ -191,8 +218,17 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
       if (aliasesRow instanceof HTMLElement) aliasesRow.hidden = entry.aliases.length === 0;
       const image = detail.querySelector('[data-detail-image]');
       if (image instanceof HTMLImageElement) {
-        image.src = entry.imageUrl;
-        image.alt = entry.imageAlt;
+        image.dataset.displayName = entry.name;
+        image.dataset.illustrationSrc = entry.illustrationUrl;
+        image.dataset.illustrationSrcset = entry.illustrationSrcset;
+        image.dataset.illustrationAlt = entry.illustrationAlt;
+        image.dataset.illustrationCaption = entry.illustrationCaption;
+        image.dataset.photoSrc = entry.photoUrl;
+        image.dataset.photoSrcset = entry.photoSrcset;
+        image.dataset.photoAlt = entry.photoAlt;
+        image.dataset.photoCaption = entry.photoCaption;
+        image.dataset.photoErrorCaption = entry.photoErrorCaption;
+        image.dispatchEvent(new Event('guide-media:update', { bubbles: true }));
       }
       const imageCredit = detail.querySelector('[data-detail-image-credit]');
       const creditLink = detail.querySelector('[data-detail-credit-link]');
@@ -224,6 +260,19 @@ const guideEntry = (plant: PublishedPlant, index: number) => ({
         if (section) section.hidden = entry.sources.length === 0 && !entry.imageCredit;
         sources.replaceChildren();
         entry.sources.forEach((source) => {
+          const item = document.createElement('li');
+          const link = document.createElement('a');
+          link.href = source.url;
+          link.target = '_blank';
+          link.rel = 'noreferrer';
+          link.textContent = source.label;
+          item.append(link);
+          sources.append(item);
+        });
+        [
+          { url: entry.photoPageUrl, label: '實拍照片 · CC0 1.0' },
+          { url: entry.observationUrl, label: '照片授權與物種觀察紀錄' },
+        ].forEach((source) => {
           const item = document.createElement('li');
           const link = document.createElement('a');
           link.href = source.url;

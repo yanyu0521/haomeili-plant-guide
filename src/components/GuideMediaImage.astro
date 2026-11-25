@@ -1,0 +1,44 @@
+---
+import type { PlantGuideMedia } from '../lib/plantMedia';
+import { guideIllustrationPath, guidePhotoPath } from '../lib/plantMedia';
+import { sitePath } from '../lib/paths';
+
+interface Props {
+  media: PlantGuideMedia;
+  plantName: string;
+  sizes: string;
+  className?: string;
+  loading?: 'lazy' | 'eager';
+  detailImage?: boolean;
+}
+
+const { media, plantName, sizes, className, loading = 'lazy', detailImage = false } = Astro.props;
+const illustration = sitePath(guideIllustrationPath(media.slug));
+const photo = sitePath(guidePhotoPath(media.slug));
+const illustrationSrcset = [480, 960].map((width) => `${sitePath(guideIllustrationPath(media.slug, width as 480 | 960))} ${width}w`).concat(`${illustration} 1440w`).join(', ');
+const photoSrcset = [480, 960].map((width) => `${sitePath(guidePhotoPath(media.slug, width as 480 | 960))} ${width}w`).concat(`${photo} 1440w`).join(', ');
+const photoErrorCaption = `照片暫時無法顯示，現在顯示${plantName}的植物插圖。`;
+---
+<img
+  class={className}
+  src={illustration}
+  srcset={illustrationSrcset}
+  sizes={sizes}
+  alt={media.illustrationAlt}
+  width="1440"
+  height="1080"
+  loading={loading}
+  decoding="async"
+  data-detail-image={detailImage ? '' : undefined}
+  data-guide-media-image
+  data-display-name={plantName}
+  data-illustration-src={illustration}
+  data-illustration-srcset={illustrationSrcset}
+  data-illustration-alt={media.illustrationAlt}
+  data-illustration-caption={media.illustrationCaption}
+  data-photo-src={photo}
+  data-photo-srcset={photoSrcset}
+  data-photo-alt={media.photoAlt}
+  data-photo-caption={media.photoCaption}
+  data-photo-error-caption={photoErrorCaption}
+/>

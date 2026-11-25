@@ -26,6 +26,7 @@ Visitors use the website on a phone while exploring the forest and its paths. Th
 
 - The site is a static Astro website with home, plant directory, plant detail, and map pages.
 - Preserve the existing 15 plant records, map search and family filter, plant-marker linking, browser speech-synthesis guide, external coastal game link, and source credits.
+- Let visitors switch the home feature rail, plant directory, and plant detail media between generated botanical illustrations and locally hosted CC0 photo references. Preserve credits and observed photo locations when the audio guide changes the active detail plant.
 - Map locations are approximate positions on the reference image, not precise latitude and longitude.
 - Speech output depends on browser and device voice availability and must remain user initiated.
 - The game is hosted separately at `https://haomeili-game.angela950730.workers.dev/`.
@@ -40,7 +41,8 @@ The user requested a Netflix-inspired UI across the site. Treat this as a refere
 - Plant records and source information: `src/data/plants.json`.
 - Illustrated plant assets: `public/plants/*.svg`.
 - Reference map: `public/images/forest-map.svg`.
-- No field photography is present in the project; do not imply illustrations are documentary photographs.
+- Guide photographs are CC0 reference photos from documented Taiwan observations. Their captions identify their photographers, locations, and exceptions. They do not imply a photograph was taken at a Haomeili map point.
+- AI-generated botanical plates aid recognition, preserve scientific uncertainty, and are labeled as illustrations.
 
 ## Product Principles
 

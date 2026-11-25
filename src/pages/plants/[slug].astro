@@ -4,8 +4,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PlantNavigation from '../../components/PlantNavigation.astro';
 import PlantInfoCard from '../../components/PlantInfoCard.astro';
 import AudioGuide from '../../components/AudioGuide.astro';
+import GuideMediaImage from '../../components/GuideMediaImage.astro';
+import GuideMediaToggle from '../../components/GuideMediaToggle.astro';
 import ForestMap from '../../components/ForestMap.astro';
 import { publishedPlants, getAdjacentPlants } from '../../lib/plants';
+import { getPlantGuideMedia, guideIllustrationPath } from '../../lib/plantMedia';
 import type { PublishedPlant } from '../../lib/plantSchema';
 import { sitePath } from '../../lib/paths';
 import { gameStationPath } from '../../lib/gameStations';
@@ -25,6 +28,7 @@ const pointIndex = publishedPlants.findIndex((item) => item.slug === plant.slug)
 const pointLabel = String(pointIndex).padStart(2, '0');
 const mapUrl = `${sitePath('map/')}#map-point-${plant.slug}`;
 const gameUrl = gameStationPath(plant.slug);
+const guideMedia = getPlantGuideMedia(plant.slug);
 ---
 <BaseLayout title={plant.name} description={`${plant.name}：${plant.appearance}`}>
   <article class="container plant-page" data-plant-detail>
@@ -36,6 +40,7 @@ const gameUrl = gameStationPath(plant.slug);
       <div class="detail-hero-copy">
         <h1><span class="detail-stop-number" data-detail-point>{pointLabel}</span> <span data-detail-name>{plant.name}</span></h1>
         <p class="detail-cue" data-detail-field-cue>{plant.fieldCue}</p>
+        <div class="detail-media-toggle"><GuideMediaToggle /></div>
         <div class="detail-actions">
           <button class="detail-action detail-action--primary" type="button" data-detail-listen aria-controls="audio-guide" aria-expanded="false" hidden>
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 13h3a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4Zm16 0h-3a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-4Z" /></svg>
@@ -51,19 +56,12 @@ const gameUrl = gameStationPath(plant.slug);
           </a>
         </div>
       </div>
-      <figure class="detail-illustration">
+      <figure class="detail-illustration" data-guide-media-frame data-media-mode="illustration">
         <div class="detail-illustration-plate">
-          <img
-            src={sitePath(`plants/${plant.image.file}`)}
-            alt={plant.image.alt}
-            class="plant-symbol"
-            data-detail-image
-            width="224"
-            height="224"
-            fetchpriority="high"
-          />
+          <GuideMediaImage media={guideMedia} plantName={plant.name} sizes="(max-width: 620px) calc(100vw - 32px), 42vw" className="guide-detail-image" loading="eager" detailImage={true} />
         </div>
-        <figcaption data-detail-credit-link hidden={!plant.image.credit}><a href="#illustration-credit">圖示來源</a></figcaption>
+        <figcaption class="detail-media-caption" data-guide-media-caption>{guideMedia.illustrationCaption}</figcaption>
+        <a class="detail-media-fullsize" data-guide-media-fullsize href={sitePath(guideIllustrationPath(plant.slug))} target="_blank" rel="noopener noreferrer">開啟原尺寸大圖 <span aria-hidden="true">↗</span></a>
       </figure>
     </header>
 
@@ -99,8 +97,11 @@ const gameUrl = gameStationPath(plant.slug);
 
     <section class="sources-section" aria-labelledby="sources-title" hidden={!plant.sourceUrls?.length && !plant.image.credit}>
       <h2 id="sources-title">資料來源</h2>
-      <p id="illustration-credit" data-detail-image-credit hidden={!plant.image.credit}>{plant.image.credit}</p>
+      <p id="illustration-credit" data-detail-image-credit hidden={!plant.image.credit}>地圖中的植物符號：{plant.image.credit}</p>
+      <p class="media-art-credit">植物辨識插圖由 AI 依公開植物特徵資料生成，僅供形態辨識參考。</p>
       <ul data-detail-sources>
+        <li><a href={`https://www.inaturalist.org/photos/${guideMedia.photoId}`} target="_blank" rel="noreferrer">實拍照片（{guideMedia.photoLicense}）</a></li>
+        <li><a href={`https://api.inaturalist.org/v1/observations/${guideMedia.observationId}`} target="_blank" rel="noreferrer">照片授權與物種觀察紀錄</a></li>
         {plant.sourceUrls?.map((url) => (
           <li><a href={url} target="_blank" rel="noreferrer">{sourceLabel(url)}</a></li>
         ))}
@@ -135,8 +136,8 @@ const gameUrl = gameStationPath(plant.slug);
   }
   .detail-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(160px, 30%);
-    align-items: center;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 42%);
+    align-items: start;
     gap: clamp(18px, 5vw, 42px);
     padding: 18px 0 24px;
     border-bottom: 1px solid var(--line);
@@ -164,6 +165,7 @@ const gameUrl = gameStationPath(plant.slug);
     font-weight: 650;
     line-height: 1.6;
   }
+  .detail-media-toggle { margin-top: 18px; }
   .detail-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
   .detail-action {
     display: inline-flex;
@@ -188,14 +190,16 @@ const gameUrl = gameStationPath(plant.slug);
   .detail-illustration { min-width: 0; margin: 0; }
   .detail-illustration-plate {
     display: grid;
-    min-height: clamp(130px, 20vw, 188px);
     place-items: center;
     overflow: hidden;
-    border-radius: 12px;
-    background: #c6d8c6;
+    border: 1px solid #e2d9c5;
+    border-radius: 5px;
+    background: #f4f0e5;
   }
-  .detail-illustration img { display: block; width: min(100%, 195px); height: auto; }
-  .detail-illustration figcaption a { display: inline-flex; min-height: 44px; align-items: center; color: var(--muted); font-size: .8rem; }
+  .detail-illustration .guide-detail-image { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; }
+  .detail-media-caption { margin-top: 9px; color: #d1ded8; font-size: .88rem; line-height: 1.55; }
+  .detail-media-fullsize { display: inline-flex; min-height: 44px; align-items: center; gap: 5px; color: var(--teal-bright); font-size: .86rem; font-weight: 700; text-underline-offset: 3px; }
+  .media-art-credit { margin: 6px 0 12px; color: var(--muted); font-size: .875rem; }
   #illustration-credit { margin: 6px 0 12px; color: var(--muted); font-size: .875rem; }
   .detail-profile { margin-top: 24px; }
   .detail-profile h2 { margin-bottom: 8px; font-size: 1.05rem; }
@@ -207,10 +211,10 @@ const gameUrl = gameStationPath(plant.slug);
   .detail-map-link { min-height: 44px; }
 
   @media (max-width: 620px) {
-    .detail-hero { grid-template-columns: minmax(0, 1fr) minmax(85px, 28%); align-items: start; gap: 13px; }
+    .detail-hero { grid-template-columns: minmax(0, 1fr); align-items: start; gap: 18px; }
     .plant-page .detail-hero h1 { font-size: clamp(1.9rem, 9vw, 2.55rem); }
     .detail-cue { font-size: 1.125rem; }
-    .detail-illustration-plate { min-height: 0; aspect-ratio: 1; }
+    .detail-illustration-plate { aspect-ratio: 4 / 3; }
     .detail-action { padding-inline: 9px; }
     .detail-action svg { width: 17px; height: 17px; }
   }

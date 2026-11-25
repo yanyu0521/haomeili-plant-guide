@@ -11,6 +11,7 @@
     "validate:data": "tsx scripts/validate-data.ts",
     "check": "astro check",
     "build": "npm run validate:data && astro build",
+    "media:import": "node scripts/import-guide-media.mjs",
     "preview": "astro preview",
     "test:site": "node scripts/test-site.mjs",
     "verify": "npm run check && npm run build && npm run test:site"
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.5",
     "@types/node": "^24.19.2",
+    "sharp": "^0.35.5",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0"
   }

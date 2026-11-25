@@ -1,5 +1,8 @@
 ---
 import type { PublishedPlant } from '../lib/plantSchema';
+import GuideMediaImage from './GuideMediaImage.astro';
+import GuideMediaToggle from './GuideMediaToggle.astro';
+import { getPlantGuideMedia } from '../lib/plantMedia';
 import { plantPath, sitePath } from '../lib/paths';
 interface Props { plants: PublishedPlant[] }
 const { plants } = Astro.props;
@@ -9,17 +12,19 @@ const imageCredits = [...new Set(plants.flatMap((plant) => plant.image.credit ? 
   <p class="empty-state">目前尚無已發布植物，請稍後再查看。</p>
 ) : (
   <>
+    <div class="directory-media-toolbar"><GuideMediaToggle /></div>
     <ol class="directory-stops" data-plant-list>
       {plants.map((plant, index) => (
         <li class="directory-stop">
-          <a class="directory-detail" href={plantPath(plant.slug)}>
+          <a class="directory-detail" data-guide-media-frame href={plantPath(plant.slug)}>
             <span class="directory-number">{String(index + 1).padStart(2, '0')}</span>
             <div class="directory-cover">
-              <img src={sitePath(`plants/${plant.image.file}`)} class="plant-symbol" alt="" width="76" height="76" loading="lazy" />
+              <GuideMediaImage media={getPlantGuideMedia(plant.slug)} plantName={plant.name} sizes="(max-width: 560px) 62px, 78px" className="directory-guide-image" />
             </div>
             <div class="directory-copy">
               <h2 class="directory-name">{plant.name}</h2>
               <p>{plant.fieldCue}</p>
+              <p class="directory-media-caption" data-guide-media-caption>{getPlantGuideMedia(plant.slug).illustrationCaption}</p>
             </div>
           </a>
           <a class="directory-map" aria-label={`${plant.name}的地圖位置`} href={`${sitePath('map/')}#map-point-${plant.slug}`}>
@@ -35,6 +40,7 @@ const imageCredits = [...new Set(plants.flatMap((plant) => plant.image.credit ? 
 
 <style>
   .directory-stops { margin: 0; padding: 0; border-top: 1px solid var(--line); list-style: none; }
+  .directory-media-toolbar { display: flex; justify-content: flex-end; margin-bottom: 14px; }
   .directory-stop {
     --station-width: max(26px, 1.6rem);
     --art-width: 78px;
@@ -64,10 +70,12 @@ const imageCredits = [...new Set(plants.flatMap((plant) => plant.image.credit ? 
     border-radius: 10px;
     background: #c6d8c6;
   }
-  .directory-cover img { display: block; width: 100%; height: auto; }
+  .directory-cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .directory-copy { min-width: 0; }
   .directory-copy h2 { margin: 0; font-size: clamp(1.13rem, 3vw, 1.35rem); text-wrap: wrap; }
-  .directory-copy p { color: var(--muted); font-size: .93rem; line-height: 1.55; }
+  .directory-copy p { margin: 3px 0 0; color: var(--muted); font-size: .93rem; line-height: 1.55; }
+  .directory-copy .directory-media-caption { display: none; color: #b8d7d0; font-size: .78rem; line-height: 1.45; }
+  :global(html[data-plant-media-mode="photo"]) .directory-copy .directory-media-caption { display: block; }
   .directory-detail:is(:hover, :focus-visible) .directory-name { color: var(--teal-bright); text-decoration: underline; }
   .directory-map { display: inline-flex; min-height: 44px; align-items: center; gap: 5px; color: var(--teal-bright); font-size: .85rem; font-weight: 650; text-decoration: none; white-space: nowrap; }
   .directory-map:hover { text-decoration: underline; }
