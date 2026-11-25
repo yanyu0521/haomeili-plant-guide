@@ -12,7 +12,7 @@
 4. 將圖示 SVG 放入 `public/plants/`，填寫 `image.file` 與描述性 `image.alt`。圖示來源需在 `image.credit` 註明。
 5. 填寫外觀、環境、生態功能、防風林角色及 `sourceUrls`；來源網址會顯示在植物介紹頁。
 6. 增加同 slug 的植物辨識圖版與已核 CC0 的實拍媒體資料，填入繁體中文替代文字、照片地點、攝影者及來源紀錄；木麻黃（長枝）要維持屬級標示。
-7. 執行 `npm run media:import`，下載並整理各媒體的 WebP 顯示尺寸；再執行 `npm run validate:data`、`npm run check` 與 `npm run build`，確認地圖標記仍使用既有 SVG。
+7. 執行 `npm run media:import`，下載並整理各媒體的正方形 WebP 顯示尺寸（完整保留原圖、不裁切）；再執行 `npm run validate:data`、`npm run check` 與 `npm run build`，確認地圖標記仍使用既有 SVG。
 
 ## 地圖與圖示來源
 

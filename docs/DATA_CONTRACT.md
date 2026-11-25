@@ -26,7 +26,7 @@
 ## 導覽插圖與實拍
 
 - `src/data/plant-media.json` 依植物 `slug` 對應詳情圖版、名錄縮圖、實拍照片、替代文字、照片說明、攝影者、來源紀錄 ID 和授權。
-- 導覽用植物插圖與照片放在 `public/guide-media/`，各自提供 480、960 及 1440 像素版本；高解析插圖主檔保存在 `src/assets/guide-illustrations-source/`。
+- 導覽用植物插圖與照片放在 `public/guide-media/`，各自提供 480、960 及 1440 像素的正方形 WebP；以 contain 置入暖紙色底，不裁切原始植物內容。高解析插圖主檔保存在 `src/assets/guide-illustrations-source/`。
 - `image.file` 與 `public/plants/*.svg` 專供原始參考地圖及互動標記使用。首頁、名錄和詳情的圖片切換不更動地圖資產。
 - 照片只採單張已確認 CC0 的媒體；以 `scripts/import-guide-media.mjs` 從 iNaturalist 官方 API 再核對物種、攝影者與單張授權後取得原圖並製作尺寸版本。頁面顯示地點、攝影者、照片頁與觀察紀錄。
 - 木麻黃（長枝）實拍是同屬的木麻黃參考照，須標明示例物種與拍攝地。白水木照片紀錄使用同物異名 `Heliotropium arboreum`。白千層照片為高雄栽培個體，且該筆觀察非研究級，圖說須說明並非好美里現場觀察。

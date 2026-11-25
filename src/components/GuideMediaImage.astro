@@ -20,13 +20,13 @@ const photoSrcset = [480, 960].map((width) => `${sitePath(guidePhotoPath(media.s
 const photoErrorCaption = `照片暫時無法顯示，現在顯示${plantName}的植物插圖。`;
 ---
 <img
-  class={className}
+  class:list={['guide-media-image', className]}
   src={illustration}
   srcset={illustrationSrcset}
   sizes={sizes}
   alt={media.illustrationAlt}
   width="1440"
-  height="1080"
+  height="1440"
   loading={loading}
   decoding="async"
   data-detail-image={detailImage ? '' : undefined}
@@ -42,3 +42,16 @@ const photoErrorCaption = `照片暫時無法顯示，現在顯示${plantName}�
   data-photo-caption={media.photoCaption}
   data-photo-error-caption={photoErrorCaption}
 />
+
+<style>
+  .guide-media-image {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    background: #f4f0e5;
+  }
+</style>

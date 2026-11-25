@@ -213,7 +213,7 @@ const shortCues: Record<string, string> = {
     display: grid;
     place-items: center;
     position: relative;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1;
     border-radius: 5px;
     background: #d9d5b7;
     overflow: hidden;
@@ -229,7 +229,6 @@ const shortCues: Record<string, string> = {
     font: 700 clamp(1.125rem, 1.8vw, 1.5625rem)/1.5 Arial, sans-serif;
     font-variant-numeric: tabular-nums;
   }
-  .card-plate .guide-card-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .card-plate .card-stop { z-index: 1; }
   .plant-rail-credit { display: none; margin: 6px 0 0; color: #b8d7d0; font-size: .78rem; line-height: 1.45; }
   :global(html[data-plant-media-mode="photo"]) .plant-rail-credit { display: block; }
@@ -298,7 +297,7 @@ const shortCues: Record<string, string> = {
     .stop-cards::-webkit-scrollbar { display: none; }
     .stop-cards li { scroll-snap-align: start; }
     .stop-cards a:focus-visible { outline-offset: 0; }
-    .card-plate { aspect-ratio: 4 / 3; }
+    .card-plate { aspect-ratio: 1; }
     .shelf-link { font-size: .875rem; }
     .forest-challenge { grid-template-columns: 1fr 31%; }
     .challenge-copy { padding: 16px; }

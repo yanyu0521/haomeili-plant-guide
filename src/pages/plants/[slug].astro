@@ -190,13 +190,14 @@ const guideMedia = getPlantGuideMedia(plant.slug);
   .detail-illustration { min-width: 0; margin: 0; }
   .detail-illustration-plate {
     display: grid;
+    position: relative;
     place-items: center;
+    aspect-ratio: 1;
     overflow: hidden;
     border: 1px solid #e2d9c5;
     border-radius: 5px;
     background: #f4f0e5;
   }
-  .detail-illustration .guide-detail-image { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; }
   .detail-media-caption { margin-top: 9px; color: #d1ded8; font-size: .88rem; line-height: 1.55; }
   .detail-media-fullsize { display: inline-flex; min-height: 44px; align-items: center; gap: 5px; color: var(--teal-bright); font-size: .86rem; font-weight: 700; text-underline-offset: 3px; }
   .media-art-credit { margin: 6px 0 12px; color: var(--muted); font-size: .875rem; }
@@ -214,7 +215,7 @@ const guideMedia = getPlantGuideMedia(plant.slug);
     .detail-hero { grid-template-columns: minmax(0, 1fr); align-items: start; gap: 18px; }
     .plant-page .detail-hero h1 { font-size: clamp(1.9rem, 9vw, 2.55rem); }
     .detail-cue { font-size: 1.125rem; }
-    .detail-illustration-plate { aspect-ratio: 4 / 3; }
+    .detail-illustration-plate { aspect-ratio: 1; }
     .detail-action { padding-inline: 9px; }
     .detail-action svg { width: 17px; height: 17px; }
   }

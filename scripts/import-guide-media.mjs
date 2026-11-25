@@ -29,7 +29,7 @@ async function writeResponsiveImage(source, directory, slug, prefix = '') {
     const destination = join(directory, filename);
     await sharp(source, { limitInputPixels: 32_000_000 })
       .rotate()
-      .resize({ width, withoutEnlargement: true })
+      .resize({ width, height: width, fit: 'contain', background: '#f4f0e5' })
       .webp({ quality: 84, effort: 5 })
       .toFile(destination);
   }
