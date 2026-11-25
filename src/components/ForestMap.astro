@@ -65,7 +65,7 @@ const satelliteImageUrl = `https://wms.nlsc.gov.tw/wms?${satelliteImage}`;
     </div>
   )}
   <div class="forest-map" style={baseStyle} data-map-basemap="satellite" role="group" aria-label={showMarkers ? '好美里保安林植物位置互動地圖；選擇編號標記前往植物介紹' : '好美里保安林地圖預覽'} data-forest-map>
-    <img class="map-satellite-image" src={satelliteImageUrl} alt="" aria-hidden="true" data-map-satellite-image loading="lazy" decoding="async" />
+    <div class="map-satellite-image" style={`--satellite-art:url('${satelliteImageUrl}')`} aria-hidden="true" data-map-satellite-image data-map-satellite-src={satelliteImageUrl}></div>
     {showMarkers && plants.map((plant, index) => {
       const point = plant.mapPosition;
       // The source locations are drawn on the original guide map, not GPS data.
@@ -177,8 +177,9 @@ const satelliteImageUrl = `https://wms.nlsc.gov.tw/wms?${satelliteImage}`;
         setBasemap(button.dataset.mapBasemap === 'illustration' ? 'illustration' : 'satellite');
       });
     });
-    if (satelliteImage instanceof HTMLImageElement) {
-      satelliteImage.addEventListener('error', () => {
+    if (satelliteImage instanceof HTMLElement && satelliteImage.dataset.mapSatelliteSrc) {
+      const satelliteImageProbe = new Image();
+      satelliteImageProbe.addEventListener('error', () => {
         satelliteImage.hidden = true;
         const satelliteButton = basemapButtons.find((button) => button.dataset.mapBasemap === 'satellite');
         if (satelliteButton) {
@@ -187,6 +188,7 @@ const satelliteImageUrl = `https://wms.nlsc.gov.tw/wms?${satelliteImage}`;
         }
         setBasemap('illustration');
       }, { once: true });
+      satelliteImageProbe.src = satelliteImage.dataset.mapSatelliteSrc;
     }
 
     function basePosition(marker: HTMLAnchorElement): Point {
