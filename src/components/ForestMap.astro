@@ -243,7 +243,7 @@ function satelliteTrailPoint(point: { x: number; y: number }) {
       const includesCurrent = current && entries.some(({ marker }) => marker === current);
       const heading = document.createElement('h3');
       heading.className = 'map-cluster-panel-title';
-      heading.textContent = includesCurrent ? `第 ${markerLabel(current)} · 相鄰點位` : `選擇相鄰的 ${entries.length} 個植物點位`;
+      heading.textContent = includesCurrent ? `第 ${markerLabel(current)} · 相鄰植物` : '選擇相鄰植物';
       const options = document.createElement('div');
       options.className = 'map-cluster-options';
       options.setAttribute('role', 'group');
@@ -252,13 +252,18 @@ function satelliteTrailPoint(point: { x: number; y: number }) {
         const option = document.createElement('a');
         option.href = marker.href;
         option.className = 'map-cluster-option';
+        option.title = markerLabel(marker);
         if (marker === current) option.setAttribute('aria-current', 'location');
+        const thumbnail = document.createElement('span');
+        thumbnail.className = 'map-cluster-option-art';
+        thumbnail.style.setProperty('--cluster-option-art', marker.style.getPropertyValue('--marker-art'));
         const numberLabel = document.createElement('span');
         numberLabel.className = 'map-cluster-option-number';
         numberLabel.textContent = marker.dataset.mapNumber ?? '';
         const nameLabel = document.createElement('span');
         nameLabel.textContent = marker.dataset.mapName ?? '';
-        option.append(numberLabel, nameLabel);
+        thumbnail.append(numberLabel);
+        option.append(thumbnail, nameLabel);
         options.append(option);
       });
       optionsPanel.append(heading, options);
@@ -358,6 +363,7 @@ function satelliteTrailPoint(point: { x: number; y: number }) {
       clusterTargets.forEach(({ entries, position }) => {
         const cluster = document.createElement('div');
         cluster.className = 'map-cluster';
+        cluster.classList.add(entries.length === 2 ? 'map-cluster--two' : entries.length === 3 ? 'map-cluster--three' : 'map-cluster--many');
         cluster.dataset.mapClusterSlugs = entries.map(({ marker }) => marker.dataset.mapSlug).join(' ');
         cluster.style.left = `${position.x}px`;
         cluster.style.top = `${position.y}px`;
@@ -371,11 +377,21 @@ function satelliteTrailPoint(point: { x: number; y: number }) {
         const toggle = document.createElement('button');
         toggle.type = 'button';
         toggle.className = 'map-cluster-toggle';
-        toggle.textContent = `${entries.length} 個點`;
-        const label = current ? `${entries.length} 個相鄰植物點位，含 ${markerLabel(current)}` : `${entries.length} 個相鄰植物點位`;
+        const thumbnails = document.createElement('span');
+        thumbnails.className = 'map-cluster-thumbnails';
+        thumbnails.setAttribute('aria-hidden', 'true');
+        entries.slice(0, 4).forEach(({ marker }) => {
+          const thumbnail = document.createElement('span');
+          thumbnail.className = 'map-cluster-thumbnail';
+          thumbnail.style.setProperty('--cluster-thumbnail-art', marker.style.getPropertyValue('--marker-art'));
+          thumbnails.append(thumbnail);
+        });
+        toggle.append(thumbnails);
+        const names = entries.map(({ marker }) => marker.dataset.mapName).filter(Boolean);
+        const label = `相鄰植物縮圖：${names.join('、')}。點選展開選擇`;
         toggle.setAttribute('aria-expanded', String(open));
         toggle.setAttribute('aria-label', label);
-        toggle.title = label;
+        toggle.title = names.join('、') || '展開相鄰植物';
         toggle.addEventListener('click', () => {
           const shouldOpen = !cluster.classList.contains('map-cluster--open');
           clusterList.querySelectorAll('.map-cluster--open').forEach((other) => {

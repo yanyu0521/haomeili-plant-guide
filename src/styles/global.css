@@ -153,15 +153,26 @@ main { min-height: 62vh; }
 .map-cluster-layer { position: absolute; z-index: 5; inset: 0; overflow: visible; pointer-events: none; }
 .map-cluster { position: absolute; z-index: 1; transform: translate(-50%, -50%); pointer-events: auto; }
 .map-cluster--open { z-index: 8; }
-.map-cluster-toggle { display: grid; touch-action: manipulation; width: 54px; height: 44px; place-items: center; padding: 0; color: var(--night); background: var(--teal-bright); border: 2px solid var(--night); border-radius: 13px; box-shadow: 0 3px 10px rgba(0, 0, 0, .5); font: inherit; font-size: 14px; font-weight: 800; white-space: nowrap; cursor: pointer; }
-.map-cluster-toggle:hover, .map-cluster-toggle[aria-expanded="true"] { background: #a4ffe5; }
+.map-cluster-toggle { display: grid; touch-action: manipulation; width: 50px; height: 50px; place-items: center; padding: 0; background: transparent; border: 0; border-radius: 12px; cursor: pointer; }
+.map-cluster-toggle:focus-visible { outline: 3px solid #ffd46f; outline-offset: 2px; }
+.map-cluster-thumbnails { position: relative; display: block; width: 48px; height: 48px; }
+.map-cluster-thumbnail { position: absolute; display: block; width: 26px; height: 26px; background-color: #eaf3e8; background-image: var(--cluster-thumbnail-art); background-position: center; background-repeat: no-repeat; background-size: contain; border: 1.5px solid var(--night); border-radius: 8px; box-shadow: 0 2px 6px rgba(7, 19, 29, .48); }
+.map-cluster--two .map-cluster-thumbnail:first-child { top: 11px; left: 0; }
+.map-cluster--two .map-cluster-thumbnail:last-child { top: 11px; right: 0; }
+.map-cluster--three .map-cluster-thumbnail:first-child, .map-cluster--many .map-cluster-thumbnail:first-child { top: 0; left: 0; }
+.map-cluster--three .map-cluster-thumbnail:nth-child(2), .map-cluster--many .map-cluster-thumbnail:nth-child(2) { top: 0; right: 0; }
+.map-cluster--three .map-cluster-thumbnail:last-child { bottom: 0; left: 11px; }
+.map-cluster--many .map-cluster-thumbnail:nth-child(3) { bottom: 0; left: 0; }
+.map-cluster--many .map-cluster-thumbnail:nth-child(4) { right: 0; bottom: 0; }
+.map-cluster-toggle:hover .map-cluster-thumbnail, .map-cluster-toggle[aria-expanded="true"] .map-cluster-thumbnail { background-color: #d5f1e3; }
 .map-cluster-panel { display: grid; gap: 8px; margin-top: 10px; padding: 12px; background: #071a20; border: 1px solid #72d5c1; border-radius: 9px; box-shadow: 0 9px 22px rgba(0, 0, 0, .32); }
 .map-cluster-panel[hidden] { display: none; }
 .map-cluster-panel-title { margin: 0; color: var(--paper); font-size: 14px; font-weight: 700; }
 .map-cluster-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 6px; }
 .map-cluster-option { display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: center; gap: 8px; min-height: 48px; padding: 6px 9px; color: var(--paper); background: #0b2028; border: 1px solid rgba(114, 213, 193, .3); border-radius: 6px; font-size: 14px; font-weight: 700; text-decoration: none; }
 .map-cluster-option:hover, .map-cluster-option:focus-visible { color: var(--night); background: var(--teal-bright); }
-.map-cluster-option-number { color: var(--teal-bright); font-family: var(--display); font-variant-numeric: tabular-nums; }
+.map-cluster-option-art { position: relative; display: block; width: 34px; height: 34px; background-color: #eaf3e8; background-image: var(--cluster-option-art); background-position: center; background-repeat: no-repeat; background-size: contain; border: 1px solid #8bada0; border-radius: 7px; }
+.map-cluster-option-number { position: absolute; right: -5px; bottom: -5px; display: grid; min-width: 18px; height: 18px; place-items: center; padding-inline: 2px; color: var(--night); background: var(--teal-bright); border: 1px solid var(--night); border-radius: 9px; font-family: var(--display); font-size: 10px; font-variant-numeric: tabular-nums; line-height: 1; }
 .map-cluster-option:hover .map-cluster-option-number, .map-cluster-option:focus-visible .map-cluster-option-number { color: var(--night); }
 .map-legend { display: flex; flex-wrap: wrap; gap: 10px 18px; padding: 12px 20px 17px; color: var(--muted); font-size: 12px; }
 .map-legend span { display: inline-flex; align-items: center; gap: 7px; }
