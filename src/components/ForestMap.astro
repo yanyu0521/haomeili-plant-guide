@@ -15,15 +15,25 @@ interface Props {
 const { plants, activeSlug, compact = false, showCredit = false, mapArtwork, showMarkers = true, controls = true } = Astro.props;
 const baseStyle = `--map-background:url('${mapArtwork ?? sitePath('images/forest-map.svg')}')`;
 const mapAspectRatio = 963 / 638;
-const mapCenterLongitude = 120.1305047;
-const mapCenterLatitude = 23.345463;
-const mapExtentWidthMeters = 1140;
+const sourceMapCenterLongitude = 120.1305047;
+const sourceMapCenterLatitude = 23.345463;
+const sourceMapExtentWidthMeters = 1140;
+const mapCenterLongitude = 120.12993;
+const mapCenterLatitude = 23.34531;
+const mapExtentWidthMeters = 450;
 const earthRadiusMeters = 6_378_137;
 const longitudeRadians = (mapCenterLongitude * Math.PI) / 180;
 const latitudeRadians = (mapCenterLatitude * Math.PI) / 180;
+const sourceLongitudeRadians = (sourceMapCenterLongitude * Math.PI) / 180;
+const sourceLatitudeRadians = (sourceMapCenterLatitude * Math.PI) / 180;
 const centerMercatorX = earthRadiusMeters * longitudeRadians;
 const centerMercatorY = earthRadiusMeters * Math.log(Math.tan(Math.PI / 4 + latitudeRadians / 2));
+const sourceCenterMercatorX = earthRadiusMeters * sourceLongitudeRadians;
+const sourceCenterMercatorY = earthRadiusMeters * Math.log(Math.tan(Math.PI / 4 + sourceLatitudeRadians / 2));
 const mapExtentHeightMeters = mapExtentWidthMeters / mapAspectRatio;
+const sourceMapScale = sourceMapExtentWidthMeters / mapExtentWidthMeters;
+const sourceMapOffsetX = ((sourceCenterMercatorX - centerMercatorX) / mapExtentWidthMeters) * 963;
+const sourceMapOffsetY = ((centerMercatorY - sourceCenterMercatorY) / mapExtentHeightMeters) * 638;
 const mapBounds = [
   centerMercatorX - mapExtentWidthMeters / 2,
   centerMercatorY - mapExtentHeightMeters / 2,
@@ -47,12 +57,19 @@ const illustratedTrail = { start: { x: 176, y: 128 }, end: { x: 750, y: 492 } };
 // Approximate ends of the trail corridor circled in the supplied orthophoto view.
 const satelliteTrail = { start: { x: 307, y: 267 }, end: { x: 537, y: 392 } };
 function satelliteTrailPoint(point: { x: number; y: number }) {
-  const progress = Math.max(0, Math.min(1, (point.x - illustratedTrail.start.x) / (illustratedTrail.end.x - illustratedTrail.start.x)));
+  const progress = (point.x - illustratedTrail.start.x) / (illustratedTrail.end.x - illustratedTrail.start.x);
   const illustratedCenterY = illustratedTrail.start.y + progress * (illustratedTrail.end.y - illustratedTrail.start.y);
-  const sideOffset = Math.max(-24, Math.min(24, point.y - illustratedCenterY)) * 0.25;
+  const sideOffset = (point.y - illustratedCenterY) *
+    ((satelliteTrail.end.y - satelliteTrail.start.y) / (illustratedTrail.end.y - illustratedTrail.start.y));
   return {
-    x: Math.round(satelliteTrail.start.x + progress * (satelliteTrail.end.x - satelliteTrail.start.x)),
-    y: Math.round(satelliteTrail.start.y + progress * (satelliteTrail.end.y - satelliteTrail.start.y) + sideOffset),
+    x: satelliteTrail.start.x + progress * (satelliteTrail.end.x - satelliteTrail.start.x),
+    y: satelliteTrail.start.y + progress * (satelliteTrail.end.y - satelliteTrail.start.y) + sideOffset,
+  };
+}
+function zoomedSatellitePoint(point: { x: number; y: number }) {
+  return {
+    x: Math.round(963 / 2 + (point.x - 963 / 2) * sourceMapScale + sourceMapOffsetX),
+    y: Math.round(638 / 2 + (point.y - 638 / 2) * sourceMapScale + sourceMapOffsetY),
   };
 }
 ---
@@ -80,8 +97,8 @@ function satelliteTrailPoint(point: { x: number; y: number }) {
     <div class="map-satellite-image" style={`--satellite-art:url('${satelliteImageUrl}')`} aria-hidden="true" data-map-satellite-image data-map-satellite-src={satelliteImageUrl}></div>
     {showMarkers && plants.map((plant, index) => {
       const point = plant.mapPosition;
-      // Project the original trail ordering into the highlighted photo corridor; this remains approximate, not GPS.
-      const satellitePoint = satelliteTrailPoint(point);
+      // Preserve the reference map's relative marker layout, projected into the trail corridor and tighter satellite crop.
+      const satellitePoint = zoomedSatellitePoint(satelliteTrailPoint(point));
       const markerStyle = `--point-x:${(satellitePoint.x / 963) * 100}%;--point-y:${(satellitePoint.y / 638) * 100}%;--marker-art:url('${sitePath(`plants/${plant.image.file}`)}')`;
       const active = plant.slug === activeSlug;
       return (
@@ -324,7 +341,7 @@ function satelliteTrailPoint(point: { x: number; y: number }) {
     function renderClusters() {
       clusterList.replaceChildren();
       const groups: ClusterEntry[][] = [];
-      const clusterDistance = 44;
+      const clusterDistance = window.matchMedia('(max-width: 600px) and (pointer: coarse)').matches ? 28 : 0;
       markers.forEach((marker) => {
         const position = pointPosition(marker);
         const offscreen = position.x < 0 || position.x > width || position.y < 0 || position.y > height;

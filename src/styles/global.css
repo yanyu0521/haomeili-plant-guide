@@ -119,7 +119,7 @@ main { min-height: 62vh; }
 .map-panel-heading h2 { margin: 0; font-size: 18px; }
 .map-panel-heading p { color: var(--muted); font-size: 13px; }
 .map-figure { margin: 0; padding: 0 12px; }
-.forest-map { position: relative; width: 100%; aspect-ratio: 963 / 638; overflow: hidden; overflow: clip; background-color: #17485a; background-image: var(--map-background); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; border: 1px solid #55837e; border-radius: 12px; box-shadow: 0 17px 30px -26px rgba(0, 0, 0, .85); isolation: isolate; }
+.forest-map { position: relative; width: 100%; aspect-ratio: 963 / 638; overflow: hidden; overflow: clip; container-type: inline-size; background-color: #17485a; background-image: var(--map-background); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; border: 1px solid #55837e; border-radius: 12px; box-shadow: 0 17px 30px -26px rgba(0, 0, 0, .85); isolation: isolate; }
 .map-satellite-image { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; background-image: var(--satellite-art); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; transform: var(--map-image-transform, translate(0, 0) scale(1)); transform-origin: center; pointer-events: none; user-select: none; }
 .map-satellite-image[hidden] { display: none; }
 .forest-map[data-map-basemap="illustration"] .map-satellite-image { display: none; }
@@ -146,8 +146,8 @@ main { min-height: 62vh; }
 .map-marker--search-hit { outline: 3px solid #ffd46f; outline-offset: 1px; }
 .map-marker--preview { z-index: 5; filter: drop-shadow(0 3px 4px rgba(12, 38, 25, .5)); }
 .map-marker--dimmed { opacity: .34; }
-.map-marker-art { position: absolute; inset: 4px; pointer-events: none; transform: translate(var(--map-pin-offset-x, 0px), var(--map-pin-offset-y, 0px)); display: block; background-image: var(--marker-art); background-size: contain; background-position: center; background-repeat: no-repeat; }
-.map-marker-number { position: absolute; right: 0; bottom: 0; pointer-events: none; display: grid; min-width: 22px; height: 19px; padding: 0 2px; place-items: center; color: var(--night); background: var(--teal-bright); border: 1px solid var(--night); border-radius: 9px; font-size: 12px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.map-marker-art { position: absolute; top: 50%; left: 50%; width: clamp(16px, 3.3cqw, 32px); height: clamp(16px, 3.3cqw, 32px); pointer-events: none; transform: translate(calc(-50% + var(--map-pin-offset-x, 0px)), calc(-50% + var(--map-pin-offset-y, 0px))); display: block; background-image: var(--marker-art); background-size: contain; background-position: center; background-repeat: no-repeat; }
+.map-marker-number { position: absolute; right: 0; bottom: 0; pointer-events: none; display: grid; min-width: clamp(14px, 2.1cqw, 20px); height: clamp(12px, 1.8cqw, 17px); padding: 0 2px; place-items: center; color: var(--night); background: var(--teal-bright); border: 1px solid var(--night); border-radius: 9px; font-size: clamp(8px, 1.15cqw, 11px); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
 .map-marker-label { position: absolute; pointer-events: none; top: 50%; left: calc(100% + 5px); z-index: 2; visibility: hidden; padding: 3px 8px; transform: translateY(-50%); color: var(--night); background: var(--paper); border: 1px solid #45666a; border-radius: 5px; box-shadow: 0 5px 12px rgba(0, 0, 0, .26); font-size: 12px; font-weight: 700; white-space: nowrap; }
 .map-marker:hover .map-marker-label, .map-marker:focus-visible .map-marker-label { visibility: visible; }
 .map-cluster-layer { position: absolute; z-index: 5; inset: 0; overflow: visible; pointer-events: none; }
