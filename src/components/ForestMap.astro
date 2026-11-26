@@ -43,6 +43,18 @@ const satelliteImage = new URLSearchParams({
   FORMAT: 'image/jpeg',
 }).toString();
 const satelliteImageUrl = `https://wms.nlsc.gov.tw/wms?${satelliteImage}`;
+const illustratedTrail = { start: { x: 176, y: 128 }, end: { x: 750, y: 492 } };
+// Approximate ends of the trail corridor circled in the supplied orthophoto view.
+const satelliteTrail = { start: { x: 307, y: 267 }, end: { x: 537, y: 392 } };
+function satelliteTrailPoint(point: { x: number; y: number }) {
+  const progress = Math.max(0, Math.min(1, (point.x - illustratedTrail.start.x) / (illustratedTrail.end.x - illustratedTrail.start.x)));
+  const illustratedCenterY = illustratedTrail.start.y + progress * (illustratedTrail.end.y - illustratedTrail.start.y);
+  const sideOffset = Math.max(-24, Math.min(24, point.y - illustratedCenterY)) * 0.25;
+  return {
+    x: Math.round(satelliteTrail.start.x + progress * (satelliteTrail.end.x - satelliteTrail.start.x)),
+    y: Math.round(satelliteTrail.start.y + progress * (satelliteTrail.end.y - satelliteTrail.start.y) + sideOffset),
+  };
+}
 ---
 <figure class:list={['map-figure', { 'map-figure--compact': compact }]} data-map-figure>
   {controls && (
@@ -68,9 +80,8 @@ const satelliteImageUrl = `https://wms.nlsc.gov.tw/wms?${satelliteImage}`;
     <div class="map-satellite-image" style={`--satellite-art:url('${satelliteImageUrl}')`} aria-hidden="true" data-map-satellite-image data-map-satellite-src={satelliteImageUrl}></div>
     {showMarkers && plants.map((plant, index) => {
       const point = plant.mapPosition;
-      // The source locations are drawn on the original guide map, not GPS data.
-      // Compress and shift their horizontal span to follow the visible forest in the orthophoto.
-      const satellitePoint = { x: Math.round(350 + point.x * 0.55), y: point.y };
+      // Project the original trail ordering into the highlighted photo corridor; this remains approximate, not GPS.
+      const satellitePoint = satelliteTrailPoint(point);
       const markerStyle = `--point-x:${(satellitePoint.x / 963) * 100}%;--point-y:${(satellitePoint.y / 638) * 100}%;--marker-art:url('${sitePath(`plants/${plant.image.file}`)}')`;
       const active = plant.slug === activeSlug;
       return (
